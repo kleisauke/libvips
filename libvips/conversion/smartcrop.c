@@ -68,6 +68,8 @@ typedef struct _VipsSmartcrop {
 	int width;
 	int height;
 	VipsInteresting interesting;
+	double focal_x;
+	double focal_y;
 
 } VipsSmartcrop;
 
@@ -349,6 +351,15 @@ vips_smartcrop_build( VipsObject *object )
 		top = (smartcrop->in->Ysize - smartcrop->height) / 2;
 		break;
 
+	case VIPS_INTERESTING_FOCAL:
+		left = VIPS_ROUND_UINT(
+				(smartcrop->in->Xsize - smartcrop->width) *
+				(smartcrop->focal_x / 100.0));
+		top = VIPS_ROUND_UINT(
+				(smartcrop->in->Ysize - smartcrop->height) *
+				(smartcrop->focal_y / 100.0));
+		break;
+
 	case VIPS_INTERESTING_ENTROPY:
 		if( vips_smartcrop_entropy( smartcrop, in, &left, &top ) )
 			return( -1 );
@@ -424,6 +435,20 @@ vips_smartcrop_class_init( VipsSmartcropClass *class )
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
 		G_STRUCT_OFFSET( VipsSmartcrop, interesting ),
 		VIPS_TYPE_INTERESTING, VIPS_INTERESTING_ATTENTION );
+
+	VIPS_ARG_DOUBLE( class, "focal_x", 7,
+		_( "Focal horizontal" ),
+		_( "Focal horizontal offset percentage" ),
+		VIPS_ARGUMENT_OPTIONAL_INPUT,
+		G_STRUCT_OFFSET( VipsSmartcrop, focal_x ),
+		0, 100, 50 );
+
+	VIPS_ARG_DOUBLE( class, "focal_y", 8,
+		_( "Focal vertical" ),
+		_( "Focal vertical offset percentage" ),
+		VIPS_ARGUMENT_OPTIONAL_INPUT,
+		G_STRUCT_OFFSET( VipsSmartcrop, focal_y ),
+		0, 100, 50 );
 
 }
 

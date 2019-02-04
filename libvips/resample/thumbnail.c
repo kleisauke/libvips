@@ -92,6 +92,8 @@ typedef struct _VipsThumbnail {
 	gboolean auto_rotate;
 	gboolean no_rotate;
 	VipsInteresting crop;
+	double focal_x;
+	double focal_y;
 	gboolean linear;
 	char *export_profile;
 	char *import_profile;
@@ -643,15 +645,13 @@ vips_thumbnail_build( VipsObject *object )
 
 	if( thumbnail->auto_rotate &&
 		thumbnail->angle != VIPS_ANGLE_D0 ) {
-		VipsAngle angle = vips_autorot_get_angle( in );
-
 		g_info( "rotating by %s", 
-			vips_enum_nick( VIPS_TYPE_ANGLE, angle ) ); 
+			vips_enum_nick( VIPS_TYPE_ANGLE, thumbnail->angle ) ); 
 
 		/* Need to copy to memory, we have to stay seq.
 		 */
 		if( !(t[9] = vips_image_copy_memory( in )) ||
-			vips_rot( t[9], &t[10], angle, NULL ) )
+			vips_rot( t[9], &t[10], thumbnail->angle, NULL ) )
 			return( -1 ); 
 		in = t[10];
 
@@ -664,14 +664,25 @@ vips_thumbnail_build( VipsObject *object )
 		g_info( "cropping to %dx%d",
 			thumbnail->width, thumbnail->height ); 
 
-		/* Need to copy to memory, we have to stay seq.
-		 *
-		 * FIXME ... could skip the copy if we've rotated.
-		 */
-		if( !(t[8] = vips_image_copy_memory( in )) ||
-			vips_smartcrop( t[8], &t[11], 
+		if( (thumbnail->crop == VIPS_INTERESTING_ENTROPY ||
+		     thumbnail->crop == VIPS_INTERESTING_ATTENTION) &&
+				(!thumbnail->auto_rotate ||
+				  thumbnail->angle == VIPS_ANGLE_D0) ) {
+			/* Need to copy to memory, if a entropy / attention
+			 * crop is needed and if we haven't rotated.
+			 */
+			if( !(t[8] = vips_image_copy_memory( in )) )
+				return( -1 );
+		}
+		else {
+			t[8] = in;
+		}
+
+		if( vips_smartcrop( t[8], &t[11],
 				thumbnail->width, thumbnail->height, 
 				"interesting", thumbnail->crop,
+				"focal_x", thumbnail->focal_x,
+				"focal_y", thumbnail->focal_y,
 				NULL ) )
 			return( -1 ); 
 		in = t[11];
@@ -747,28 +758,42 @@ vips_thumbnail_class_init( VipsThumbnailClass *class )
 		G_STRUCT_OFFSET( VipsThumbnail, crop ),
 		VIPS_TYPE_INTERESTING, VIPS_INTERESTING_NONE ); 
 
-	VIPS_ARG_BOOL( class, "linear", 117, 
+	VIPS_ARG_DOUBLE( class, "focal_x", 117, 
+		_( "Focal horizontal" ),
+		_( "Focal horizontal offset percentage" ),
+		VIPS_ARGUMENT_OPTIONAL_INPUT,
+		G_STRUCT_OFFSET( VipsThumbnail, focal_x ),
+		0, 100, 50 ); 
+
+	VIPS_ARG_DOUBLE( class, "focal_y", 118, 
+		_( "Focal vertical" ),
+		_( "Focal vertical offset percentage" ),
+		VIPS_ARGUMENT_OPTIONAL_INPUT,
+		G_STRUCT_OFFSET( VipsThumbnail, focal_y ),
+		0, 100, 50 ); 
+
+	VIPS_ARG_BOOL( class, "linear", 119, 
 		_( "Linear" ), 
 		_( "Reduce in linear light" ),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
 		G_STRUCT_OFFSET( VipsThumbnail, linear ),
 		FALSE ); 
 
-	VIPS_ARG_STRING( class, "import_profile", 118, 
+	VIPS_ARG_STRING( class, "import_profile", 120, 
 		_( "Import profile" ), 
 		_( "Fallback import profile" ),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
 		G_STRUCT_OFFSET( VipsThumbnail, import_profile ),
 		NULL ); 
 
-	VIPS_ARG_STRING( class, "export_profile", 119, 
+	VIPS_ARG_STRING( class, "export_profile", 121, 
 		_( "Export profile" ), 
 		_( "Fallback export profile" ),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
 		G_STRUCT_OFFSET( VipsThumbnail, export_profile ),
 		NULL ); 
 
-	VIPS_ARG_ENUM( class, "intent", 120, 
+	VIPS_ARG_ENUM( class, "intent", 122, 
 		_( "Intent" ), 
 		_( "Rendering intent" ),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
@@ -781,7 +806,7 @@ vips_thumbnail_class_init( VipsThumbnailClass *class )
 	 * This is now replaced (though still functional) with "no-rotate",
 	 * see above.
 	 */
-	VIPS_ARG_BOOL( class, "auto_rotate", 121, 
+	VIPS_ARG_BOOL( class, "auto_rotate", 123, 
 		_( "Auto rotate" ), 
 		_( "Use orientation tags to rotate image upright" ),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
