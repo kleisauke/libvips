@@ -8,44 +8,303 @@ $body-text-color: #2f444c;
 // strange, you'd think setting $body-text-color would do this, but it doesn't
 // you also can't use a variable here
 body {
-	color: #2f444c;
+  color: #2f444c;
 }
 
 .page-header {
-	padding: 0.5rem 1rem;
-	line-height: 1.1;
+  padding: 0.5rem 1rem;
+  line-height: 1.1;
 }
 
 .project-name {
-	a { 
-		text-decoration: none;
-		color: white;
-		font-family: 'Cabin', sans-serif;
-	}
+  a {
+    text-decoration: none;
+    color: white;
+    font-family: 'Cabin', sans-serif;
+  }
 }
 
 .navigation {
-	img {
-		max-width: 16px;
-	}
+  img {
+    max-width: 16px;
+  }
 }
 
 .main-content .navigation td {
-	border: 0;
+  border: 0;
 }
 
 .main-content .refnamediv td {
-	border: 0;
+  border: 0;
 }
 
 .blog-index {
-	list-style: none;
-	.date {
-		float: right;
-		font-size: small;
-	}
-	li { 
-	}
+  list-style: none;
+
+  .date {
+    float: right;
+    font-size: small;
+  }
+
+  li {
+  }
+}
+
+.btn {
+  cursor: pointer;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+// Block button
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+.btn:disabled,
+.btn.disabled {
+  pointer-events: none;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+
+  &:hover {
+    color: #fff;
+    background-color: #0069d9;
+    border-color: #0062cc;
+  }
+
+  &:focus,
+  &.focus {
+    box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, .5);
+  }
+
+  &.disabled,
+  &:disabled {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+
+  &:not(:disabled):not(.disabled):active,
+  &:not(:disabled):not(.disabled).active {
+    color: #fff;
+    background-color: #0062cc;
+    border-color: #005cbf;
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(38,143,255,.5);
+    }
+  }
+}
+
+.btn-secondary {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+
+  &:hover {
+    color: #fff;
+    background-color: #5a6268;
+    border-color: #545b62;
+  }
+
+  &:focus,
+  &.focus {
+    box-shadow: 0 0 0 0.2rem rgba(130, 138, 145, .5);
+  }
+
+  &.disabled,
+  &:disabled {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+
+  &:not(:disabled):active,
+  &:not(:disabled).active {
+    color: #fff;
+    background-color: #545b62;
+    border-color: #4e555b;
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(130, 138, 145, .5)
+    }
+  }
+}
+
+// Make the div behave like a button
+.btn-group,
+.btn-group-vertical {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle; // match .btn alignment given font-size hack above
+
+  > .btn {
+    position: relative;
+    flex: 1 1 auto;
+
+    // Bring the hover, focused, and "active" buttons to the front to overlay
+    // the borders properly
+    &:hover {
+      z-index: 1;
+    }
+
+    &:focus,
+    &:active,
+    &.active {
+      z-index: 1;
+    }
+  }
+}
+
+.btn-group {
+  // Prevent double borders when buttons are next to each other
+  > .btn:not(:first-child),
+  > .btn-group:not(:first-child) {
+    margin-left: -1px;
+  }
+
+  // Reset rounded corners
+  > .btn:not(:last-child):not(.dropdown-toggle),
+  > .btn-group:not(:last-child) > .btn {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  > .btn:not(:first-child),
+  > .btn-group:not(:first-child) > .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+// Vertical button groups
+.btn-group-vertical {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  > .btn,
+  > .btn-group {
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  > .btn:not(:first-child),
+  > .btn-group:not(:first-child) {
+    margin-top: -1px;
+  }
+
+  // Reset rounded corners
+  > .btn:not(:last-child):not(.dropdown-toggle),
+  > .btn-group:not(:last-child) > .btn {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  > .btn:not(:first-child),
+  > .btn-group:not(:first-child) > .btn {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  > .btn + .btn {
+    margin-left: 0;
+  }
+}
+
+// Checkbox and radio options
+.btn-group-toggle {
+  > .btn,
+  > .btn-group > .btn {
+    margin-bottom: 0; // Override default `<label>` value
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      position: absolute;
+      clip: rect(0, 0, 0, 0);
+      pointer-events: none;
+    }
+  }
+}
+
+// https://simplegrid.io/
+$width: 96%;
+$gutter: 4%;
+$breakpoint-small: 33.75em; // 540px
+$breakpoint-med: 45em; // 720px
+$breakpoint-large: 60em; // 960px
+
+.row {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.row [class^="col"] {
+  float: left;
+  margin: 0.5rem 2%;
+  min-height: 0.125rem;
+}
+
+.row::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.col-1,
+.col-2,
+.col-3,
+.col-4,
+.col-5,
+.col-6,
+.col-7,
+.col-8,
+.col-9,
+.col-10,
+.col-11,
+.col-12 {
+  width: $width;
+}
+
+.col-1-sm { width:($width / 12) - ($gutter * 11 / 12); }
+.col-2-sm { width: ($width / 6) - ($gutter * 10 / 12); }
+.col-3-sm { width: ($width / 4) - ($gutter * 9 / 12); }
+.col-4-sm { width: ($width / 3) - ($gutter * 8 / 12); }
+.col-5-sm { width: ($width / (12 / 5)) - ($gutter * 7 / 12); }
+.col-6-sm { width: ($width / 2) - ($gutter * 6 / 12); }
+.col-7-sm { width: ($width / (12 / 7)) - ($gutter * 5 / 12); }
+.col-8-sm { width: ($width / (12 / 8)) - ($gutter * 4 / 12); }
+.col-9-sm { width: ($width / (12 / 9)) - ($gutter * 3 / 12); }
+.col-10-sm { width: ($width / (12 / 10)) - ($gutter * 2 / 12); }
+.col-11-sm { width: ($width / (12 / 11)) - ($gutter * 1 / 12); }
+.col-12-sm { width: $width; }
+
+@media only screen and (min-width: $breakpoint-med) {
+  .col-1 { width:($width / 12) - ($gutter * 11 / 12); }
+  .col-2 { width: ($width / 6) - ($gutter * 10 / 12); }
+  .col-3 { width: ($width / 4) - ($gutter * 9 / 12); }
+  .col-4 { width: ($width / 3) - ($gutter * 8 / 12); }
+  .col-5 { width: ($width / (12 / 5)) - ($gutter * 7 / 12); }
+  .col-6 { width: ($width / 2) - ($gutter * 6 / 12); }
+  .col-7 { width: ($width / (12 / 7)) - ($gutter * 5 / 12); }
+  .col-8 { width: ($width / (12 / 8)) - ($gutter * 4 / 12); }
+  .col-9 { width: ($width / (12 / 9)) - ($gutter * 3 / 12); }
+  .col-10 { width: ($width / (12 / 10)) - ($gutter * 2 / 12); }
+  .col-11 { width: ($width / (12 / 11)) - ($gutter * 1 / 12); }
+  .col-12 { width: $width; }
+
+  .hidden-sm {
+    display: block;
+  }
 }
 
 // hide the doxygen header
