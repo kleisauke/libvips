@@ -1,14 +1,79 @@
 ---
+custom_js:
+  - install.js
 ---
 
-Most unix-like operating systems have libvips packages, check your package
+<h2 id="build-chooser">Windows binaries chooser</h2>
+<div class="row text-center">
+<div class="col-4">
+  <h3>Variant</h3>
+  <div class="btn-group-vertical btn-group-toggle btn-block" data-toggle="buttons">
+      <label class="btn btn-secondary active">
+          <input type="radio" name="variant" value="web" checked> web
+      </label>
+      <label class="btn btn-secondary">
+          <input type="radio" name="variant" value="all"> all
+      </label>
+  </div>
+</div>
+<div class="col-4">
+  <h3>Architecture</h3>
+  <div class="btn-group-vertical btn-group-toggle btn-block" data-toggle="buttons">
+    <label class="btn btn-secondary">
+      <input type="radio" name="architecture" value="w64"> Windows 64-bit
+    </label>
+    <label class="btn btn-secondary">
+      <input type="radio" name="architecture" value="w32"> Windows 32-bit
+    </label>
+    <label class="btn btn-secondary">
+      <input type="radio" name="architecture" value="arm64"> Windows Arm64
+    </label>
+  </div>
+</div>
+<div class="col-4">
+  <h3>Linking</h3>
+  <div class="btn-group-vertical btn-group-toggle btn-block" data-toggle="buttons">
+    <label class="btn btn-secondary active">
+      <input type="radio" name="linking" value="shared" checked> shared
+    </label>
+    <label class="btn btn-secondary">
+      <input type="radio" name="linking" value="static"> static
+    </label>
+    <label class="btn btn-secondary">
+      <input type="radio" name="linking" value="static-ffi"> static-ffi
+    </label>
+  </div>
+</div>
+</div>
+<div class="row text-center">
+<div class="col-6" style="margin: 2% auto;">
+  <a id="download" role="button" href="#" class="btn btn-primary btn-block">Download the pre-compiled binaries</a>
+</div>
+</div>
+
+**Variant**:
+- `web`: contains only file format loaders that have been carefully tested and
+         which are commonly used on the web. It won't load formats like
+         OpenSlide (for example), but it should be safer to use with untrusted
+         input.
+- `all`: contains ALL the file format loaders that libvips supports, including
+         some very minor ones, and a complete copy of ImageMagick. It can
+         process many different file types, but it is also rather vulnerable to
+         hacking.
+
+**Linking**:
+- `shared`: the executables with the dependent DLLs dynamically linked.
+- `static`: the executables linked against a single shared libvips DLL.
+- `static-ffi`: same as `static`, but with GLib compiled as a shared library to
+                ensure compatibility with the various FFI-bindings.
+
+Note that most unix-like operating systems have libvips packages, check your package
 manager. For macOS, there are packages in Homebrew, MacPorts and Fink. For
-Windows, there are pre-compiled binaries in the [Download area]({{
-site.github.releases_url }}).
+Windows, use the pre-compiled binaries chooser above.
 
-## Installing on macOS with homebrew
+## Installing on macOS with Homebrew
 
-Install [homebrew](https://brew.sh/), then enter:
+Install [Homebrew](https://brew.sh/), then enter:
 
 	brew install vips
 
@@ -16,9 +81,9 @@ That will install vips with most optional add-ons included.
 
 ## Installing the Windows binary
 
-Download `vips-dev-w64-web-x.y.z.zip` from the [Download area]({{
-site.github.releases_url }}) and unzip it somewhere. At the command-prompt,
-`cd` to `vips-x.y.z/bin` and run (for example):
+Choose the appropriate Windows binaries from the pre-compiled binaries chooser
+above and unzip it somewhere. At the command-prompt, `cd` to `vips-x.y.z/bin`
+and run (for example):
 
 	vips.exe invert some/input/file.jpg some/output/file.jpg
 

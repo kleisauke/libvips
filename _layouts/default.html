@@ -39,5 +39,11 @@
         <a style='float: right;' href="{{ site.baseurl }}/feed.xml"><img src="{{ site.baseurl }}/assets/images/rss.png" alt="subscribe via rss"/></a>
       </footer>
     </main>
+
+    {% if page.custom_js %}
+    {% for js_file in page.custom_js %}
+      <script type="module" src="{{ site.baseurl }}/assets/js/{{ js_file }}?v={{ site.github.build_revision }}"></script>
+    {% endfor %}
+    {% endif %}
   </body>
 </html>
