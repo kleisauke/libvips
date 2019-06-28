@@ -491,6 +491,11 @@ write_vips( Write *write, int qfac, const char *profile,
 			return( -1 );
 		in = write->inverted;
 	}
+	#ifdef JCS_EXTENSIONS
+	else if( in->Bands == 4 && 
+		in->Type == VIPS_INTERPRETATION_RGBX )
+		space = JCS_EXT_RGBX;
+	#endif
 	else if( in->Bands == 3 )
 		space = JCS_RGB;
 	else if( in->Bands == 1 )

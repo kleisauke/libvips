@@ -505,11 +505,12 @@ vips_colourspace_issupported( const VipsImage *image )
 	VipsInterpretation interpretation;
 	int i;
 
-	/* Treat RGB as sRGB. If you want some other treatment,
+	/* Treat RGB and RGBX as sRGB. If you want some other treatment,
 	 * you'll need to use the icc funcs.
 	 */
 	interpretation = vips_image_guess_interpretation( image );
-	if( interpretation == VIPS_INTERPRETATION_RGB )
+	if( interpretation == VIPS_INTERPRETATION_RGB ||
+		interpretation == VIPS_INTERPRETATION_RGBX )
 		interpretation = VIPS_INTERPRETATION_sRGB;
 
 	for( i = 0; i < VIPS_NUMBER( vips_colour_routes ); i++ )
@@ -569,10 +570,11 @@ vips_colourspace_build( VipsObject *object )
 	else
 		interpretation = vips_image_guess_interpretation( x );
 
-	/* Treat RGB as sRGB. If you want some other treatment,
+	/* Treat RGB and RGBX as sRGB. If you want some other treatment,
 	 * you'll need to use the icc funcs.
 	 */
-	if( interpretation == VIPS_INTERPRETATION_RGB )
+	if( interpretation == VIPS_INTERPRETATION_RGB ||
+		interpretation == VIPS_INTERPRETATION_RGBX )
 		interpretation = VIPS_INTERPRETATION_sRGB;
 
 	/* No conversion necessary.

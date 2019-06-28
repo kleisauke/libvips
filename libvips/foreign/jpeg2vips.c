@@ -402,7 +402,13 @@ read_jpeg_header( ReadJpeg *jpeg, VipsImage *out )
 
 	case JCS_RGB:
 	default:
-		interpretation = VIPS_INTERPRETATION_sRGB;
+		#ifdef JCS_EXTENSIONS
+			// requires jpeg-turbo
+			cinfo->out_color_space = JCS_EXT_RGBX;
+			interpretation = VIPS_INTERPRETATION_RGBX;
+		#else
+			interpretation = VIPS_INTERPRETATION_sRGB;
+		#endif
 		break;
 	}
 
@@ -455,7 +461,7 @@ read_jpeg_header( ReadJpeg *jpeg, VipsImage *out )
 	 */
 	vips_image_init_fields( out,
 		cinfo->output_width, cinfo->output_height,
-		cinfo->output_components,
+		interpretation == VIPS_INTERPRETATION_RGBX ? 4 : cinfo->output_components,
 		VIPS_FORMAT_UCHAR, VIPS_CODING_NONE,
 		interpretation,
 		xres, yres );

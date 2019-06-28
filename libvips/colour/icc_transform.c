@@ -493,6 +493,7 @@ vips_image_expected_bands( VipsImage *image )
 		break;
 
 	case VIPS_INTERPRETATION_CMYK:
+	case VIPS_INTERPRETATION_RGBX:
 		expected_bands = 4;
 		break;
 
@@ -534,6 +535,7 @@ vips_image_expected_sig( VipsImage *image )
 	case VIPS_INTERPRETATION_RGB:
 	case VIPS_INTERPRETATION_RGB16:
 	case VIPS_INTERPRETATION_scRGB:
+	case VIPS_INTERPRETATION_RGBX:
 		expected_sig = cmsSigRgbData;
 		break;
 

@@ -443,6 +443,7 @@ vips_image_guess_format( const VipsImage *image )
 		break;
 
 	case VIPS_INTERPRETATION_sRGB: 
+	case VIPS_INTERPRETATION_RGBX: 
 		format = VIPS_FORMAT_UCHAR;
 		break;
 
@@ -623,6 +624,7 @@ vips_image_guess_interpretation( const VipsImage *image )
 		break;
 
 	case VIPS_INTERPRETATION_CMYK: 
+	case VIPS_INTERPRETATION_RGBX: 
 		if( image->Bands < 4 )
 			sane = FALSE;
 		break;

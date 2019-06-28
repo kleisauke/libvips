@@ -332,6 +332,7 @@ vips_composite_base_max_band( VipsCompositeBase *composite, double *max_band )
 		break;
 
 	case VIPS_INTERPRETATION_sRGB:
+	case VIPS_INTERPRETATION_RGBX:
 		max_band[0] = 255;
 		max_band[1] = 255;
 		max_band[2] = 255;
