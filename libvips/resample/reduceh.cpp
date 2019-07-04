@@ -219,7 +219,7 @@ vips_reduceh_finalize( GObject *gobject )
 
 #define TEMP( N, S ) vips_vector_temporary( v, (char *) N, S )
 #define PARAM( N, S ) vips_vector_parameter( v, (char *) N, S )
-// #define SCANLINE( N, P, S ) vips_vector_source_scanline( v, (char *) N, P, S )
+#define SCANLINE( N, P, S ) vips_vector_source_scanline( v, (char *) N, P, S )
 #define CONST( N, V, S ) vips_vector_constant( v, (char *) N, V, S )
 #define ASM2( OP, A, B ) vips_vector_asm2( v, (char *) OP, A, B )
 #define ASM3( OP, A, B, C ) vips_vector_asm3( v, (char *) OP, A, B, C )
@@ -234,6 +234,9 @@ vips_reduceh_finalize( GObject *gobject )
 static int
 vips_reduceh_compile_section( VipsReduceh *reduceh, Pass *pass, gboolean first )
 {
+	VipsObjectClass *object_class = VIPS_OBJECT_GET_CLASS( reduceh );
+	VipsResample *resample = VIPS_RESAMPLE( reduceh );
+
 	VipsVector *v;
 	int i;
 
@@ -255,6 +258,7 @@ vips_reduceh_compile_section( VipsReduceh *reduceh, Pass *pass, gboolean first )
 	/* The value we fetch from the image, the accumulated sum.
 	 */
 	TEMP( "value", 2 );
+	TEMP( "valueb", 1 );
 	TEMP( "sum", 2 );
 
 	/* Init the sum. If this is the first pass, it's a constant. If this
@@ -271,10 +275,14 @@ vips_reduceh_compile_section( VipsReduceh *reduceh, Pass *pass, gboolean first )
 		ASM2( "loadw", "sum", "r" );
 
 	for( i = pass->first; i < reduceh->n_point; i++ ) {
-		// char source[256];
+		int x = i % resample->in->Xsize;
+		int y = i / resample->in->Xsize;
+
+		char source[256];
+		char off[256];
 		char coeff[256];
 
-		// SCANLINE( source, i, 1 );
+		SCANLINE( source, y, 1 );
 
 		/* This mask coefficient.
 		 */
@@ -283,6 +291,16 @@ vips_reduceh_compile_section( VipsReduceh *reduceh, Pass *pass, gboolean first )
 		pass->n_param += 1;
 		if( pass->n_param >= MAX_PARAM )
 			return( -1 );
+
+		/* Load with an offset. Only for non-first-columns though.
+		*/
+		if( x == 0 )
+			ASM2( "convubw", "value", source );
+		else {
+			CONST( off, resample->in->Bands * x, 1 );
+			ASM3( "loadoffb", "valueb", source, off );
+			ASM2( "convubw", "value", "valueb" );
+		}
 
 		/* Mask coefficients are 2.6 bits fixed point. We need to hold
 		 * about -0.5 to 1.0, so -2 to +1.999 is as close as we can
@@ -295,7 +313,6 @@ vips_reduceh_compile_section( VipsReduceh *reduceh, Pass *pass, gboolean first )
 		 *
 		 * We accumulate the signed 16-bit result in sum.
 		 */
-		// ASM2( "convubw", "value", source );
 		ASM3( "mullw", "value", "value", coeff );
 		ASM3( "addssw", "sum", "sum", "value" );
 
