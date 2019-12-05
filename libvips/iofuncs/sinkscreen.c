@@ -984,7 +984,7 @@ render_dirty_get( void )
 	return( render );
 }
 
-/* Loop for the background render mananger thread.
+/* Loop for the background render manager thread.
  */
 static void *
 render_thread_main( void *client )

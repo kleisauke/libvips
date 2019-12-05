@@ -661,6 +661,8 @@ vips_shutdown( void )
 
 	vips__thread_profile_stop();
 
+	vips__threadpool_shutdown();
+
 #ifdef HAVE_GSF
 	gsf_shutdown(); 
 #endif /*HAVE_GSF*/

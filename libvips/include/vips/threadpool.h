@@ -5,6 +5,8 @@
  * 17/3/10
  * 	- from threadgroup
  * 	- rework with a simpler distributed work allocation model
+ * 02/02/20 kleisauke
+ * 	- reuse threads by using the GLib provided threadpool
  */
 
 /*
@@ -86,7 +88,7 @@ typedef struct _VipsThreadState {
 
 	/* The client data passed to the enclosing vips_threadpool_run().
 	 */
-        void *a;
+	void *a;
 
 	/* Set in allocate to stall this thread for a moment. Handy for
 	 * debugging race conditions.
