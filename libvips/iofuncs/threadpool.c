@@ -25,6 +25,7 @@
  * 	- free threadpool earlier 
  * 02/02/20 kleisauke
  * 	- reuse threads by using the GLib provided threadpool
+ * 	- remove mutex lock for VipsThreadStartFn
  */
 
 /*
@@ -311,7 +312,7 @@ vips_g_thread_join( GThread *thread )
 static int
 get_num_processors( void )
 {
-  	// TODO: This is only available since GLib 2.36.
+ 	// TODO: This is only available since GLib 2.36.
 	return( g_get_num_processors() );
 }
 
@@ -363,13 +364,10 @@ vips_concurrency_set( int concurrency )
 	const char *str;
 	int x;
 
-	GError *error = NULL;
-
 	/* Tell the threads system how much concurrency we expect.
 	 */
-	if( concurrency < 1 ) {
+	if( concurrency < 1 )
 		concurrency = vips__concurrency_get_default();
-	}
 	else if( concurrency > MAX_THREADS ) {
 		concurrency = MAX_THREADS;
 
@@ -591,11 +589,8 @@ vips_thread_main_loop( gpointer data, gpointer user_data )
 
 	VIPS_GATE_START( "vips_thread_main_loop: thread" );
 
-	// TODO: Could we move this to vips_thread_work_unit()?
-	g_mutex_lock( task->allocate_lock );
 	if( !(state = task->start( task->im, task->a )) )
 		task->error = TRUE;
-	g_mutex_unlock( task->allocate_lock );
 
 	/* Process work units! Always tick, even if we are stopping, so the
 	 * main thread will wake up for exit.
@@ -611,9 +606,7 @@ vips_thread_main_loop( gpointer data, gpointer user_data )
 			break;
 	}
 
-	g_mutex_lock( task->allocate_lock );
 	VIPS_FREEF( g_object_unref, state );
-	g_mutex_unlock( task->allocate_lock );
 
 	/* We are exiting: tell the main thread.
 	 */
@@ -731,8 +724,8 @@ vips_threadpool_push( VipsTask *task )
  * is allocated to it to build the per-thread state. Per-thread state is used
  * by #VipsThreadpoolAllocate and #VipsThreadpoolWork to communicate.
  *
- * #VipsThreadState is a subclass of #VipsObject. Start functions are called
- * from allocate, that is, they are single-threaded.
+ * #VipsThreadState is a subclass of #VipsObject. Start functions can be
+ * executed concurrently.
  *
  * See also: vips_threadpool_run().
  *
@@ -815,9 +808,9 @@ vips_threadpool_push( VipsTask *task )
  * The object returned by @start must be an instance of a subclass of
  * #VipsThreadState. Use this to communicate between @allocate and @work. 
  *
- * @allocate and @start are always single-threaded (so they can write to the 
- * per-pool state), whereas @work can be executed concurrently. @progress is 
- * always called by 
+ * @allocate is always single-threaded (so it can write to the 
+ * per-pool state), whereas @start and @work can be executed concurrently.
+ * @progress is always called by 
  * the main thread (ie. the thread which called vips_threadpool_run()).
  *
  * See also: vips_concurrency_set().
@@ -908,6 +901,10 @@ vips__threadpool_init( void )
 	if( vips__concurrency == 0 )
 		vips__concurrency = vips__concurrency_get_default();
 
+	// TODO: Limit max threads within the pool?
+	// Note: vips__concurrency != max_threads
+	// For e.g. `VIPS_CONCURRENCY=1 vips affine sample.jpg x.v "0 1 1 0"`
+	// spawns 4 threads.
 	vips__pool = g_thread_pool_new( vips_thread_main_loop, NULL,
 		-1, FALSE, NULL );
 }

@@ -75,6 +75,10 @@ struct _VipsStatistic {
 	 */
 	gboolean stop;
 
+	/* Mutex for serialising calls to VipsStatisticStopFn.
+	 */
+	GMutex *stop_lock;
+
 	/* Client data for the subclass.
 	 */
 	void *a; 

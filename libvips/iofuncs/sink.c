@@ -60,7 +60,7 @@ typedef struct _SinkArea {
 	struct _Sink *sink;
 
 	VipsRect rect;		/* Part of image this area covers */
-        VipsSemaphore n_thread;	/* Number of threads scanning this area */
+	VipsSemaphore n_thread;	/* Number of threads scanning this area */
 } SinkArea;
 
 /* Per-call state.
