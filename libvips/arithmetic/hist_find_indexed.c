@@ -78,6 +78,10 @@ typedef struct _VipsHistFindIndexed {
 	 */
 	Histogram *hist;
 
+	/* Lock access for allocating hist with this.
+	 */
+	GMutex *hist_lock;
+
 	/* Write hist to this output image.
 	 */
 	VipsImage *out; 
@@ -134,6 +138,16 @@ static const VipsBandFormat vips_hist_find_indexed_format[10] = {
    UC, UC, US, US, US, US, US, US, US, US
 };
 
+static void
+vips_hist_find_indexed_dispose( GObject *gobject )
+{
+	VipsHistFindIndexed *indexed = (VipsHistFindIndexed *) gobject;
+
+	VIPS_FREEF( vips_g_mutex_free, indexed->hist_lock );
+
+	G_OBJECT_CLASS( vips_hist_find_indexed_parent_class )->dispose( gobject );
+}
+
 static int
 vips_hist_find_indexed_build( VipsObject *object )
 {
@@ -146,8 +160,10 @@ vips_hist_find_indexed_build( VipsObject *object )
 		"out", vips_image_new(),
 		NULL );
 
-	/* main hist made on first thread start.
+	/* main hist made on first threaded start, so we 
+	 * need a lock to serialise calls.
 	 */
+	indexed->hist_lock = vips_g_mutex_new();
 
 	/* index image must be cast to uchar/ushort.
 	 */
@@ -200,8 +216,10 @@ vips_hist_find_indexed_start( VipsStatistic *statistic )
 
 	/* Make the main hist, if necessary.
 	 */
+	g_mutex_lock( indexed->hist_lock );
 	if( !indexed->hist ) 
-		indexed->hist = histogram_new( indexed );  
+		indexed->hist = histogram_new( indexed );
+	g_mutex_unlock( indexed->hist_lock );
 
 	return( (void *) histogram_new( indexed ) );
 }
@@ -433,6 +451,7 @@ vips_hist_find_indexed_class_init( VipsHistFindIndexedClass *class )
 	VipsObjectClass *object_class = (VipsObjectClass *) class;
 	VipsStatisticClass *sclass = VIPS_STATISTIC_CLASS( class );
 
+	gobject_class->dispose = vips_hist_find_indexed_dispose;
 	gobject_class->set_property = vips_object_set_property;
 	gobject_class->get_property = vips_object_get_property;
 
