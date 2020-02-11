@@ -121,10 +121,6 @@ int vips__thinstrip_height = VIPS__THINSTRIP_HEIGHT;
  */
 int vips__concurrency = 0;
 
-/* Count the number of threads we have active and report on leak test.
- */
-int vips__n_active_threads = 0;
-
 /* Set this GPrivate to indicate that this is a vips worker.
  */
 static GPrivate *is_worker_key = NULL;
@@ -203,17 +199,23 @@ vips_thread_isworker( void )
 }
 
 typedef struct {
-	const char *domain; 
-	GThreadFunc func; 
+	/* An name for this thread.
+	 */
+	const char *name;
+
+	/* The function to execute within the #VipsThreadPool.
+	*/
+	GFunc func;
+
+	/* User data that is handed over to func when it is called.
+	*/
 	gpointer data;
-} VipsThreadInfo; 
+} VipsThreadExec;
 
-static void *
-vips_thread_run( gpointer data )
+static void
+vips_thread_main_loop( gpointer data, gpointer user_data )
 {
-	VipsThreadInfo *info = (VipsThreadInfo *) data;
-
-	void *result;
+	VipsThreadExec *exec = (VipsThreadExec *) data;
 
 	/* Set this to something (anything) to tag this thread as a vips 
 	 * worker.
@@ -221,98 +223,19 @@ vips_thread_run( gpointer data )
 	g_private_set( is_worker_key, data );
 
 	if( vips__thread_profile ) 
-		vips__thread_profile_attach( info->domain );
+		vips__thread_profile_attach( exec->name );
 
-	result = info->func( info->data );
+	exec->func( exec->data, user_data );
 
-	g_free( info ); 
+	g_free( exec ); 
 
 	vips_thread_shutdown();
-
-	return( result ); 
-}
-
-GThread *
-vips_g_thread_new( const char *domain, GThreadFunc func, gpointer data )
-{
-#ifdef DEBUG_OUT_OF_THREADS
-	static int n_threads = 0;
-#endif /*DEBUG_OUT_OF_THREADS*/
-
-	GThread *thread;
-	VipsThreadInfo *info; 
-	GError *error = NULL;
-
-	info = g_new( VipsThreadInfo, 1 ); 
-	info->domain = domain;
-	info->func = func;
-	info->data = data;
-
-#ifdef DEBUG_OUT_OF_THREADS
-	n_threads += 1;
-	if( n_threads > 10 )
-		thread = NULL;
-	else {
-#endif /*DEBUG_OUT_OF_THREADS*/
-
-#ifdef HAVE_THREAD_NEW
-	thread = g_thread_try_new( domain, vips_thread_run, info, &error );
-#else
-	thread = g_thread_create( vips_thread_run, info, TRUE, &error );
-#endif
-
-	VIPS_DEBUG_MSG_RED( "vips_g_thread_new: g_thread_create( %s ) = %p\n",
-		domain, thread );
-
-#ifdef DEBUG_OUT_OF_THREADS
-	}
-#endif /*DEBUG_OUT_OF_THREADS*/
-
-	if( !thread ) {
-		if( error ) 
-			vips_g_error( &error ); 
-		else
-			vips_error( domain, 
-				"%s", _( "unable to create thread" ) );
-	}
-
-	if( thread &&
-		vips__leak ) {
-		g_mutex_lock( vips__global_lock );
-
-		vips__n_active_threads += 1;
-
-		g_mutex_unlock( vips__global_lock );
-	}
-
-	return( thread );
-}
-
-void *
-vips_g_thread_join( GThread *thread )
-{
-	void *result;
-
-	result = g_thread_join( thread );
-
-	VIPS_DEBUG_MSG_RED( "vips_g_thread_join: g_thread_join( %p )\n", 
-		thread );
-
-	if( vips__leak ) {
-		g_mutex_lock( vips__global_lock );
-
-		vips__n_active_threads -= 1;
-
-		g_mutex_unlock( vips__global_lock );
-	}
-
-	return( result ); 
 }
 
 static int
 get_num_processors( void )
 {
- 	// TODO: This is only available since GLib 2.36.
+	// TODO: This is only available since GLib 2.36.
 	return( g_get_num_processors() );
 }
 
@@ -495,7 +418,7 @@ typedef struct _VipsTask {
 	VipsThreadpoolAllocateFn allocate;
 	VipsThreadpoolWorkFn work;
 	GMutex *allocate_lock;
-	void *a; 		/* User argument to start / allocate / etc. */
+	void *a;		/* User argument to start / allocate / etc. */
 
 	/* The caller blocks here until all tasks finish.
 	 */
@@ -521,16 +444,16 @@ typedef struct _VipsTask {
  * loaders a change to seek to the correct spot, see vips_sequential().
  */
 static void
-vips_thread_work_unit( VipsTask *task, VipsThreadState *state )
+vips_task_work_unit( VipsTask *task, VipsThreadState *state )
 {
 	if( task->error )
 		return;
 
-	VIPS_GATE_START( "vips_thread_work_unit: wait" ); 
+	VIPS_GATE_START( "vips_task_work_unit: wait" ); 
 
 	g_mutex_lock( task->allocate_lock );
 
-	VIPS_GATE_STOP( "vips_thread_work_unit: wait" ); 
+	VIPS_GATE_STOP( "vips_task_work_unit: wait" ); 
 
 	/* Has another worker signaled stop while we've been working?
 	 */
@@ -561,7 +484,7 @@ vips_thread_work_unit( VipsTask *task, VipsThreadState *state )
 		 */
 		g_usleep( 500000 ); 
 		state->stall = FALSE;
-		printf( "vips_thread_work_unit: "
+		printf( "vips_task_work_unit: "
 			"stall done, releasing y = %d ...\n", state->y );
 	}
 
@@ -574,20 +497,12 @@ vips_thread_work_unit( VipsTask *task, VipsThreadState *state )
 /* What runs as a thread ... loop, waiting to be told to do stuff.
  */
 static void
-vips_thread_main_loop( gpointer data, gpointer user_data )
+vips_task_run( gpointer data, gpointer user_data )
 {
 	VipsTask *task = (VipsTask *) data;
 	VipsThreadState *state;
 
-	/* Set this to something (anything) to tag this thread as a vips
-	 * worker.
-	 */
-	g_private_set( is_worker_key, data );
-
-	if( vips__thread_profile )
-		vips__thread_profile_attach( "worker" );
-
-	VIPS_GATE_START( "vips_thread_main_loop: thread" );
+	VIPS_GATE_START( "vips_task_run: thread" );
 
 	if( !(state = task->start( task->im, task->a )) )
 		task->error = TRUE;
@@ -596,9 +511,9 @@ vips_thread_main_loop( gpointer data, gpointer user_data )
 	 * main thread will wake up for exit.
 	 */
 	for(;;) {
-		VIPS_GATE_START( "vips_thread_work_unit: u" );
-		vips_thread_work_unit( task, state );
-		VIPS_GATE_STOP( "vips_thread_work_unit: u" );
+		VIPS_GATE_START( "vips_task_work_unit: u" );
+		vips_task_work_unit( task, state );
+		VIPS_GATE_STOP( "vips_task_work_unit: u" );
 		vips_semaphore_up( &task->tick );
 
 		if( task->stop ||
@@ -612,9 +527,7 @@ vips_thread_main_loop( gpointer data, gpointer user_data )
 	 */
 	vips_semaphore_up( &task->finish );
 
-	VIPS_GATE_STOP( "vips_thread_main_loop: thread" );
-
-	vips_thread_shutdown();
+	VIPS_GATE_STOP( "vips_task_run: thread" );
 }
 
 /* Called from vips_shutdown().
@@ -683,29 +596,38 @@ vips_task_free( VipsTask *task )
 }
 
 /**
- * vips_threadpool_push:
- * @task: a new #VipsTask.
+ * vips_threadpool_push.
+ * @name an name for the thread
+ * @func a function to execute in the thread pool
+ * @data an argument to supply to @func
  *
- * Inserts @task into the list of tasks to be executed by the
- * #VipsThreadPool.
+ * Inserts a new function into the list of tasks to be executed by the
+ * #VipsThreadPool. A newly created or reused thread will execute
+ * @func with with the argument data.
  *
  * When the number of currently running threads is lower than the
  * maximal allowed number of threads set by vips_concurrency_set(),
  * a new thread is started (or reused).
- * Otherwise, @task stays in the queue until a thread in this pool
- * finishes its previous task and processes @task.
+ * Otherwise, it stays in the queue until a thread in this pool
+ * finishes its previous task and processes the @func.
  *
  * See also: vips_concurrency_set().
  *
  * Returns: 0 on success, -1 on error.
  */
-static int
-vips_threadpool_push( VipsTask *task )
+int
+vips_threadpool_push( const char *name, GFunc func, gpointer data )
 {
+	VipsThreadExec *exec;
 	GError *error = NULL;
 
+	exec = g_new( VipsThreadExec, 1 );
+	exec->name = name;
+	exec->func = func;
+	exec->data = data;
+
 	// TODO: this function returns a success status since GLib 2.32.
-	g_thread_pool_push( vips__pool, task, &error );
+	g_thread_pool_push( vips__pool, exec, &error );
 	if( error ) {
 		vips_g_error( &error );
 		return( -1 );
@@ -841,7 +763,7 @@ vips_threadpool_run( VipsImage *im,
 	/* Put the tasks to work.
 	 */
 	for( i = 0; i < n_tasks; i++ )
-		if( vips_threadpool_push( task ) )
+		if( vips_threadpool_push( "worker", vips_task_run, task ) )
 			return( -1 );
 
 	for(;;) {

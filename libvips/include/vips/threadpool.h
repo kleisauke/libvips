@@ -132,6 +132,7 @@ typedef int (*VipsThreadpoolWorkFn)( VipsThreadState *state, void *a );
  */
 typedef int (*VipsThreadpoolProgressFn)( void *a );
 
+int vips_threadpool_push( const char *name, GFunc func, gpointer data );
 int vips_threadpool_run( VipsImage *im, 
 	VipsThreadStartFn start, 
 	VipsThreadpoolAllocateFn allocate, 

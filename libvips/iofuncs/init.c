@@ -589,10 +589,6 @@ vips_leak( void )
 		vips_buf_appendf( &buf, "error buffer: %s", 
 			vips_error_buffer() );
 
-	if( vips__n_active_threads != 0 )
-		vips_buf_appendf( &buf, "threads: %d not joined\n", 
-			vips__n_active_threads ); 
-
 	fprintf( stderr, "%s", vips_buf_all( &buf ) );
 
 	vips__print_renders();
@@ -609,7 +605,7 @@ vips_leak( void )
  *
  * This function needs to be called when a thread that has been using vips
  * exits. It is called for you by vips_shutdown() and for any threads created
- * by vips_g_thread_new(). 
+ * within the #VipsThreadPool. 
  *
  * You will need to call it from threads created in
  * other ways or there will be memory leaks. If you do not call it, vips 
@@ -641,8 +637,6 @@ vips_shutdown( void )
 	printf( "vips_shutdown:\n" );
 #endif /*DEBUG*/
 
-	vips_cache_drop_all();
-
 	im_close_plugins();
 
 	/* Mustn't run this more than once. Don't use the VIPS_GATE macro,
@@ -662,6 +656,13 @@ vips_shutdown( void )
 	vips__thread_profile_stop();
 
 	vips__threadpool_shutdown();
+
+	/* To ensure that no active threads are working on the tiles, we drop
+	 * the entire operation cache after all threads have been shutdown.
+	 *
+	 * See vips_block_cache_drop_all().
+	 */
+ 	vips_cache_drop_all();
 
 #ifdef HAVE_GSF
 	gsf_shutdown(); 

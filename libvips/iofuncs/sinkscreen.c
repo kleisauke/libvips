@@ -165,7 +165,7 @@ G_DEFINE_TYPE( RenderThreadState, render_thread_state, VIPS_TYPE_THREAD_STATE );
 /* The BG thread which sits waiting to do some calculations, and the semaphore
  * it waits on holding the number of renders with dirty tiles. 
  */
-static GThread *render_thread = NULL;
+static gboolean render_running = FALSE;
 
 /* Set this to ask the render thread to quit.
  */
@@ -435,25 +435,20 @@ vips__render_shutdown( void )
 	if( render_dirty_lock ) {
 		g_mutex_lock( render_dirty_lock );
 
-		if( render_thread ) { 
-			GThread *thread;
-
-			thread = render_thread;
+		if( render_running ) {
 			render_reschedule = TRUE;
 			render_kill = TRUE;
 
 			g_mutex_unlock( render_dirty_lock );
 
-			vips_semaphore_up( &n_render_dirty_sem ); 
-
-			(void) vips_g_thread_join( thread );
+			vips_semaphore_up( &n_render_dirty_sem );
 		}
 		else
 			g_mutex_unlock( render_dirty_lock );
 	}
 }
 
-static int       
+static int
 render_dirty_sort( Render *a, Render *b )
 {
 	return( b->priority - a->priority );
@@ -986,8 +981,8 @@ render_dirty_get( void )
 
 /* Loop for the background render manager thread.
  */
-static void *
-render_thread_main( void *client )
+static void
+render_thread_main( void *data, void *user_data )
 {
 	Render *render;
 
@@ -1022,11 +1017,9 @@ render_thread_main( void *client )
 		}
 	}
 
-	/* We are exiting, so render_thread must now be NULL.
+	/* We are exiting, so render_running must now be set to FALSE.
 	 */
-	render_thread = NULL; 
-
-	return( NULL );
+	render_running = FALSE;
 }
 
 static void
@@ -1036,11 +1029,17 @@ vips_sink_screen_init( void )
 	g_assert( !render_dirty_lock ); 
 
 	render_dirty_lock = vips_g_mutex_new();
-	render_thread = vips_g_thread_new( "sink_screen",
-		render_thread_main, NULL );
+
+	if ( vips_threadpool_push( "sink_screen", render_thread_main,
+		NULL ) ) {
+		vips_error("vips_sink_screen_init", "%s",
+			_("unable to init render thread"));
+		return;
+	}
+
+	render_running = TRUE;
 	vips_semaphore_init( &n_render_dirty_sem, 0, "n_render_dirty" );
 
-	g_assert( render_thread ); 
 	g_assert( render_dirty_lock ); 
 }
 
