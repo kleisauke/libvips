@@ -121,6 +121,11 @@ int vips__thinstrip_height = VIPS__THINSTRIP_HEIGHT;
  */
 int vips__concurrency = 0;
 
+/* The amount of background threads that may run additionally
+ * within the thread pool (see sink_disc and sink_screen).
+ */
+const int vips__bg_threads = 3;
+
 /* Set this GPrivate to indicate that this is a vips worker.
  */
 static GPrivate *is_worker_key = NULL;
@@ -287,6 +292,8 @@ vips_concurrency_set( int concurrency )
 	const char *str;
 	int x;
 
+	GError *error = NULL;
+
 	/* Tell the threads system how much concurrency we expect.
 	 */
 	if( concurrency < 1 )
@@ -298,6 +305,12 @@ vips_concurrency_set( int concurrency )
 	}
 
 	vips__concurrency = concurrency;
+
+	g_thread_pool_set_max_threads( vips__pool, 
+		vips__concurrency + vips__bg_threads, &error );
+	if( error ) {
+		vips_g_error( &error );
+	}
 }
 
 /**
@@ -823,12 +836,8 @@ vips__threadpool_init( void )
 	if( vips__concurrency == 0 )
 		vips__concurrency = vips__concurrency_get_default();
 
-	// TODO: Limit max threads within the pool?
-	// Note: vips__concurrency != max_threads
-	// For e.g. `VIPS_CONCURRENCY=1 vips affine sample.jpg x.v "0 1 1 0"`
-	// spawns 4 threads.
 	vips__pool = g_thread_pool_new( vips_thread_main_loop, NULL,
-		-1, FALSE, NULL );
+		vips__concurrency + vips__bg_threads, FALSE, NULL );
 }
 
 /**
