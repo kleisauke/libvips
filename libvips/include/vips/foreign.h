@@ -364,6 +364,21 @@ int vips_vipssave( VipsImage *in, const char *filename, ... )
 int vips_openslideload( const char *filename, VipsImage **out, ... )
 	__attribute__((sentinel));
 
+/**
+ * VipsForeignJpegSubsample:
+ * @VIPS_FOREIGN_JPEG_SUBSAMPLE_AUTO: default preset
+ * @VIPS_FOREIGN_JPEG_SUBSAMPLE_ON: always perform subsampling
+ * @VIPS_FOREIGN_JPEG_SUBSAMPLE_OFF: never perform subsampling
+ *
+ * Set jpeg subsampling mode.
+ */
+typedef enum {
+	VIPS_FOREIGN_JPEG_SUBSAMPLE_AUTO,
+	VIPS_FOREIGN_JPEG_SUBSAMPLE_ON,
+	VIPS_FOREIGN_JPEG_SUBSAMPLE_OFF,
+	VIPS_FOREIGN_JPEG_SUBSAMPLE_LAST
+} VipsForeignJpegSubsample;
+
 int vips_jpegload( const char *filename, VipsImage **out, ... )
 	__attribute__((sentinel));
 int vips_jpegload_buffer( void *buf, size_t len, VipsImage **out, ... )
@@ -509,12 +524,20 @@ int vips_rawsave_fd( VipsImage *in, int fd, ... )
 
 int vips_csvload( const char *filename, VipsImage **out, ... )
 	__attribute__((sentinel));
+int vips_csvload_source( VipsSource *source, VipsImage **out, ... )
+	__attribute__((sentinel));
 int vips_csvsave( VipsImage *in, const char *filename, ... )
+	__attribute__((sentinel));
+int vips_csvsave_target( VipsImage *in, VipsTarget *target, ... )
 	__attribute__((sentinel));
 
 int vips_matrixload( const char *filename, VipsImage **out, ... )
 	__attribute__((sentinel));
+int vips_matrixload_source( VipsSource *source, VipsImage **out, ... )
+	__attribute__((sentinel));
 int vips_matrixsave( VipsImage *in, const char *filename, ... )
+	__attribute__((sentinel));
+int vips_matrixsave_target( VipsImage *in, VipsTarget *target, ... )
 	__attribute__((sentinel));
 int vips_matrixprint( VipsImage *in, ... )
 	__attribute__((sentinel));
@@ -587,6 +610,8 @@ int vips_pdfload( const char *filename, VipsImage **out, ... )
 	__attribute__((sentinel));
 int vips_pdfload_buffer( void *buf, size_t len, VipsImage **out, ... )
 	__attribute__((sentinel));
+int vips_pdfload_source( VipsSource *source, VipsImage **out, ... )
+	__attribute__((sentinel));
 
 int vips_svgload( const char *filename, VipsImage **out, ... )
 	__attribute__((sentinel));
@@ -604,9 +629,13 @@ int vips_heifload( const char *filename, VipsImage **out, ... )
 	__attribute__((sentinel));
 int vips_heifload_buffer( void *buf, size_t len, VipsImage **out, ... )
 	__attribute__((sentinel));
+int vips_heifload_source( VipsSource *source, VipsImage **out, ... )
+	__attribute__((sentinel));
 int vips_heifsave( VipsImage *in, const char *filename, ... )
 	__attribute__((sentinel));
 int vips_heifsave_buffer( VipsImage *in, void **buf, size_t *len, ... )
+	__attribute__((sentinel));
+int vips_heifsave_target( VipsImage *in, VipsTarget *target, ... )
 	__attribute__((sentinel));
 
 int vips_niftiload( const char *filename, VipsImage **out, ... )

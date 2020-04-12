@@ -366,6 +366,7 @@ vips_interesting_get_type( void )
 			{VIPS_INTERESTING_ATTENTION, "VIPS_INTERESTING_ATTENTION", "attention"},
 			{VIPS_INTERESTING_LOW, "VIPS_INTERESTING_LOW", "low"},
 			{VIPS_INTERESTING_HIGH, "VIPS_INTERESTING_HIGH", "high"},
+			{VIPS_INTERESTING_ALL, "VIPS_INTERESTING_ALL", "all"},
 			{VIPS_INTERESTING_LAST, "VIPS_INTERESTING_LAST", "last"},
 			{0, NULL, NULL}
 		};
@@ -494,6 +495,25 @@ vips_saveable_get_type( void )
 		};
 		
 		etype = g_enum_register_static( "VipsSaveable", values );
+	}
+
+	return( etype );
+}
+GType
+vips_foreign_jpeg_subsample_get_type( void )
+{
+	static GType etype = 0;
+
+	if( etype == 0 ) {
+		static const GEnumValue values[] = {
+			{VIPS_FOREIGN_JPEG_SUBSAMPLE_AUTO, "VIPS_FOREIGN_JPEG_SUBSAMPLE_AUTO", "auto"},
+			{VIPS_FOREIGN_JPEG_SUBSAMPLE_ON, "VIPS_FOREIGN_JPEG_SUBSAMPLE_ON", "on"},
+			{VIPS_FOREIGN_JPEG_SUBSAMPLE_OFF, "VIPS_FOREIGN_JPEG_SUBSAMPLE_OFF", "off"},
+			{VIPS_FOREIGN_JPEG_SUBSAMPLE_LAST, "VIPS_FOREIGN_JPEG_SUBSAMPLE_LAST", "last"},
+			{0, NULL, NULL}
+		};
+		
+		etype = g_enum_register_static( "VipsForeignJpegSubsample", values );
 	}
 
 	return( etype );

@@ -127,6 +127,8 @@ int vips__leak = 0;
 GQuark vips__image_pixels_quark = 0; 
 #endif /*DEBUG_LEAK*/
 
+static gint64 vips_pipe_read_limit = 1024 * 1024 * 1024;
+
 /**
  * vips_get_argv0:
  *
@@ -334,6 +336,7 @@ vips_init( const char *argv0 )
 	extern GType vips_source_custom_get_type( void ); 
 	extern GType vips_target_get_type( void ); 
 	extern GType vips_target_custom_get_type( void ); 
+	extern GType vips_g_input_stream_get_type( void ); 
 
 	static gboolean started = FALSE;
 	static gboolean done = FALSE;
@@ -381,6 +384,7 @@ vips_init( const char *argv0 )
 #endif /*HAVE_THREAD_NEW*/
 
 	vips__threadpool_init();
+	vips__sink_screen_init();
 	vips__buffer_init();
 	vips__meta_init();
 
@@ -388,7 +392,9 @@ vips_init( const char *argv0 )
 	 * we have to make sure we do this single-threaded. See: 
 	 * https://github.com/openslide/openslide/issues/161
 	 */
+#if !GLIB_CHECK_VERSION( 2, 48, 1 )
 	(void) g_get_language_names(); 
+#endif
 
 	if( !vips__global_lock )
 		vips__global_lock = vips_g_mutex_new();
@@ -428,19 +434,20 @@ vips_init( const char *argv0 )
 	g_free( locale );
 	bind_textdomain_codeset( GETTEXT_PACKAGE, "UTF-8" );
 
-	/* Deprecated, this is just for compat.
-	 */
 	if( g_getenv( "VIPS_INFO" ) || 
 		g_getenv( "IM_INFO" ) ) 
 		vips_info_set( TRUE );
-
 	if( g_getenv( "VIPS_PROFILE" ) )
 		vips_profile_set( TRUE );
-
-	/* Default various settings from env.
-	 */
+	if( g_getenv( "VIPS_LEAK" ) )
+		vips_leak_set( TRUE );
 	if( g_getenv( "VIPS_TRACE" ) )
 		vips_cache_set_trace( TRUE );
+	if( g_getenv( "VIPS_PIPE_READ_LIMIT" ) ) 
+		vips_pipe_read_limit = 
+			g_ascii_strtoll( g_getenv( "VIPS_PIPE_READ_LIMIT" ),
+				NULL, 10 );
+	vips_pipe_read_limit_set( vips_pipe_read_limit );
 
 	/* Register base vips types.
 	 */
@@ -480,6 +487,7 @@ vips_init( const char *argv0 )
 	vips_morphology_operation_init();
 	vips_draw_operation_init();
 	vips_mosaicing_operation_init();
+	vips_g_input_stream_get_type(); 
 
 	/* Load any vips8 plugins from the vips libdir. Keep going, even if
 	 * some plugins fail to load. 
@@ -818,6 +826,9 @@ static GOptionEntry option_entries[] = {
 	{ "vips-version", 0, G_OPTION_FLAG_NO_ARG, 
 		G_OPTION_ARG_CALLBACK, (gpointer) &vips_lib_version_cb, 
 		N_( "print libvips version" ), NULL },
+	{ "vips-pipe-read-limit", 0, 0, 
+		G_OPTION_ARG_INT64, (gpointer) &vips_pipe_read_limit, 
+		N_( "read at most this many bytes from a pipe" ), NULL },
 	{ NULL }
 };
 
@@ -1196,8 +1207,8 @@ vips_version( int flag )
  * vips_leak_set:
  * @leak: turn leak checking on or off
  *
- * Turn on or off vips leak checking. See also --vips-leak and
- * vips_add_option_entries(). 
+ * Turn on or off vips leak checking. See also --vips-leak,
+ * vips_add_option_entries() and the `VIPS_LEAK` environment variable.
  *
  * You should call this very early in your program. 
  */
