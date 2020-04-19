@@ -113,6 +113,7 @@ void vips__threadpool_shutdown( void );
 
 void vips__cache_init( void );
 
+void vips__sink_screen_init( void );
 void vips__print_renders( void );
 
 void vips__type_leak( void );

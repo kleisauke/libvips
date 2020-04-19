@@ -1022,8 +1022,8 @@ render_thread_main( void *data, void *user_data )
 	render_running = FALSE;
 }
 
-static void *
-vips_sink_screen_init( void *data )
+void
+vips__sink_screen_init( void )
 {
 	g_assert( !render_thread ); 
 	g_assert( !render_dirty_lock ); 
@@ -1035,12 +1035,10 @@ vips_sink_screen_init( void *data )
 		NULL ) ) {
 		vips_error("vips_sink_screen_init", "%s",
 			_("unable to init render thread"));
-		return( NULL );
+		return;
 	}
 
 	render_running = TRUE;
-
-	return( NULL );
 }
 
 /**
@@ -1100,11 +1098,7 @@ vips_sink_screen( VipsImage *in, VipsImage *out, VipsImage *mask,
 	int priority,
 	VipsSinkNotify notify_fn, void *a )
 {
-	static GOnce once = G_ONCE_INIT;
-
 	Render *render;
-
-	VIPS_ONCE( &once, vips_sink_screen_init, NULL );
 
 	if( tile_width <= 0 || tile_height <= 0 || 
 		max_tiles < -1 ) {
