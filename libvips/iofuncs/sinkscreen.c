@@ -1029,6 +1029,7 @@ vips_sink_screen_init( void *data )
 	g_assert( !render_dirty_lock ); 
 
 	render_dirty_lock = vips_g_mutex_new();
+	vips_semaphore_init( &n_render_dirty_sem, 0, "n_render_dirty" );
 
 	if ( vips_threadpool_push( "sink_screen", render_thread_main,
 		NULL ) ) {
@@ -1038,7 +1039,6 @@ vips_sink_screen_init( void *data )
 	}
 
 	render_running = TRUE;
-	vips_semaphore_init( &n_render_dirty_sem, 0, "n_render_dirty" );
 
 	return( NULL );
 }
