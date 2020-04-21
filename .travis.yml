@@ -105,7 +105,7 @@ jobs:
         - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan -fopenmp=libomp"
         - ASAN_DSO=`clang-10 -print-file-name=libclang_rt.asan-x86_64.so`
-        - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
+        - ASAN_SYMBOLIZER_PATH="/usr/lib/llvm-10/bin/llvm-symbolizer"
         - ASAN_OPTIONS="fast_unwind_on_malloc=0:suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp"
