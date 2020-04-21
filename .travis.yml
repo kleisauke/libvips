@@ -38,7 +38,6 @@ matrix:
     - os: linux
       sudo: required
       dist: xenial
-      compiler: clang
       addons:
         apt:
           sources:
