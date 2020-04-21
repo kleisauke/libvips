@@ -104,12 +104,10 @@ jobs:
         - JPEG=/usr
         - JOBS=`nproc`
         - WITH_MAGICK=no
-        - LD=clang-10
         - LDSHARED="clang-10 -shared"
         - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan -fopenmp=libomp"
         - ASAN_DSO=`clang-10 -print-file-name=libclang_rt.asan-x86_64.so`
-        - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
         - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp"
@@ -124,6 +122,7 @@ jobs:
         # switch to Clang 10 using update-alternatives
         - sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 100
           --slave /usr/bin/clang++ clang++ /usr/bin/clang++-10
+          --slave /usr/bin/llvm-symbolizer llvm-symbolizer /usr/bin/llvm-symbolizer-10
       cache: ccache
 
     - os: osx
