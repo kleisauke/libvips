@@ -105,8 +105,8 @@ jobs:
         - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan -fopenmp=libomp"
         - ASAN_DSO=`clang-10 -print-file-name=libclang_rt.asan-x86_64.so`
-        - ASAN_SYMBOLIZER_PATH="/usr/lib/llvm-10/bin/llvm-symbolizer"
-        - ASAN_OPTIONS="fast_unwind_on_malloc=0:suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
+        - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
+        - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp"
         - LD_LIBRARY_PATH="`dirname $ASAN_DSO`:/usr/lib/llvm-10/lib:$LD_LIBRARY_PATH"
@@ -144,7 +144,6 @@ before_script:
   - make -j$JOBS -s
 script:
   - make -j$JOBS -s -k V=0 VERBOSE=1 check
-  - ldd $PWD/libvips/.libs/libvips.so.42
   - LD_LIBRARY_PATH=$PWD/libvips/.libs
     DYLD_LIBRARY_PATH=$PWD/libvips/.libs
     LD_PRELOAD=$ASAN_DSO
