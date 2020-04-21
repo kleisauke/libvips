@@ -18,6 +18,7 @@ addons:
       - automake
       - gtk-doc-tools
       - gobject-introspection
+      - python3-pip
       - libfftw3-dev
       - libexif-dev
       - libjpeg-turbo8-dev
@@ -44,6 +45,7 @@ addons:
       - libopenslide-dev
       - libffi-dev
   homebrew:
+    update: true
     packages:
       - ccache
       - gtk-doc
