@@ -111,7 +111,7 @@ jobs:
         - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp"
-        - LD_LIBRARY_PATH="`dirname $ASAN_DSO`:$LD_LIBRARY_PATH"
+        - LD_LIBRARY_PATH="`dirname $ASAN_DSO`:/usr/lib/llvm-10/lib:$LD_LIBRARY_PATH"
       install:
         # add support for WebP
         - wget http://archive.ubuntu.com/ubuntu/pool/main/libw/libwebp/libwebp-dev_0.6.1-2_amd64.deb
