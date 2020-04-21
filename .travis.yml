@@ -32,7 +32,6 @@ addons:
       - libheif-dev
       - libexpat1-dev
       - libmagick++-dev
-      - bc
       - libcfitsio3-dev
       - libgsl0-dev
       - libmatio-dev
@@ -97,7 +96,6 @@ jobs:
           packages:
             - *common_packages
             - clang-10
-            - g++-10
             - libomp-10-dev
       env:
         - JPEG=/usr

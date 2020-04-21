@@ -3,4 +3,5 @@ leak:python3
 leak:libfontconfig.so
 leak:libglib-2.0.so
 leak:libIlmImf-2_2.so
+leak:libIlmImf-2_3.so
 leak:libstdc++.so
