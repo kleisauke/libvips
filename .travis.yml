@@ -102,6 +102,7 @@ jobs:
         - JPEG=/usr
         - JOBS=`nproc`
         - WITH_MAGICK=no
+        - LDSHARED=ld.lld-10
         - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan -fopenmp=libomp"
         - ASAN_DSO=`clang-10 -print-file-name=libclang_rt.asan-x86_64.so`
