@@ -102,9 +102,6 @@ jobs:
         - JPEG=/usr
         - JOBS=`nproc`
         - WITH_MAGICK=no
-        - CC=clang-10
-        - CXX=clang++-10
-        - LD=ld.lld-10
         - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan -fopenmp=libomp"
         - ASAN_DSO=`clang-10 -print-file-name=libclang_rt.asan-x86_64.so`
@@ -120,6 +117,10 @@ jobs:
         - wget http://archive.ubuntu.com/ubuntu/pool/main/libw/libwebp/libwebpmux3_0.6.1-2_amd64.deb
         - wget http://archive.ubuntu.com/ubuntu/pool/main/libw/libwebp/libwebp6_0.6.1-2_amd64.deb
         - sudo dpkg -i *.deb
+        # switch to Clang 10 using update-alternatives
+        - sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 100
+          --slave /usr/bin/clang++ clang++ /usr/bin/clang++-10
+        - sudo update-alternatives --config clang
       cache: ccache
 
     - os: osx
