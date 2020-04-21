@@ -144,6 +144,7 @@ before_script:
   - make -j$JOBS -s
 script:
   - make -j$JOBS -s -k V=0 VERBOSE=1 check
+  - ldd $PWD/libvips/.libs/libvips.so.42
   - LD_LIBRARY_PATH=$PWD/libvips/.libs
     DYLD_LIBRARY_PATH=$PWD/libvips/.libs
     LD_PRELOAD=$ASAN_DSO
