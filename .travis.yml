@@ -2,7 +2,7 @@ language: cpp
 
 env:
   global:
-    - PYTHON=python2
+    - PYTHON=python3
     - PYVIPS_VERSION=master
 
 addons:
@@ -64,7 +64,7 @@ addons:
       - libgsf
       - openslide
 
-matrix:
+jobs:
   allow_failures:
     - os: osx
   fast_finish: true
@@ -105,6 +105,7 @@ matrix:
         - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan -fopenmp=libomp"
         - ASAN_DSO=`clang-10 -print-file-name=libclang_rt.asan-x86_64.so`
+        - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
         - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp"
