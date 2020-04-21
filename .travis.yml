@@ -66,6 +66,7 @@ addons:
       - pango
       - libgsf
       - openslide
+      - llvm
       - libomp
 
 jobs:
@@ -121,7 +122,8 @@ jobs:
         # switch to Clang 10 using update-alternatives
         - sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 100
           --slave /usr/bin/clang++ clang++ /usr/bin/clang++-10
-        # https://github.com/google/sanitizers/issues/89
+        # workaround for https://github.com/google/sanitizers/issues/89
+        # otherwise libIlmImf-2_2.so ends up as <unknown module>
         - echo -e '#include <stdio.h>\nint dlclose(void*handle){return 0;}' | clang -shared -xc -odlclose.so -
       cache: ccache
 
@@ -133,6 +135,8 @@ jobs:
         - WITH_MAGICK=yes
         - PATH="/usr/local/opt/ccache/libexec:$PATH"
         - HOMEBREW_NO_AUTO_UPDATE=1
+        - CC="/usr/local/opt/llvm/bin/clang"
+        - CXX="/usr/local/opt/llvm/bin/clang++"
       cache: ccache
 
 before_script:
@@ -145,6 +149,7 @@ before_script:
     --with-jpeg-libraries=$JPEG/lib
     --with-magick=$WITH_MAGICK
   - make -j$JOBS -s
+
 script:
   - make -j$JOBS -s -k V=0 VERBOSE=1 check
   - LD_LIBRARY_PATH=$PWD/libvips/.libs
