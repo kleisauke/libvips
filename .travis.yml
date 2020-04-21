@@ -10,7 +10,7 @@ addons:
     update: true
     sources: &common_sources
       # use a more recent imagemagick instead of 6.8.9-9 
-      - sourceline: 'ppa:opencpu/imagemagick'
+      - sourceline: 'ppa:cran/imagemagick'
       # add support for HEIF files
       - sourceline: 'ppa:strukturag/libheif'
       - sourceline: 'ppa:strukturag/libde265'
@@ -92,7 +92,6 @@ jobs:
         apt:
           sources:
             - *common_sources
-            - ubuntu-toolchain-r-test
             - sourceline: deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-10 main
               key_url: https://apt.llvm.org/llvm-snapshot.gpg.key
           packages:
@@ -104,12 +103,12 @@ jobs:
         - JPEG=/usr
         - JOBS=`nproc`
         - WITH_MAGICK=no
-        - LDSHARED="clang-10 -shared"
+        - LDSHARED="clang -shared"
         - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan -fopenmp=libomp"
         - ASAN_DSO=`clang-10 -print-file-name=libclang_rt.asan-x86_64.so`
         - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
-        - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
+        - ASAN_OPTIONS="fast_unwind_on_malloc=0:suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp"
         - LD_LIBRARY_PATH="`dirname $ASAN_DSO`:/usr/lib/llvm-10/lib:$LD_LIBRARY_PATH"
@@ -143,7 +142,7 @@ before_script:
     --disable-dependency-tracking
     --with-jpeg-includes=$JPEG/include
     --with-jpeg-libraries=$JPEG/lib
-    --with-magick=$WITH_MAGICK || cat config.log
+    --with-magick=$WITH_MAGICK
   - make -j$JOBS -s
 script:
   - make -j$JOBS -s -k V=0 VERBOSE=1 check
