@@ -143,7 +143,7 @@ before_script:
     --disable-dependency-tracking
     --with-jpeg-includes=$JPEG/include
     --with-jpeg-libraries=$JPEG/lib
-    --with-magick=$WITH_MAGICK
+    --with-magick=$WITH_MAGICK || cat config.log
   - make -j$JOBS -s
 script:
   - make -j$JOBS -s -k V=0 VERBOSE=1 check
