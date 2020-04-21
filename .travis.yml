@@ -1,5 +1,10 @@
 language: cpp
 
+env:
+  global:
+    - PYTHON=python2
+    - PYVIPS_VERSION=master
+
 addons:
   apt:
     update: true
@@ -69,8 +74,6 @@ matrix:
       dist: xenial
       compiler: gcc
       env:
-        - PYTHON=python2
-        - PYVIPS_VERSION=master
         - JPEG=/usr
         - JOBS=`nproc`
         - WITH_MAGICK=yes
@@ -93,8 +96,6 @@ matrix:
             - g++-10
             - libomp-10-dev
       env:
-        - PYTHON=python2
-        - PYVIPS_VERSION=master
         - JPEG=/usr
         - JOBS=`nproc`
         - WITH_MAGICK=no
@@ -107,6 +108,7 @@ matrix:
         - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp"
+        - LD_LIBRARY_PATH="`dirname $ASAN_DSO`:$LD_LIBRARY_PATH"
       install:
         # add support for WebP
         - wget http://archive.ubuntu.com/ubuntu/pool/main/libw/libwebp/libwebp-dev_0.6.1-2_amd64.deb
@@ -119,8 +121,6 @@ matrix:
     - os: osx
       osx_image: xcode10.1
       env:
-        - PYTHON=python2
-        - PYVIPS_VERSION=master
         - JPEG=/usr/local
         - JOBS="`sysctl -n hw.ncpu`"
         - WITH_MAGICK=yes
