@@ -20,6 +20,7 @@ addons:
       - gobject-introspection
       - python3-pip
       - python3-setuptools
+      - python3-wheel
       - libfftw3-dev
       - libexif-dev
       - libjpeg-turbo8-dev
@@ -66,6 +67,7 @@ addons:
       - pango
       - libgsf
       - openslide
+      - libomp
 
 jobs:
   allow_failures:
@@ -102,6 +104,7 @@ jobs:
         - JPEG=/usr
         - JOBS=`nproc`
         - WITH_MAGICK=no
+        - LD=clang-10
         - LDSHARED="clang-10 -shared"
         - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan -fopenmp=libomp"
@@ -121,7 +124,6 @@ jobs:
         # switch to Clang 10 using update-alternatives
         - sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 100
           --slave /usr/bin/clang++ clang++ /usr/bin/clang++-10
-        - sudo update-alternatives --config clang
       cache: ccache
 
     - os: osx
