@@ -73,10 +73,6 @@ typedef struct _VipsHistFindNDim {
 	 */
 	Histogram *hist;
 
-	/* Lock access for allocating hist with this.
-	 */
-	GMutex *hist_lock;
-
 	/* Write hist to this output image.
 	 */
 	VipsImage *out; 
@@ -138,16 +134,6 @@ histogram_new( VipsHistFindNDim *ndim )
 	return( hist );
 }
 
-static void
-vips_hist_find_ndim_dispose( GObject *gobject )
-{
-	VipsHistFindNDim *ndim = (VipsHistFindNDim *) gobject;
-
-	VIPS_FREEF( vips_g_mutex_free, ndim->hist_lock );
-
-	G_OBJECT_CLASS( vips_hist_find_ndim_parent_class )->dispose( gobject );
-}
-
 static int
 vips_hist_find_ndim_build( VipsObject *object )
 {
@@ -161,10 +147,8 @@ vips_hist_find_ndim_build( VipsObject *object )
 		"out", vips_image_new(),
 		NULL );
 
-	/* main hist made on first threaded start, so we 
-	 * need a lock to serialise calls.
+	/* main hist made on first threaded start.
 	 */
-	ndim->hist_lock = vips_g_mutex_new();
 
 	if( VIPS_OBJECT_CLASS( vips_hist_find_ndim_parent_class )->
 		build( object ) )
@@ -203,10 +187,8 @@ vips_hist_find_ndim_start( VipsStatistic *statistic )
 
 	/* Make the main hist, if necessary.
 	 */
-	g_mutex_lock( ndim->hist_lock );
 	if( !ndim->hist ) 
 		ndim->hist = histogram_new( ndim );
-	g_mutex_unlock( ndim->hist_lock );
 
 	return( (void *) histogram_new( ndim ) );
 }
@@ -300,7 +282,6 @@ vips_hist_find_ndim_class_init( VipsHistFindNDimClass *class )
 	VipsObjectClass *object_class = (VipsObjectClass *) class;
 	VipsStatisticClass *sclass = VIPS_STATISTIC_CLASS( class );
 
-	gobject_class->dispose = vips_hist_find_ndim_dispose;
 	gobject_class->set_property = vips_object_set_property;
 	gobject_class->get_property = vips_object_get_property;
 

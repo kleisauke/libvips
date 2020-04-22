@@ -87,10 +87,6 @@ typedef struct _VipsHistFind {
 	 */
 	Histogram *hist;
 
-	/* Lock access for allocating hist with this.
-	 */
-	GMutex *hist_lock;
-
 	/* Write hist to this output image.
 	 */
 	VipsImage *out; 
@@ -128,16 +124,6 @@ histogram_new( VipsHistFind *hist_find, int bands, int which, int size )
 	return( hist );
 }
 
-static void
-vips_hist_find_dispose( GObject *gobject )
-{
-	VipsHistFind *hist_find = (VipsHistFind *) gobject;
-
-	VIPS_FREEF( vips_g_mutex_free, hist_find->hist_lock );
-
-	G_OBJECT_CLASS( vips_hist_find_parent_class )->dispose( gobject );
-}
-
 static int
 vips_hist_find_build( VipsObject *object )
 {
@@ -158,10 +144,8 @@ vips_hist_find_build( VipsObject *object )
 			statistic->in, hist_find->which ) )
 		return( -1 ); 
 
-	/* main hist made on first threaded start, so we 
-	 * need a lock to serialise calls.
+	/* main hist made on first threaded start. 
 	 */
-	hist_find->hist_lock = vips_g_mutex_new();
 
 	if( VIPS_OBJECT_CLASS( vips_hist_find_parent_class )->build( object ) )
 		return( -1 );
@@ -200,7 +184,6 @@ vips_hist_find_start( VipsStatistic *statistic )
 
 	/* Make the main hist, if necessary.
 	 */
-	g_mutex_lock( hist_find->hist_lock );
 	if( !hist_find->hist ) 
 		hist_find->hist = histogram_new( hist_find, 
 			hist_find->which == -1 ?
@@ -208,7 +191,6 @@ vips_hist_find_start( VipsStatistic *statistic )
 			hist_find->which, 
 			statistic->ready->BandFmt == VIPS_FORMAT_UCHAR ? 
 				256 : 65536 );
-	g_mutex_unlock( hist_find->hist_lock );
 
 	return( (void *) histogram_new( hist_find, 
 		hist_find->hist->bands, 
@@ -452,7 +434,6 @@ vips_hist_find_class_init( VipsHistFindClass *class )
 	VipsObjectClass *object_class = (VipsObjectClass *) class;
 	VipsStatisticClass *sclass = VIPS_STATISTIC_CLASS( class );
 
-	gobject_class->dispose = vips_hist_find_dispose;
 	gobject_class->set_property = vips_object_set_property;
 	gobject_class->get_property = vips_object_get_property;
 

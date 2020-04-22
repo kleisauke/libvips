@@ -103,23 +103,7 @@ vips_statistic_scan_stop( void *seq, void *a, void *b )
 	VipsStatistic *statistic = VIPS_STATISTIC( a );
 	VipsStatisticClass *class = VIPS_STATISTIC_GET_CLASS( statistic );
 
-	int result;
-
-	g_mutex_lock( statistic->stop_lock );
-	result = class->stop( statistic, seq );
-	g_mutex_unlock( statistic->stop_lock );
-
-	return( result );
-}
-
-static void
-vips_statistic_dispose( GObject *gobject )
-{
-	VipsStatistic *statistic = (VipsStatistic *) gobject;
-
-	VIPS_FREEF( vips_g_mutex_free, statistic->stop_lock );
-
-	G_OBJECT_CLASS( vips_statistic_parent_class )->dispose( gobject );
+	return( class->stop( statistic, seq ) );
 }
 
 static int
@@ -153,8 +137,6 @@ vips_statistic_build( VipsObject *object )
 		statistic->ready = t[1];
 	}
 
-	statistic->stop_lock = vips_g_mutex_new();
-
 	if( vips_sink( statistic->ready, 
 		vips_statistic_scan_start, 
 		vips_statistic_scan, 
@@ -172,7 +154,6 @@ vips_statistic_class_init( VipsStatisticClass *class )
 	VipsObjectClass *vobject_class = VIPS_OBJECT_CLASS( class );
 	VipsOperationClass *operation_class = VIPS_OPERATION_CLASS( class );
 
-	gobject_class->dispose = vips_statistic_dispose;
 	gobject_class->set_property = vips_object_set_property;
 	gobject_class->get_property = vips_object_get_property;
 
