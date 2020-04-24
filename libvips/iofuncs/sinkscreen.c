@@ -1025,7 +1025,7 @@ render_thread_main( void *data, void *user_data )
 void
 vips__sink_screen_init( void )
 {
-	g_assert( !render_thread ); 
+	g_assert( !render_running ); 
 	g_assert( !render_dirty_lock ); 
 
 	render_dirty_lock = vips_g_mutex_new();
