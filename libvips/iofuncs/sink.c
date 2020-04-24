@@ -73,13 +73,9 @@ typedef struct _Sink {
 	 */
 	VipsImage *t;
 
-	/* Mutex for serialising calls to VipsStartFn.
+	/* Mutex for serialising calls to VipsStartFn and VipsStopFn.
 	 */
-	GMutex *start_lock;
-
-	/* Mutex for serialising calls to VipsStopFn.
-	 */
-	GMutex *stop_lock;
+	GMutex *sslock;
 
 	/* Call params.
 	 */
@@ -256,11 +252,22 @@ sink_area_allocate_fn( VipsThreadState *state, void *a, gboolean *stop )
 static int
 sink_call_stop( Sink *sink, SinkThreadState *state )
 {
-	g_mutex_lock( sink->stop_lock );
 	if( state->seq && sink->stop_fn ) {
+		int result;
+		
 		VIPS_DEBUG_MSG( "sink_call_stop: state = %p\n", state );
 
-		if( sink->stop_fn( state->seq, sink->a, sink->b ) ) {
+		VIPS_GATE_START( "sink_call_stop: wait" );
+		
+		g_mutex_lock( sink->sslock );
+
+		VIPS_GATE_STOP( "sink_call_stop: wait" );
+		
+		result = sink->stop_fn( state->seq, sink->a, sink->b );
+
+		g_mutex_unlock( sink->sslock );
+
+		if( result ) {
 			SinkBase *sink_base = (SinkBase *) sink;
 
 			vips_error( "vips_sink", 
@@ -271,7 +278,6 @@ sink_call_stop( Sink *sink, SinkThreadState *state )
 
 		state->seq = NULL;
 	}
-	g_mutex_unlock( sink->stop_lock );
 
 	return( 0 );
 }
@@ -293,11 +299,18 @@ sink_thread_state_dispose( GObject *gobject )
 static int
 sink_call_start( Sink *sink, SinkThreadState *state )
 {
-	g_mutex_lock( sink->start_lock );
 	if( !state->seq && sink->start_fn ) {
 		VIPS_DEBUG_MSG( "sink_call_start: state = %p\n", state );
 
+		VIPS_GATE_START( "sink_call_start: wait" );
+
+		g_mutex_lock( sink->sslock );
+
+		VIPS_GATE_STOP( "sink_call_start: wait" );
+
 		state->seq = sink->start_fn( sink->t, sink->a, sink->b );
+
+		g_mutex_unlock( sink->sslock );
 
 		if( !state->seq ) {
 			SinkBase *sink_base = (SinkBase *) sink;
@@ -308,7 +321,6 @@ sink_call_start( Sink *sink, SinkThreadState *state )
 			return( -1 );
 		}
 	}
-	g_mutex_unlock( sink->start_lock );
 
 	return( 0 );
 }
@@ -358,8 +370,7 @@ vips_sink_thread_state_new( VipsImage *im, void *a )
 static void
 sink_free( Sink *sink )
 {
-	VIPS_FREEF( vips_g_mutex_free, sink->start_lock );
-	VIPS_FREEF( vips_g_mutex_free, sink->stop_lock );
+	VIPS_FREEF( vips_g_mutex_free, sink->sslock );
 	VIPS_FREEF( sink_area_free, sink->area );
 	VIPS_FREEF( sink_area_free, sink->old_area );
 	VIPS_FREEF( g_object_unref, sink->t );
@@ -395,8 +406,7 @@ sink_init( Sink *sink,
 	vips_sink_base_init( &sink->sink_base, image );
 
 	sink->t = NULL;
-	sink->start_lock = vips_g_mutex_new();
-	sink->stop_lock = vips_g_mutex_new();
+	sink->sslock = vips_g_mutex_new();
 	sink->start_fn = start_fn;
 	sink->generate_fn = generate_fn;
 	sink->stop_fn = stop_fn;
