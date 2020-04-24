@@ -209,11 +209,11 @@ typedef struct {
 	const char *name;
 
 	/* The function to execute within the #VipsThreadPool.
-	*/
+	 */
 	GFunc func;
 
 	/* User data that is handed over to func when it is called.
-	*/
+	 */
 	gpointer data;
 } VipsThreadExec;
 
@@ -619,6 +619,8 @@ vips_task_run( gpointer data, gpointer user_data )
 void
 vips__threadpool_shutdown( void )
 {
+	/* We may come here without having inited.
+	 */
 	if( vips__pool ) {
 		VIPS_DEBUG_MSG( "vips__threadpool_shutdown: (%p)\n", vips__pool );
 
