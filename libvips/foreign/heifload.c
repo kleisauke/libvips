@@ -237,7 +237,8 @@ static const char *heif_magic[] = {
 	"ftyphevm",	/* Multiview sequence */
 	"ftyphevs",	/* Scaleable sequence */
 	"ftypmif1",	/* Nokia alpha_ image */
-	"ftypmsf1"	/* Nokia animation image */
+	"ftypmsf1",	/* Nokia animation image */
+	"ftypavif"	/* AV1 image format */
 };
 
 /* THe API has:
@@ -957,7 +958,7 @@ vips_foreign_load_heif_init( VipsForeignLoadHeif *heif )
 
 	/* The first version to support heif_reader.
 	 */
-	heif->reader->reader_api_version = 1.3;
+	heif->reader->reader_api_version = 1;
 	heif->reader->get_position = vips_foreign_load_heif_get_position;
 	heif->reader->read = vips_foreign_load_heif_read;
 	heif->reader->seek = vips_foreign_load_heif_seek;

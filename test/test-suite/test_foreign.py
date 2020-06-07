@@ -132,7 +132,9 @@ class TestForeign:
     def test_jpeg(self):
         def jpeg_valid(im):
             a = im(10, 10)
-            assert_almost_equal_objects(a, [141, 127, 90])
+            # different versions of libjpeg decode have slightly different 
+            # rounding
+            assert_almost_equal_objects(a, [141, 127, 90], threshold=3)
             profile = im.get("icc-profile-data")
             assert len(profile) == 564
             assert im.width == 290
@@ -338,8 +340,12 @@ class TestForeign:
                             self.colour, 0)
         self.save_load_file(".tif", "[tile]", self.colour, 0)
         self.save_load_file(".tif", "[tile,pyramid]", self.colour, 0)
+        self.save_load_file(".tif", "[tile,pyramid,subifd]", self.colour, 0)
         self.save_load_file(".tif",
                             "[tile,pyramid,compression=jpeg]", self.colour, 80)
+        self.save_load_file(".tif",
+                            "[tile,pyramid,subifd,compression=jpeg]", 
+                            self.colour, 80)
         self.save_load_file(".tif", "[bigtiff]", self.colour, 0)
         self.save_load_file(".tif", "[compression=jpeg]", self.colour, 80)
         self.save_load_file(".tif",
