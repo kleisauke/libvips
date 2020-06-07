@@ -71,7 +71,6 @@
 #include <vips/vips.h>
 #include <vips/internal.h>
 #include <vips/thread.h>
-#include <vips/debug.h>
 
 #ifdef DEBUG
 /* Track all buffers here for debugging.
@@ -85,7 +84,7 @@ static GSList *vips__buffer_cache_all = NULL;
 
 /* The maximum numbers of buffers we hold in reserve per image. 
  */
-static const int buffer_cache_max_reserve = /*2*/0; 
+static const int buffer_cache_max_reserve = 2; 
 
 /* Workers have a BufferThread (and BufferCache) in a GPrivate they have 
  * exclusive access to.
@@ -671,7 +670,7 @@ vips__buffer_init( void )
 #endif
 
 	if( buffer_cache_max_reserve < 1 )
-		VIPS_DEBUG_MSG( "vips__buffer_init: buffer reserve disabled\n" );
+		printf( "vips__buffer_init: buffer reserve disabled\n" );
 
 #ifdef DEBUG
 	printf( "vips__buffer_init: DEBUG enabled\n" ); 
