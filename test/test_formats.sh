@@ -202,9 +202,8 @@ if test_supported matload; then
 	test_loader $matlab_ref $matlab matlab 0
 fi
 
-# Temporary skipped
-#if test_supported dzsave; then
-#	test_saver dzsave $image .zip
-#	test_saver copy $image .dz
-#	test_saver copy $image .dz[container=zip]
-#fi
+if test_supported dzsave; then
+	test_saver dzsave $image .zip
+	test_saver copy $image .dz
+	test_saver copy $image .dz[container=zip]
+fi
