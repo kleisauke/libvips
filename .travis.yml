@@ -33,8 +33,9 @@ addons:
       - libexpat1-dev
       - libmagick++-dev
       - libcfitsio3-dev
-      - libgsl0-dev
+      - libgsl-dev
       - libmatio-dev
+      - libnifti-dev
       - liborc-0.4-dev
       - liblcms2-dev
       - libpoppler-glib-dev
