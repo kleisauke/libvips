@@ -645,6 +645,8 @@ vips_shutdown( void )
 	printf( "vips_shutdown:\n" );
 #endif /*DEBUG*/
 
+	vips_cache_drop_all();
+
 	im_close_plugins();
 
 	/* Mustn't run this more than once. Don't use the VIPS_GATE macro,
@@ -664,13 +666,6 @@ vips_shutdown( void )
 	vips__thread_profile_stop();
 
 	vips__threadpool_shutdown();
-
-	/* To ensure that no active threads are working on the tiles, we drop
-	 * the entire operation cache after all threads have been shutdown.
-	 *
-	 * See vips_block_cache_drop_all().
-	 */
- 	vips_cache_drop_all();
 
 #ifdef HAVE_GSF
 	gsf_shutdown(); 
