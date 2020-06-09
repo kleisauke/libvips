@@ -107,6 +107,7 @@ jobs:
         - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
         - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
+        - TSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/tsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp"
         - LD_LIBRARY_PATH="`dirname $ASAN_DSO`:/usr/lib/llvm-10/lib:$LD_LIBRARY_PATH"
         - DLCLOSE_PRELOAD="$TRAVIS_BUILD_DIR/dlclose.so"
