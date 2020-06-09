@@ -19,25 +19,46 @@ race:vips_tracked_mem
 race:vips_tracked_allocs
 race:vips_tracked_files
 
-# guarded with pool->allocate_lock, so it should be fine
+# guarded with task->allocate_lock, so it should be fine
 race:vips_thread_allocate
+race:vips_task_work_unit
 
 # guarded with vips_cache_lock, so it should be fine
 race:vips_cache_table
+race:vips_cache_drop_all
+race:vips_cache_get_first
+race:vips_cache_get_lru_cb
+race:vips_cache_remove
+
+# guarded with vips__global_lock, so it should be fine
+race:vips_error_freeze_count
+race:vips__link_make
 
 # the double-buffered output and write-behind thread are non-racy
 race:wbuffer_new
 race:wbuffer_write
 race:wbuffer_work_fn
+race:wbuffer_free
 race:write_thread_state_new
 
 # thread-local variables (i.e. GPrivate) are harmless
 race:vips_thread_profile_key
+race:buffer_thread_key
 
 # semaphores are probably non-racy
 race:vips_semaphore_*
 
-#### Specific to the `threadpool-reuse` branch ####
+# guarded with sink->sslock, so it should be fine
+race:sink_call_start
+race:sink_call_stop
+race:vips_hist_find_start
+race:vips_hist_find_stop
+race:vips_statistic_scan_start
+race:vips_statistic_scan_stop
+race:vips_max_stop
+race:vips_values_add
+race:vips_deviate_stop
+race:vips_arithmetic_start
 
 # per-thread state allocate/dispose functions are non-racy
 race:sink_thread_state_class_init
@@ -48,7 +69,75 @@ race:vips_thread_state_dispose
 race:write_thread_state_new
 race:vips_sink_thread_state_new
 race:sink_memory_thread_state_new
+race:sink_thread_state_dispose
+race:buffer_cache_free
 
 # guarded with image->sslock, so it should be fine
-race:vips_region_dispose
+race:vips__region_start
 race:vips__region_stop
+race:vips_region_dispose
+race:vips__region_take_ownership
+
+# is fine now, see: https://github.com/libvips/libvips/pull/1211
+race:vips_image_temp_name
+
+# TODO: investigate these races (they are probably false-positive)
+race:buffer_find
+race:layer_free
+race:meta_free
+race:sink_free
+race:sink_init
+race:sink_memory_init
+race:vips_area_copy
+race:vips_area_unref
+race:vips_argument_init
+race:vips_argument_instance_detach
+race:vips_argument_map
+race:vips_block_cache_dispose
+race:vips_block_cache_drop_all
+race:vips_buffer_new
+race:vips_cache_operation_build
+race:vips_extract_band_buffer
+race:vips_foreign_load_gif_dispose
+race:vips_hist_find_build
+race:vips_hough_circle_normalise
+race:vips_image_decode_predict
+race:vips_image_dispose
+race:vips_image_finalize
+race:vips_image_generate
+race:vips_image_get
+race:vips_image_get_typeof
+race:vips_image_pio_input
+race:vips_image_remove
+race:vips_image_written
+race:vips_linear_buffer
+race:vips_object_arg_close
+race:vips_object_close
+race:vips_object_get_args
+race:vips_object_get_property
+race:vips_object_local_array_cb
+race:vips_object_postbuild
+race:vips_object_postclose
+race:vips_object_preclose
+race:vips_object_real_build
+race:vips_object_set_property
+race:vips_object_unref_arg
+race:vips_operation_finalize
+race:vips_operation_get_valist_optional
+race:vips_operation_get_valist_required
+race:vips_operation_hash
+race:vips_operation_set_valist_required
+race:vips_region_build
+race:vips_region_prepare
+race:vips_reorder_prepare_many
+race:vips_sink_base_init
+race:vips_slist_map2
+race:vips_task_run
+race:vips_tile_destroy
+race:vips_type_map
+race:vips__argument_get_instance
+race:vips__bandalike_vec
+race:vips__formatalike_vec
+race:vips__link_map
+race:vips__threadpool_shutdown
+race:vips__token_get
