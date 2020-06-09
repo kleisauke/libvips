@@ -146,7 +146,7 @@ vips_hist_find_indexed_build( VipsObject *object )
 		"out", vips_image_new(),
 		NULL );
 
-	/* main hist made on first threaded start.
+	/* main hist made on first thread start.
 	 */
 
 	/* index image must be cast to uchar/ushort.
@@ -201,7 +201,7 @@ vips_hist_find_indexed_start( VipsStatistic *statistic )
 	/* Make the main hist, if necessary.
 	 */
 	if( !indexed->hist ) 
-		indexed->hist = histogram_new( indexed );
+		indexed->hist = histogram_new( indexed );  
 
 	return( (void *) histogram_new( indexed ) );
 }

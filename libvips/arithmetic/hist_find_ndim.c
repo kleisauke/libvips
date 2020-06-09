@@ -147,7 +147,7 @@ vips_hist_find_ndim_build( VipsObject *object )
 		"out", vips_image_new(),
 		NULL );
 
-	/* main hist made on first threaded start.
+	/* main hist made on first thread start.
 	 */
 
 	if( VIPS_OBJECT_CLASS( vips_hist_find_ndim_parent_class )->
@@ -188,7 +188,7 @@ vips_hist_find_ndim_start( VipsStatistic *statistic )
 	/* Make the main hist, if necessary.
 	 */
 	if( !ndim->hist ) 
-		ndim->hist = histogram_new( ndim );
+		ndim->hist = histogram_new( ndim );  
 
 	return( (void *) histogram_new( ndim ) );
 }

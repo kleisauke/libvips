@@ -144,7 +144,7 @@ vips_hist_find_build( VipsObject *object )
 			statistic->in, hist_find->which ) )
 		return( -1 ); 
 
-	/* main hist made on first threaded start. 
+	/* main hist made on first thread start.
 	 */
 
 	if( VIPS_OBJECT_CLASS( vips_hist_find_parent_class )->build( object ) )
