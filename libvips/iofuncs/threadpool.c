@@ -316,7 +316,8 @@ get_num_processors( void )
  * or if that is not set, the number of threads available on the host machine.
  */
 static int
-vips__concurrency_get_default() {
+vips__concurrency_get_default( void )
+{
 	const char *str;
 	int nthr;
 	int x;
