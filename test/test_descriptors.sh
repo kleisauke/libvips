@@ -30,3 +30,17 @@ if test_supported svgload_source; then
 	./test_descriptors $test_images/logo.svg
 fi
 
+if test_supported matrixload_source; then
+	$vips copy $image $tmp/sample.mat
+	./test_descriptors $tmp/sample.mat
+fi
+
+if test_supported csvload_source; then
+	$vips copy $image $tmp/sample.csv
+	./test_descriptors $tmp/sample.csv
+fi
+
+if test_supported vipsload_source; then
+	$vips copy $image $tmp/sample.v
+	./test_descriptors $tmp/sample.v
+fi

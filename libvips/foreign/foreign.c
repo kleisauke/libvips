@@ -2090,7 +2090,8 @@ vips_foreign_operation_init( void )
 	extern GType vips_foreign_save_tiff_file_get_type( void ); 
 	extern GType vips_foreign_save_tiff_buffer_get_type( void ); 
 
-	extern GType vips_foreign_load_vips_get_type( void ); 
+	extern GType vips_foreign_load_vips_file_get_type( void );
+	extern GType vips_foreign_load_vips_source_get_type( void );
 	extern GType vips_foreign_save_vips_get_type( void ); 
 
 	extern GType vips_foreign_load_raw_get_type( void ); 
@@ -2148,7 +2149,8 @@ vips_foreign_operation_init( void )
 	vips_foreign_load_raw_get_type(); 
 	vips_foreign_save_raw_get_type(); 
 	vips_foreign_save_raw_fd_get_type(); 
-	vips_foreign_load_vips_get_type(); 
+	vips_foreign_load_vips_file_get_type();
+	vips_foreign_load_vips_source_get_type();
 	vips_foreign_save_vips_get_type(); 
 
 #ifdef HAVE_ANALYZE

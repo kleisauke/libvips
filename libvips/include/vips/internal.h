@@ -143,11 +143,14 @@ int vips_remapfilerw( VipsImage * );
 
 void vips__buffer_init( void );
 
+gint64 vips__image_pixel_length( VipsImage *image );
+
 void vips__copy_4byte( int swap, unsigned char *to, unsigned char *from );
 void vips__copy_2byte( gboolean swap, unsigned char *to, unsigned char *from );
 
 guint32 vips__file_magic( const char *filename );
 int vips__has_extension_block( VipsImage *im );
+int vips__readhist_source( VipsSource *source, VipsImage *im );
 void *vips__read_extension_block( VipsImage *im, int *size );
 int vips__write_extension_block( VipsImage *im, void *buf, int size );
 int vips__writehist( VipsImage *image );

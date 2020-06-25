@@ -375,6 +375,8 @@ vips_foreign_load_csv_header( VipsForeignLoad *load )
 	VIPS_SETSTR( load->out->filename, 
 		vips_connection_filename( VIPS_CONNECTION( csv->source ) ) );
 
+	vips_source_minimise( csv->source );
+
 	return( 0 );
 }
 
@@ -450,6 +452,8 @@ vips_foreign_load_csv_load( VipsForeignLoad *load )
 			(VipsPel *) csv->linebuf ) )
 			return( -1 );
 	}
+
+	vips_source_minimise( csv->source );
 
 	return( 0 );
 }
@@ -601,10 +605,10 @@ G_DEFINE_TYPE( VipsForeignLoadCsvSource, vips_foreign_load_csv_source,
 static int
 vips_foreign_load_csv_source_build( VipsObject *object )
 {
-	VipsForeignLoadCsvSource *source = (VipsForeignLoadCsvSource *) object;
 	VipsForeignLoadCsv *csv = (VipsForeignLoadCsv *) object;
+	VipsForeignLoadCsvSource *source = (VipsForeignLoadCsvSource *) object;
 
-	if( csv->source ) {
+	if( source->source ) {
 		csv->source = source->source;
 		g_object_ref( csv->source );
 	}

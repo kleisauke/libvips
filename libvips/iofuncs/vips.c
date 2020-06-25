@@ -247,8 +247,8 @@ vips__open_image_write( const char *filename, gboolean temp )
  * it's sometimes only 32 bits (eg. on many windows build environments) and we
  * want to always be 64 bit.
  */
-static gint64
-image_pixel_length( VipsImage *image )
+gint64
+vips__image_pixel_length( VipsImage *image )
 {
 	gint64 psize;
 
@@ -506,7 +506,7 @@ vips__has_extension_block( VipsImage *im )
 {
 	gint64 psize;
 
-	psize = image_pixel_length( im );
+	psize = vips__image_pixel_length( im );
 	g_assert( im->file_length > 0 );
 
 	return( im->file_length - psize > 0 );
@@ -520,7 +520,7 @@ vips__read_extension_block( VipsImage *im, int *size )
 	gint64 psize;
 	void *buf;
 
-	psize = image_pixel_length( im );
+	psize = vips__image_pixel_length( im );
 	g_assert( im->file_length > 0 );
 	if( im->file_length - psize > 100 * 1024 * 1024 ) {
 		vips_error( "VipsImage",
@@ -544,6 +544,7 @@ vips__read_extension_block( VipsImage *im, int *size )
 	return( buf );
 }
 
+// TODO(kleisauke): Remove in favour of parser_read_source?
 static int
 parser_read_fd( XML_Parser parser, int fd )
 {
@@ -563,6 +564,47 @@ parser_read_fd( XML_Parser parser, int fd )
 			return( -1 );
 		}
 		len = read( fd, buf, chunk_size );
+		if( len == -1 ) {
+			vips_error( "VipsImage", 
+				"%s", _( "read error while fetching XML" ) );
+			return( -1 );
+		}
+
+		/* Allow missing XML block.
+		 */
+		if( bytes_read == 0 &&
+			len == 0 )
+			break;
+		bytes_read += len;
+
+		if( !XML_ParseBuffer( parser, len, len == 0 ) ) {
+			vips_error( "VipsImage", "%s", _( "XML parse error" ) );
+			return( -1 );
+		}
+	} while( len > 0 );
+
+	return( 0 );
+}
+
+static int
+parser_read_source( XML_Parser parser, VipsSource *source )
+{
+	const int chunk_size = 1024; 
+
+	gint64 bytes_read;
+	gint64 len;
+
+	bytes_read = 0;
+
+	do {
+		void *buf;
+
+		if( !(buf = XML_GetBuffer( parser, chunk_size )) ) {
+			vips_error( "VipsImage", 
+				"%s", _( "unable to allocate read buffer" ) );
+			return( -1 );
+		}
+		len = vips_source_read( source, buf, chunk_size );
 		if( len == -1 ) {
 			vips_error( "VipsImage", 
 				"%s", _( "read error while fetching XML" ) );
@@ -746,6 +788,7 @@ parser_data_handler( void *user_data, const XML_Char *data, int len )
 	vips_dbuf_write( &vep->dbuf, (unsigned char *) data, len );
 }
 
+// TODO(kleisauke): Remove in favour of vips__readhist_source?
 /* Called at the end of vips open ... get any XML after the pixel data
  * and read it in.
  */
@@ -755,7 +798,7 @@ readhist( VipsImage *im )
 	XML_Parser parser;
 	VipsExpatParse vep;
 
-	if( vips__seek( im->fd, image_pixel_length( im ), SEEK_SET ) == -1 ) 
+	if( vips__seek( im->fd, vips__image_pixel_length( im ), SEEK_SET ) == -1 ) 
 		return( -1 );
 
 	parser = XML_ParserCreate( "UTF-8" );
@@ -782,13 +825,49 @@ readhist( VipsImage *im )
 	return( 0 ); 
 }
 
+/* Called at the end of vips open ... get any XML after the pixel data
+ * and read it in.
+ */
+int 
+vips__readhist_source( VipsSource *source, VipsImage *im )
+{
+	XML_Parser parser;
+	VipsExpatParse vep;
+
+	if ( vips_source_seek( source, vips__image_pixel_length( im ), SEEK_SET ) == -1 )
+		return( -1 );
+
+	parser = XML_ParserCreate( "UTF-8" );
+
+	vep.image = im;
+	vips_dbuf_init( &vep.dbuf ); 
+	vep.error = FALSE;
+	XML_SetUserData( parser, &vep );
+
+	XML_SetElementHandler( parser, 
+		parser_element_start_handler, parser_element_end_handler );
+	XML_SetCharacterDataHandler( parser, parser_data_handler ); 
+
+	if( parser_read_source( parser, source ) ||
+		vep.error ) { 
+		vips_dbuf_destroy( &vep.dbuf ); 
+		XML_ParserFree( parser );
+		return( -1 );
+	}
+
+	vips_dbuf_destroy( &vep.dbuf ); 
+	XML_ParserFree( parser );
+
+	return( 0 ); 
+}
+
 int
 vips__write_extension_block( VipsImage *im, void *buf, int size )
 {
 	gint64 length;
 	gint64 psize;
 
-	psize = image_pixel_length( im );
+	psize = vips__image_pixel_length( im );
 	if( (length = vips_file_length( im->fd )) == -1 )
 		return( -1 );
 	if( length < psize ) {
@@ -1055,7 +1134,7 @@ vips_image_open_input( VipsImage *image )
 	 * able to read all the header fields we can, even if the actual data
 	 * isn't there. 
 	 */
-	psize = image_pixel_length( image );
+	psize = vips__image_pixel_length( image );
 	if( (rsize = vips_file_length( image->fd )) == -1 ) 
 		return( -1 );
 	image->file_length = rsize;

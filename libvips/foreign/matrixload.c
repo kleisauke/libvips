@@ -205,6 +205,8 @@ vips_foreign_load_matrix_header( VipsForeignLoad *load )
 	VIPS_SETSTR( load->out->filename, 
 		vips_connection_filename( VIPS_CONNECTION( matrix->source ) ) );
 
+	vips_source_minimise( matrix->source );
+
 	if( !(matrix->linebuf = VIPS_ARRAY( NULL, width, double )) )
 		return( -1 );
 
@@ -254,6 +256,8 @@ vips_foreign_load_matrix_load( VipsForeignLoad *load )
 			(VipsPel *) matrix->linebuf ) )
 			return( -1 );
 	}
+
+	vips_source_minimise( matrix->source );
 
 	return( 0 );
 }
@@ -305,12 +309,11 @@ vips_foreign_load_matrix_file_get_flags_filename( const char *filename )
 static int
 vips_foreign_load_matrix_file_build( VipsObject *object )
 {
-	VipsForeignLoadMatrixFile *file = (VipsForeignLoadMatrixFile *) object;
 	VipsForeignLoadMatrix *matrix = (VipsForeignLoadMatrix *) object;
+	VipsForeignLoadMatrixFile *file = (VipsForeignLoadMatrixFile *) object;
 
-	if( file->filename ) 
-		if( !(matrix->source = 
-			vips_source_new_from_file( file->filename )) )
+	if( file->filename &&
+		!(matrix->source = vips_source_new_from_file( file->filename )) )
 			return( -1 );
 
 	if( VIPS_OBJECT_CLASS( vips_foreign_load_matrix_file_parent_class )->
@@ -398,11 +401,11 @@ G_DEFINE_TYPE( VipsForeignLoadMatrixSource, vips_foreign_load_matrix_source,
 static int
 vips_foreign_load_matrix_source_build( VipsObject *object )
 {
+	VipsForeignLoadMatrix *matrix = (VipsForeignLoadMatrix *) object;
 	VipsForeignLoadMatrixSource *source = 
 		(VipsForeignLoadMatrixSource *) object;
-	VipsForeignLoadMatrix *matrix = (VipsForeignLoadMatrix *) object;
 
-	if( matrix->source ) {
+	if( source->source ) {
 		matrix->source = source->source;
 		g_object_ref( matrix->source );
 	}
@@ -441,7 +444,7 @@ vips_foreign_load_matrix_source_is_a_source( VipsSource *source )
 
 static void
 vips_foreign_load_matrix_source_class_init( 
-	VipsForeignLoadMatrixFileClass *class )
+	VipsForeignLoadMatrixSourceClass *class )
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS( class );
 	VipsObjectClass *object_class = (VipsObjectClass *) class;
