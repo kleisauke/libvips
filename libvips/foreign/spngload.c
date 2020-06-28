@@ -192,7 +192,6 @@ vips_foreign_load_png_set_header( VipsForeignLoadPng *png, VipsImage *image )
 {
 	double xres, yres;
 	struct spng_iccp iccp;
-	struct spng_text *text;
 	struct spng_exif exif;
 	struct spng_phys phys;
 	guint32 n_text;
@@ -232,16 +231,20 @@ vips_foreign_load_png_set_header( VipsForeignLoadPng *png, VipsImage *image )
 		vips_image_set_blob_copy( image, 
 			VIPS_META_ICC_NAME, iccp.profile, iccp.profile_len );
 
-	spng_get_text( png->ctx, NULL, &n_text );
-	text = VIPS_ARRAY( VIPS_OBJECT( png ), n_text, struct spng_text );
-	if( !spng_get_text( png->ctx, text, &n_text ) ) {
-		guint32 i;
+	if( !spng_get_text( png->ctx, NULL, &n_text ) ) {
+		struct spng_text *text;
 
-		for( i = 0; i < n_text; i++ ) 
-			/* .text is always a null-terminated C string.
-			 */
-			vips_foreign_load_png_set_text( image, 
-				i, text[i].keyword, text[i].text );
+		text = VIPS_ARRAY( VIPS_OBJECT( png ), 
+			n_text, struct spng_text );
+		if( !spng_get_text( png->ctx, text, &n_text ) ) {
+			guint32 i;
+
+			for( i = 0; i < n_text; i++ ) 
+				/* .text is always a null-terminated C string.
+				 */
+				vips_foreign_load_png_set_text( image, 
+					i, text[i].keyword, text[i].text );
+		}
 	}
 
 	if( !spng_get_exif( png->ctx, &exif ) ) 
@@ -398,6 +401,12 @@ vips_foreign_load_png_header( VipsForeignLoad *load )
 	return( 0 );
 }
 
+static void
+vips_foreign_load_png_minimise( VipsObject *object, VipsForeignLoadPng *png )
+{
+	vips_source_minimise( png->source );
+}
+
 static int
 vips_foreign_load_png_generate( VipsRegion *or, 
 	void *seq, void *a, void *b, gboolean *stop )
@@ -511,6 +520,10 @@ vips_foreign_load_png_load( VipsForeignLoad *load )
 			return( -1 );
 		}
 
+		/* We've now finished reading the file.
+		 */
+		vips_source_minimise( png->source );
+
 		if( vips_image_write( t[0], load->real ) )
 			return( -1 );
 	}
@@ -528,6 +541,11 @@ vips_foreign_load_png_load( VipsForeignLoad *load )
 				"%s", spng_strerror( error ) ); 
 			return( -1 );
 		}
+
+		/* Close input immediately at end of read.
+		 */
+		g_signal_connect( t[0], "minimise",
+			G_CALLBACK( vips_foreign_load_png_minimise ), png );
 
 		if( vips_image_generate( t[0], 
 				NULL, vips_foreign_load_png_generate, NULL, 
