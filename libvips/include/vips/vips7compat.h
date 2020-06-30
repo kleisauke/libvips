@@ -1044,6 +1044,29 @@ int im_read_point( VipsImage *image, int x, int y, VipsPel *ink );
 int im_draw_smudge( VipsImage *image, 
 	int left, int top, int width, int height );
 
+int im_correl( VipsImage *ref, VipsImage *sec,
+	int xref, int yref, int xsec, int ysec,
+	int hwindowsize, int hsearchsize,
+	double *correlation, int *x, int *y );
+
+int im_lrmerge( VipsImage *ref, VipsImage *sec, VipsImage *out,
+	int dx, int dy, int mwidth );
+int im_tbmerge( VipsImage *ref, VipsImage *sec, VipsImage *out,
+	int dx, int dy, int mwidth );
+
+int im_lrmosaic( VipsImage *ref, VipsImage *sec, VipsImage *out,
+	int bandno,
+	int xref, int yref, int xsec, int ysec,
+	int hwindowsize, int hsearchsize,
+	int balancetype,
+	int mwidth );
+int im_tbmosaic( VipsImage *ref, VipsImage *sec, VipsImage *out, 
+	int bandno,
+	int xref, int yref, int xsec, int ysec, 
+	int hwindowsize, int hsearchsize,
+	int balancetype,
+	int mwidth );
+
 void im_filename_split( const char *path, char *name, char *mode );
 const char *im_skip_dir( const char *filename );
 void im_filename_suffix( const char *path, char *suffix );
@@ -1088,11 +1111,6 @@ int im_tbmosaic1( VipsImage *ref, VipsImage *sec, VipsImage *out,
 	int hwindowsize, int hsearchsize,
 	int balancetype,
 	int mwidth );
-
-int im_correl( VipsImage *ref, VipsImage *sec,
-	int xref, int yref, int xsec, int ysec,
-	int hwindowsize, int hsearchsize,
-	double *correlation, int *x, int *y );
 
 int im_align_bands( VipsImage *in, VipsImage *out );
 int im_maxpos_subpel( VipsImage *in, double *x, double *y );
