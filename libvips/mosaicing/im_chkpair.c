@@ -98,7 +98,7 @@ vips_correl( VipsImage *ref, VipsImage *sec,
 {
 	VipsImage *surface = vips_image_new();
 	VipsImage **t = (VipsImage **)
-			vips_object_local_array( VIPS_OBJECT( surface ), 4 );
+		vips_object_local_array( VIPS_OBJECT( surface ), 4 );
 
 	VipsRect refr, secr;
 	VipsRect winr, srhr;

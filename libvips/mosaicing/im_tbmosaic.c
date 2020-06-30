@@ -78,7 +78,7 @@ vips__find_tboverlap( VipsImage *ref_in, VipsImage *sec_in, VipsImage *out,
 	double *scale1, double *angle1, double *dx1, double *dy1 )
 {
 	VipsImage **t = (VipsImage **)
-			vips_object_local_array( VIPS_OBJECT( out ), 6 );
+		vips_object_local_array( VIPS_OBJECT( out ), 6 );
 
 	VipsRect top, bottom, overlap;
 	TiePoints points, *p_points;		/* defined in mosaic.h */
