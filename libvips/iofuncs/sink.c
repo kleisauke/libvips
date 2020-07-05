@@ -124,7 +124,7 @@ static void
 sink_area_free( SinkArea *area )
 {
 	vips_semaphore_destroy( &area->n_thread );
-	vips_free( area );
+	g_free( area );
 }
 
 static SinkArea *

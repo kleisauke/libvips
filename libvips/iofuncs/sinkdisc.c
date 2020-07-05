@@ -158,7 +158,7 @@ wbuffer_free( WriteBuffer *wbuffer )
 	vips_semaphore_destroy( &wbuffer->nwrite );
 	vips_semaphore_destroy( &wbuffer->done );
 	vips_semaphore_destroy( &wbuffer->finish );
-	vips_free( wbuffer );
+	g_free( wbuffer );
 }
 
 static void
