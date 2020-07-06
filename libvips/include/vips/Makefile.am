@@ -52,6 +52,8 @@ pkginclude_HEADERS = \
 
 EXTRA_DIST = version.h.in internal.h enumtemplate
 
+nodist_pkginclude_HEADERS = version.h
+
 # the headers we scan for enums etc.
 # keep in sync with ${top_srcdir}/libvips/iofuncs/Makefile.am
 # we need absolute filenames here since this list appears in the src dir as
