@@ -26,15 +26,16 @@ addons:
       - libjpeg-turbo8-dev
       - libpng12-dev
       - libwebp-dev
-      # missing on xenial, unfortunately
-      # - libwebpmux2
+      - libwebpdemux2
+      - libwebpmux3
       - libtiff5-dev
       - libheif-dev
       - libexpat1-dev
       - libmagick++-dev
       - libcfitsio3-dev
-      - libgsl0-dev
+      - libgsl-dev
       - libmatio-dev
+      - libnifti-dev
       - liborc-0.4-dev
       - liblcms2-dev
       - libpoppler-glib-dev
@@ -74,7 +75,7 @@ jobs:
   include:
     - os: linux
       sudo: required
-      dist: xenial
+      dist: bionic
       compiler: gcc
       addons:
         apt:
@@ -94,13 +95,13 @@ jobs:
       cache: ccache
     - os: linux
       sudo: required
-      dist: xenial
+      dist: bionic
       compiler: clang
       addons:
         apt:
           sources:
             - *common_sources
-            - sourceline: deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-10 main
+            - sourceline: deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main
               key_url: https://apt.llvm.org/llvm-snapshot.gpg.key
           packages:
             - *common_packages
@@ -121,12 +122,6 @@ jobs:
         - LD_LIBRARY_PATH="`dirname $ASAN_DSO`:/usr/lib/llvm-10/lib:$LD_LIBRARY_PATH"
         - DLCLOSE_PRELOAD="$TRAVIS_BUILD_DIR/dlclose.so"
       install:
-        # add support for WebP
-        - wget http://archive.ubuntu.com/ubuntu/pool/main/libw/libwebp/libwebp-dev_0.6.1-2_amd64.deb
-        - wget http://archive.ubuntu.com/ubuntu/pool/main/libw/libwebp/libwebpdemux2_0.6.1-2_amd64.deb
-        - wget http://archive.ubuntu.com/ubuntu/pool/main/libw/libwebp/libwebpmux3_0.6.1-2_amd64.deb
-        - wget http://archive.ubuntu.com/ubuntu/pool/main/libw/libwebp/libwebp6_0.6.1-2_amd64.deb
-        - sudo dpkg -i *.deb
         # switch to Clang 10 using update-alternatives
         - sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 100
           --slave /usr/bin/clang++ clang++ /usr/bin/clang++-10
