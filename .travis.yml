@@ -110,6 +110,7 @@ jobs:
         - WITH_MAGICK=no
         - LDSHARED="clang -shared"
         - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
+        - CXXFLAGS="$CFLAGS"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan -fopenmp=libomp"
         - ASAN_DSO=`clang-10 -print-file-name=libclang_rt.asan-x86_64.so`
         - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
