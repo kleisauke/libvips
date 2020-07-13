@@ -80,7 +80,7 @@ jobs:
         - JPEG=/usr
         - JOBS=`nproc`
         - WITH_MAGICK=yes
-        - CFLAGS="-Wcast-function-type"
+        - CFLAGS="-Werror=cast-function-type"
       cache: ccache
     - os: linux
       sudo: required
