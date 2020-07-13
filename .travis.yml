@@ -76,11 +76,21 @@ jobs:
       sudo: required
       dist: xenial
       compiler: gcc
+      addons:
+        apt:
+          sources:
+            - *common_sources
+            - ubuntu-toolchain-r-test
+          packages:
+            - *common_packages
+            - g++-10
       env:
         - JPEG=/usr
         - JOBS=`nproc`
         - WITH_MAGICK=yes
-        - CFLAGS="-Werror=cast-function-type"
+        - CC="gcc-10"
+        - CXX="g++-10"
+        - CFLAGS="-Wcast-function-type"
       cache: ccache
     - os: linux
       sudo: required
