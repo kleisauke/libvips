@@ -22,7 +22,7 @@ addons:
       - libfftw3-dev
       - libexif-dev
       - libjpeg-turbo8-dev
-      - libpng12-dev
+      - libpng-dev
       - libwebp-dev
       - libwebpdemux2
       - libwebpmux3
@@ -30,7 +30,7 @@ addons:
       - libheif-dev
       - libexpat1-dev
       - libmagick++-dev
-      - libcfitsio3-dev
+      - libcfitsio-dev
       - libgsl-dev
       - libmatio-dev
       - libnifti-dev
