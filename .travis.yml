@@ -75,10 +75,20 @@ jobs:
       sudo: required
       dist: bionic
       compiler: gcc
+      addons:
+        apt:
+          sources:
+            - *common_sources
+            - ubuntu-toolchain-r-test
+          packages:
+            - *common_packages
+            - g++-10
       env:
         - JPEG=/usr
         - JOBS=`nproc`
         - WITH_MAGICK=yes
+        - CC="gcc-10"
+        - CXX="g++-10"
       cache: ccache
     - os: linux
       sudo: required
