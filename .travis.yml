@@ -117,7 +117,7 @@ jobs:
         - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp"
-        - LD_LIBRARY_PATH="`dirname $ASAN_DSO`:/usr/lib/llvm-10/lib:$LD_LIBRARY_PATH"
+        - LD_LIBRARY_PATH="/usr/lib/llvm-10/lib:$LD_LIBRARY_PATH"
         - DLCLOSE_PRELOAD="$TRAVIS_BUILD_DIR/dlclose.so"
       install:
         # switch to Clang 10 using update-alternatives
@@ -154,7 +154,7 @@ before_script:
 
 script:
   - make -j$JOBS -s -k V=0 VERBOSE=1 check
-  - LD_LIBRARY_PATH=$PWD/libvips/.libs:$LD_LIBRARY_PATH
-    DYLD_LIBRARY_PATH=$PWD/libvips/.libs:$DYLD_LIBRARY_PATH
+  - LD_LIBRARY_PATH="$PWD/libvips/.libs:$LD_LIBRARY_PATH"
+    DYLD_LIBRARY_PATH="$PWD/libvips/.libs:$DYLD_LIBRARY_PATH"
     LD_PRELOAD="$ASAN_DSO $DLCLOSE_PRELOAD"
     $PYTHON -m pytest -sv --log-cli-level=WARNING test/test-suite
