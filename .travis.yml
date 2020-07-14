@@ -67,9 +67,10 @@ jobs:
     - os: osx
   fast_finish: true
   include:
-    - stage: "Test"
+    - stage: "Test Linux"
       os: linux
       dist: bionic
+      compiler: gcc
       name: "Ubuntu Bionic / GCC 10"
       addons:
         apt:
@@ -89,6 +90,7 @@ jobs:
       cache: ccache
     - os: linux
       dist: bionic
+      compiler: clang
       name: "Ubuntu Bionic / Clang 10 with ASan and UBSan"
       addons:
         apt:
@@ -115,14 +117,11 @@ jobs:
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp:print_stacktrace=1"
         - LD_LIBRARY_PATH="/usr/lib/llvm-10/lib:`dirname $ASAN_DSO`"
-        - DLCLOSE_PRELOAD="$TRAVIS_BUILD_DIR/dlclose.so"
-      install:
-        # workaround for https://github.com/google/sanitizers/issues/89
-        # otherwise libIlmImf-2_2.so ends up as <unknown module>
-        - echo -e '#include <stdio.h>\nint dlclose(void*handle){return 0;}' | $CC -shared -xc -odlclose.so -
       cache: ccache
-    - os: osx
+    - stage: "Test macOS"
+      os: osx
       osx_image: xcode11
+      compiler: gcc
       name: "macOS 10.14.6 / Xcode 11.0"
       env:
         - JPEG=/usr/local/opt/jpeg-turbo
@@ -147,9 +146,7 @@ before_script:
 
 script:
   - make -j$JOBS -s -k V=0 VERBOSE=1 check
-  - nm -D $ASAN_DSO
-  - ldd $PWD/libvips/.libs/libvips.so.42
   - LD_LIBRARY_PATH="$PWD/libvips/.libs:$LD_LIBRARY_PATH"
-    DYLD_LIBRARY_PATH="$PWD/libvips/.libs"
-    LD_PRELOAD="$ASAN_DSO $DLCLOSE_PRELOAD"
+    DYLD_LIBRARY_PATH=$PWD/libvips/.libs
+    LD_PRELOAD=$ASAN_DSO
     $PYTHON -m pytest -sv --log-cli-level=WARNING test/test-suite
