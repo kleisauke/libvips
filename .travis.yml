@@ -14,10 +14,10 @@ addons:
       - sourceline: 'ppa:strukturag/libde265'
     packages: &common_packages
       - gtk-doc-tools
+      - gobject-introspection
       - python3-pip
       - python3-setuptools
       - python3-wheel
-      - libgirepository-1.0
       - libfftw3-dev
       - libexif-dev
       - libjpeg-turbo8-dev
