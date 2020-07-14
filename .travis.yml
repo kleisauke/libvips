@@ -29,7 +29,6 @@ addons:
       - libtiff5-dev
       - libheif-dev
       - libexpat1-dev
-      - libmagick++-dev
       - libcfitsio-dev
       - libgsl-dev
       - libmatio-dev
@@ -82,13 +81,16 @@ jobs:
             - ubuntu-toolchain-r-test
           packages:
             - *common_packages
+            - libmagick++-dev
             - g++-10
       env:
         - JPEG=/usr
         - JOBS=`nproc`
-        - WITH_MAGICK=yes
         - CC="gcc-10"
+        - CC_FOR_BUILD=$CC
         - CXX="g++-10"
+        - CXX_FOR_BUILD=$CXX
+        - LDSHARED="$CC -shared"
       cache: ccache
     - os: linux
       sudo: required
@@ -107,32 +109,31 @@ jobs:
       env:
         - JPEG=/usr
         - JOBS=`nproc`
-        - WITH_MAGICK=no
-        - LDSHARED="clang -shared"
+        - CC="clang-10"
+        - CC_FOR_BUILD=$CC
+        - CXX="clang++-10"
+        - CXX_FOR_BUILD=$CXX
+        - LDSHARED="$CC -shared"
         - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - CXXFLAGS="$CFLAGS"
         - LDFLAGS="-fsanitize=address,undefined -fopenmp=libomp"
-        - ASAN_DSO=`clang-10 -print-file-name=libclang_rt.asan-x86_64.so`
+        - ASAN_DSO=`$CC -print-file-name=libclang_rt.asan-x86_64.so`
         - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
-        - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp:detect_leaks=1"
-        - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp:print_suppressions=1"
+        - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
+        - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp:print_stacktrace=1"
-        - LD_LIBRARY_PATH="/usr/lib/llvm-10/lib:$LD_LIBRARY_PATH"
+        - LD_LIBRARY_PATH="/usr/lib/llvm-10/lib"
         - DLCLOSE_PRELOAD="$TRAVIS_BUILD_DIR/dlclose.so"
       install:
-        # switch to Clang 10 using update-alternatives
-        - sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 100
-          --slave /usr/bin/clang++ clang++ /usr/bin/clang++-10
         # workaround for https://github.com/google/sanitizers/issues/89
         # otherwise libIlmImf-2_2.so ends up as <unknown module>
-        - echo -e '#include <stdio.h>\nint dlclose(void*handle){return 0;}' | clang -shared -xc -odlclose.so -
+        - echo -e '#include <stdio.h>\nint dlclose(void*handle){return 0;}' | $CC -shared -xc -odlclose.so -
       cache: ccache
     - os: osx
       osx_image: xcode11
       env:
         - JPEG=/usr/local/opt/jpeg-turbo
         - JOBS="`sysctl -n hw.ncpu`"
-        - WITH_MAGICK=yes
         - PATH="/usr/local/opt/ccache/libexec:$PATH"
         - PKG_CONFIG_PATH="/usr/local/opt/jpeg-turbo/lib/pkgconfig:/usr/local/opt/libxml2/lib/pkgconfig:$PKG_CONFIG_PATH"
         - HOMEBREW_NO_AUTO_UPDATE=1
@@ -149,7 +150,6 @@ before_script:
     --disable-deprecated
     --with-jpeg-includes=$JPEG/include
     --with-jpeg-libraries=$JPEG/lib
-    --with-magick=$WITH_MAGICK
   - make -j$JOBS -s
 
 script:
