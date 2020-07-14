@@ -67,10 +67,10 @@ jobs:
     - os: osx
   fast_finish: true
   include:
-    - os: linux
-      sudo: required
+    - stage: "Test"
+      os: linux
       dist: bionic
-      compiler: gcc
+      name: "Ubuntu Bionic / GCC 10"
       addons:
         apt:
           sources:
@@ -84,15 +84,12 @@ jobs:
         - JPEG=/usr
         - JOBS=`nproc`
         - CC="gcc-10"
-        - CC_FOR_BUILD=$CC
         - CXX="g++-10"
-        - CXX_FOR_BUILD=$CXX
         - LDSHARED="$CC -shared"
       cache: ccache
     - os: linux
-      sudo: required
       dist: bionic
-      compiler: clang
+      name: "Ubuntu Bionic / Clang 10 with ASan and UBSan"
       addons:
         apt:
           sources:
@@ -107,13 +104,11 @@ jobs:
         - JPEG=/usr
         - JOBS=`nproc`
         - CC="clang-10"
-        - CC_FOR_BUILD=$CC
         - CXX="clang++-10"
-        - CXX_FOR_BUILD=$CXX
         - LDSHARED="$CC -shared"
         - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - CXXFLAGS="$CFLAGS"
-        - LDFLAGS="-fsanitize=address,undefined -fopenmp=libomp"
+        - LDFLAGS="-fsanitize=address,undefined -shared-libasan -fopenmp=libomp"
         - ASAN_DSO=`$CC -print-file-name=libclang_rt.asan-x86_64.so`
         - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
         - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
@@ -128,6 +123,7 @@ jobs:
       cache: ccache
     - os: osx
       osx_image: xcode11
+      name: "macOS 10.14.6 / Xcode 11.0"
       env:
         - JPEG=/usr/local/opt/jpeg-turbo
         - JOBS="`sysctl -n hw.ncpu`"
