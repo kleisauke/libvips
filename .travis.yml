@@ -13,6 +13,7 @@ addons:
       - sourceline: 'ppa:strukturag/libheif'
       - sourceline: 'ppa:strukturag/libde265'
     packages: &common_packages
+      - gtk-doc-tools
       - python3-pip
       - python3-setuptools
       - python3-wheel
