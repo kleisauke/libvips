@@ -154,7 +154,7 @@ before_script:
 
 script:
   - make -j$JOBS -s -k V=0 VERBOSE=1 check
-  - LD_LIBRARY_PATH=$PWD/libvips/.libs
-    DYLD_LIBRARY_PATH=$PWD/libvips/.libs
+  - LD_LIBRARY_PATH=$PWD/libvips/.libs:$LD_LIBRARY_PATH
+    DYLD_LIBRARY_PATH=$PWD/libvips/.libs:$DYLD_LIBRARY_PATH
     LD_PRELOAD="$ASAN_DSO $DLCLOSE_PRELOAD"
     $PYTHON -m pytest -sv --log-cli-level=WARNING test/test-suite
