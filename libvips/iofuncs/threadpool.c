@@ -326,7 +326,7 @@ vips__concurrency_get_default( void )
 	 */
 	if( vips__concurrency > 0 )
 		nthr = vips__concurrency;
-#if VIPS_ENABLE_DEPRECATED
+#if ENABLE_DEPRECATED
 	else if( ((str = g_getenv( "VIPS_CONCURRENCY" )) ||
 		(str = g_getenv( "IM_CONCURRENCY" ))) &&
 #else

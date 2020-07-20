@@ -198,14 +198,15 @@ vips_foreign_load_png_set_header( VipsForeignLoadPng *png, VipsImage *image )
 
 	/* Get resolution. Default to 72 pixels per inch.
 	 */
-	xres = (72.0 / 2.54 * 100.0);
-	yres = (72.0 / 2.54 * 100.0);
+	xres = 72.0 / 25.4;
+	yres = 72.0 / 25.4;
 	if( !spng_get_phys( png->ctx, &phys ) ) {
-		/* There's phys.units, but it's always 0, meaning pixels per
-		 * metre.
+		/* unit 1 means pixels per metre, otherwise unspecified.
 		 */
-		xres = phys.ppu_x / 1000.0;
-		yres = phys.ppu_y / 1000.0;
+		xres = phys.unit_specifier == 1 ? 
+			phys.ppu_x / 1000.0 : phys.ppu_x;
+		yres = phys.unit_specifier == 1 ? 
+			phys.ppu_y / 1000.0 : phys.ppu_y;
 	}
 
 	vips_image_init_fields( image,
@@ -468,6 +469,9 @@ vips_foreign_load_png_generate( VipsRegion *or,
 			printf( "  thread %p\n", g_thread_self() );
 			printf( "  error %s\n", spng_strerror( error ) ); 
 #endif /*DEBUG*/
+
+			g_warning( "%s: %s", 
+				class->nickname, spng_strerror( error ) );
 
 			/* And bail if fail is on. 
 			 */
