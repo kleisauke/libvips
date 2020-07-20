@@ -1254,7 +1254,7 @@ write_associated( VipsForeignSaveDz *dz )
 	return( 0 );
 }
 
-/* Our state during a threaded write of a strip.
+/* Our state during a write of a strip.
  */
 typedef struct _Strip {
 	Layer *layer; 
@@ -1281,7 +1281,6 @@ strip_init( Strip *strip, Layer *layer )
 
 	strip->layer = layer;
 	strip->image = NULL;
-	strip->x = 0;
 
 	/* The image we wrap around our pixel buffer must be the full width,
 	 * including any rounding up, since we must have contiguous pixels.
@@ -1315,54 +1314,6 @@ strip_init( Strip *strip, Layer *layer )
 	/* Type needs to be set so we know how to convert for save correctly.
 	 */
 	strip->image->Type = layer->image->Type;
-}
-
-static int
-strip_allocate( VipsThreadState *state, void *a, gboolean *stop )
-{
-	Strip *strip = (Strip *) a;
-	Layer *layer = strip->layer;
-	VipsForeignSaveDz *dz = layer->dz;
-
-	VipsRect image;
-
-#ifdef DEBUG_VERBOSE
-	printf( "strip_allocate\n" );
-#endif /*DEBUG_VERBOSE*/
-
-	/* We can't test for allocated area empty, since it might just have
-	 * bits of the left-hand overlap in and no new pixels. Safest to count
-	 * tiles across.
-	 */
-	if( strip->x / dz->tile_step >= layer->tiles_across ) {
-		*stop = TRUE;
-#ifdef DEBUG_VERBOSE
-		printf( "strip_allocate: done\n" );
-#endif /*DEBUG_VERBOSE*/
-
-		return( 0 );
-	}
-
-	image.left = 0;
-	image.top = 0;
-	image.width = layer->width;
-	image.height = layer->height;
-
-	/* Position this tile.
-	 */
-	state->pos.left = strip->x;
-	state->pos.top = layer->y;
-	state->pos.width = dz->tile_size;
-	state->pos.height = dz->tile_size;
-	vips_rect_marginadjust( &state->pos, dz->tile_margin );
-
-	vips_rect_intersectrect( &image, &state->pos, &state->pos );
-	state->x = strip->x;
-	state->y = layer->y;
-
-	strip->x += dz->tile_step;
-
-	return( 0 );
 }
 
 /* Make an output object for a tile in the current layout.
@@ -1530,9 +1481,8 @@ tile_equal( VipsImage *image, int threshold, VipsPel * restrict ink )
 }
 
 static int
-strip_work( VipsThreadState *state, void *a )
+strip_work( VipsRect *state, Strip *strip )
 {
-	Strip *strip = (Strip *) a;
 	Layer *layer = strip->layer;
 	VipsForeignSaveDz *dz = layer->dz;
 	VipsForeignSave *save = (VipsForeignSave *) dz;
@@ -1551,15 +1501,15 @@ strip_work( VipsThreadState *state, void *a )
 	if( dz->centre ) {
 		VipsRect tile; 
 
-		tile.left = state->x;
-		tile.top = state->y;
+		tile.left = strip->x;
+		tile.top = layer->y;
 		tile.width = dz->tile_size;
 		tile.height = dz->tile_size;
 		if( !vips_rect_overlapsrect( &tile, &layer->real_pixels ) ) {
 #ifdef DEBUG_VERBOSE
 			printf( "strip_work: skipping tile %d x %d\n", 
-				state->x / dz->tile_size, 
-				state->y / dz->tile_size ); 
+				strip->x / dz->tile_size, 
+				layer->y / dz->tile_size ); 
 #endif /*DEBUG_VERBOSE*/
 
 			return( 0 ); 
@@ -1571,8 +1521,8 @@ strip_work( VipsThreadState *state, void *a )
 	/* Extract relative to the strip top-left corner.
 	 */
 	if( vips_extract_area( strip->image, &x, 
-		state->pos.left, 0, 
-		state->pos.width, state->pos.height, NULL ) ) 
+		state->left, 0, 
+		state->width, state->height, NULL ) ) 
 		return( -1 );
 
 	if( dz->skip_blanks >= 0 &&
@@ -1581,8 +1531,8 @@ strip_work( VipsThreadState *state, void *a )
 
 #ifdef DEBUG_VERBOSE
 		printf( "strip_work: skipping blank tile %d x %d\n", 
-			state->x / dz->tile_size, 
-			state->y / dz->tile_size ); 
+			strip->x / dz->tile_size, 
+			layer->y / dz->tile_size ); 
 #endif /*DEBUG_VERBOSE*/
 
 		return( 0 ); 
@@ -1607,7 +1557,7 @@ strip_work( VipsThreadState *state, void *a )
 	g_mutex_lock( vips__global_lock );
 
 	out = tile_name( layer, 
-		state->x / dz->tile_step, state->y / dz->tile_step );
+		strip->x / dz->tile_step, layer->y / dz->tile_step );
 
 	g_mutex_unlock( vips__global_lock );
 
@@ -1628,24 +1578,48 @@ strip_work( VipsThreadState *state, void *a )
 	return( 0 );
 }
 
-/* Write a line of tiles with a threadpool. 
+/* Write a line of tiles.
  */
 static int
 strip_save( Layer *layer )
 {
+	VipsForeignSaveDz *dz = layer->dz;
+
 	Strip strip;
+	VipsRect image;
+
+	image.left = 0;
+	image.top = 0;
+	image.width = layer->width;
+	image.height = layer->height;
 
 #ifdef DEBUG
 	printf( "strip_save: n = %d, y = %d\n", layer->n, layer->y );
 #endif /*DEBUG*/
 
 	strip_init( &strip, layer );
-	if( vips_threadpool_run( strip.image, 
-		vips_thread_state_new, strip_allocate, strip_work, NULL, 
-		&strip ) ) {
-		strip_free( &strip );
-		return( -1 );
+
+	for( strip.x = 0; 
+		strip.x / dz->tile_step < layer->tiles_across; 
+		strip.x += dz->tile_step ) {
+		VipsRect tile;
+
+		/* Position this tile.
+		 */
+		tile.left = strip.x;
+		tile.top = layer->y;
+		tile.width = dz->tile_size;
+		tile.height = dz->tile_size;
+		vips_rect_marginadjust( &tile, dz->tile_margin );
+
+		vips_rect_intersectrect( &image, &tile, &tile );
+
+		if ( strip_work( &tile, &strip ) ) {
+			strip_free( &strip );
+			return( -1 );
+		}
 	}
+
 	strip_free( &strip );
 
 #ifdef DEBUG
