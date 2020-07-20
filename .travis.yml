@@ -26,8 +26,7 @@ addons:
       - libtiff5-dev
       - libheif-dev
       - libexpat1-dev
-      - libmagick++-dev
-      - libcfitsio3-dev
+      - libcfitsio-dev
       - libgsl-dev
       - libmatio-dev
       - libnifti-dev
