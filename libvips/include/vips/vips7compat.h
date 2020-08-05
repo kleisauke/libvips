@@ -36,10 +36,6 @@
 
 #include <vips/mask.h>
 
-#ifdef HAVE_ORC
-#include <orc/orc.h>
-#endif /* HAVE_ORC */
-
 #ifdef __cplusplus
 extern "C" {
 #endif /*__cplusplus*/
@@ -1660,7 +1656,8 @@ int vips__init(const char *argv0);
 
 size_t vips__get_sizeof_vipsobject(void);
 
-/* This is deprecated to make room for highway.
+/* This is deprecated now that we've removed liborc in favour of
+ * highway.
  */
 #define VIPS_VECTOR_SOURCE_MAX (10)
 
@@ -1683,18 +1680,10 @@ typedef struct {
 
 	int d1;
 
-#ifdef HAVE_ORC
-	OrcProgram *program;
-#endif /*HAVE_ORC*/
-
 	gboolean compiled;
 } VipsVector;
 
 typedef struct {
-#ifdef HAVE_ORC
-	OrcExecutor executor;
-#endif /*HAVE_ORC*/
-
 	VipsVector *vector;
 } VipsExecutor;
 
