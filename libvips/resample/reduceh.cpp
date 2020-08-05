@@ -179,7 +179,7 @@ reduceh_unsigned_int_tab( VipsReduceh *reduceh,
 
 	for( int z = 0; z < bands; z++ ) {
 		int sum;
-	       
+
 		sum = reduce_sum<T, int>( in + z, bands, cx, n );
 		sum = unsigned_fixed_round( sum ); 
 		sum = VIPS_CLIP( 0, sum, max_value ); 
@@ -260,8 +260,7 @@ reduceh_signed_int32_tab( VipsReduceh *reduceh,
 		double sum;
 
 		sum = reduce_sum<T, double>( in + z, bands, cx, n );
-		sum = VIPS_CLIP( min_value, sum, max_value ); 
-		out[z] = sum;
+		out[z] = VIPS_CLIP( min_value, sum, max_value );
 	}
 }
 
@@ -288,10 +287,6 @@ reduceh_notab( VipsReduceh *reduceh,
 		out[z] = VIPS_ROUND_UINT( sum );
 	}
 }
-
-/* Tried a vector path (see reducev) but it was slower. The vectors for
- * horizontal reduce are just too small to get a useful speedup.
- */
 
 static int
 vips_reduceh_gen( VipsRegion *out_region, void *seq, 
@@ -438,7 +433,8 @@ vips_reduceh_build( VipsObject *object )
 		vips_object_local_array( object, 2 );
 
 	VipsImage *in;
-	double width, extra_pixels;
+	int width;
+	double extra_pixels;
 
 	if( VIPS_OBJECT_CLASS( vips_reduceh_parent_class )->build( object ) )
 		return( -1 );
@@ -447,7 +443,7 @@ vips_reduceh_build( VipsObject *object )
 
 	if( reduceh->hshrink < 1 ) { 
 		vips_error( object_class->nickname, 
-			"%s", _( "reduce factors should be >= 1" ) );
+			"%s", _( "reduce factor should be >= 1" ) );
 		return( -1 );
 	}
 

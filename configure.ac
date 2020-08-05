@@ -739,42 +739,6 @@ else
   enable_magicksave=no
 fi
 
-# orc
-AC_ARG_WITH([orc], 
-  AS_HELP_STRING([--without-orc], [build without orc (default: test)]))
-
-if test x"$with_orc" != x"no"; then
-  # we use loadpw etc.
-  PKG_CHECK_MODULES(ORC, orc-0.4 >= 0.4.11,
-    [AC_DEFINE(HAVE_ORC,1,[define if you have orc-0.4.11 or later installed.])
-     with_orc=yes
-     PACKAGES_USED="$PACKAGES_USED orc-0.4"
-     save_LIBS="$LIBS"
-     LIBS="$LIBS $ORC_LIBS"
-     AC_CHECK_FUNCS(orc_program_get_error,
-       AC_DEFINE(HAVE_ORC_PROGRAM_GET_ERROR,1,
-	      [define if your orc has orc_program_get_error.]))
-     LIBS="$save_LIBS"
-    ],
-    [AC_MSG_WARN([orc-0.4.11 or later not found; disabling orc support])
-     with_orc=no
-    ]
-  )
-fi
-
-# orc 0.4.30+ works with cf-protection, but 0.4.30 has a bug with multiple
-# definitions of OrcTargetPowerPCFlags, so insist on 0.4.31
-if test x"$with_orc" = x"yes"; then
-  PKG_CHECK_MODULES(ORC_CF_PROTECTION, orc-0.4 >= 0.4.31,
-    [AC_DEFINE(HAVE_ORC_CF_PROTECTION,1,
-	       [define if your orc works with cf-protection.]
-     )
-    ],
-    [:
-    ]
-  )
-fi
-
 # lcms ... refuse to use lcms1
 AC_ARG_WITH([lcms], 
   AS_HELP_STRING([--without-lcms], [build without lcms (default: test)]))
@@ -1279,13 +1243,13 @@ if test x"$LIB_FUZZING_ENGINE" = x; then
 fi
 
 # Gather all up for VIPS_CFLAGS, VIPS_INCLUDES, VIPS_LIBS
-VIPS_CFLAGS="$VIPS_CFLAGS $GTHREAD_CFLAGS $GIO_CFLAGS $REQUIRED_CFLAGS $EXPAT_CFLAGS $ZLIB_CFLAGS $PANGOFT2_CFLAGS $GSF_CFLAGS $FFTW_CFLAGS $MAGICK_CFLAGS $JPEG_CFLAGS $SPNG_CFLAGS $PNG_CFLAGS $IMAGEQUANT_CFLAGS $EXIF_CFLAGS $MATIO_CFLAGS $CFITSIO_CFLAGS $LIBWEBP_CFLAGS $LIBWEBPMUX_CFLAGS $GIFLIB_INCLUDES $RSVG_CFLAGS $PDFIUM_CFLAGS $POPPLER_CFLAGS $OPENEXR_CFLAGS $OPENSLIDE_CFLAGS $ORC_CFLAGS $TIFF_CFLAGS $LCMS_CFLAGS $HEIF_CFLAGS" VIPS_CFLAGS="$VIPS_DEBUG_FLAGS $VIPS_CFLAGS"
+VIPS_CFLAGS="$VIPS_CFLAGS $GTHREAD_CFLAGS $GIO_CFLAGS $REQUIRED_CFLAGS $EXPAT_CFLAGS $ZLIB_CFLAGS $PANGOFT2_CFLAGS $GSF_CFLAGS $FFTW_CFLAGS $MAGICK_CFLAGS $JPEG_CFLAGS $SPNG_CFLAGS $PNG_CFLAGS $IMAGEQUANT_CFLAGS $EXIF_CFLAGS $MATIO_CFLAGS $CFITSIO_CFLAGS $LIBWEBP_CFLAGS $LIBWEBPMUX_CFLAGS $GIFLIB_INCLUDES $RSVG_CFLAGS $PDFIUM_CFLAGS $POPPLER_CFLAGS $OPENEXR_CFLAGS $OPENSLIDE_CFLAGS $TIFF_CFLAGS $LCMS_CFLAGS $HEIF_CFLAGS" VIPS_CFLAGS="$VIPS_DEBUG_FLAGS $VIPS_CFLAGS"
 VIPS_INCLUDES="$ZLIB_INCLUDES $PNG_INCLUDES $TIFF_INCLUDES $JPEG_INCLUDES $NIFTI_INCLUDES" 
-VIPS_LIBS="$ZLIB_LIBS $HEIF_LIBS $MAGICK_LIBS $SPNG_LIBS $PNG_LIBS $IMAGEQUANT_LIBS $TIFF_LIBS $JPEG_LIBS $GTHREAD_LIBS $GIO_LIBS $REQUIRED_LIBS $EXPAT_LIBS $PANGOFT2_LIBS $GSF_LIBS $FFTW_LIBS $ORC_LIBS $LCMS_LIBS $GIFLIB_LIBS $RSVG_LIBS $NIFTI_LIBS $PDFIUM_LIBS $POPPLER_LIBS $OPENEXR_LIBS $OPENSLIDE_LIBS $CFITSIO_LIBS $LIBWEBP_LIBS $LIBWEBPMUX_LIBS $MATIO_LIBS $EXIF_LIBS -lm"
+VIPS_LIBS="$ZLIB_LIBS $HEIF_LIBS $MAGICK_LIBS $SPNG_LIBS $PNG_LIBS $IMAGEQUANT_LIBS $TIFF_LIBS $JPEG_LIBS $GTHREAD_LIBS $GIO_LIBS $REQUIRED_LIBS $EXPAT_LIBS $PANGOFT2_LIBS $GSF_LIBS $FFTW_LIBS $LCMS_LIBS $GIFLIB_LIBS $RSVG_LIBS $NIFTI_LIBS $PDFIUM_LIBS $POPPLER_LIBS $OPENEXR_LIBS $OPENSLIDE_LIBS $CFITSIO_LIBS $LIBWEBP_LIBS $LIBWEBPMUX_LIBS $MATIO_LIBS $EXIF_LIBS -lm"
 
 # autoconf hates multi-line AC_SUBST so we have to have another copy of this
 # thing
-VIPS_CONFIG="native win32: $vips_os_win32, native OS X: $vips_os_darwin, open files in binary mode: $vips_binary_open, enable debug: $enable_debug, enable deprecated library components: $enable_deprecated, enable docs with gtkdoc: $enable_gtk_doc, gobject introspection: $found_introspection, enable radiance support: $with_radiance, enable analyze support: $with_analyze, enable PPM support: $with_ppm, generate C++ docs: $with_doxygen, use fftw3 for FFT: $with_fftw, Magick package: $with_magickpackage, Magick API version: $magick_version, load with libMagick: $enable_magickload, save with libMagick: $enable_magicksave, accelerate loops with orc: $with_orc, ICC profile support with lcms: $with_lcms, file import with niftiio: $with_nifti, file import with libheif: $with_heif, file import with OpenEXR: $with_OpenEXR, file import with OpenSlide: $with_openslide, file import with matio: $with_matio, PDF import with PDFium: $with_pdfium, PDF import with poppler-glib: $with_poppler, SVG import with librsvg-2.0: $with_rsvg, zlib: $with_zlib, file import with cfitsio: $with_cfitsio, file import/export with libwebp: $with_libwebp, text rendering with pangoft2: $with_pangoft2, file import/export with libspng: $with_libspng, file import/export with libpng: $with_png, support 8bpp PNG quantisation: $with_imagequant, file import/export with libtiff: $with_tiff, file import/export with giflib: $with_giflib, file import/export with libjpeg: $with_jpeg, image pyramid export: $with_gsf, use libexif to load/save JPEG metadata: $with_libexif"
+VIPS_CONFIG="native win32: $vips_os_win32, native OS X: $vips_os_darwin, open files in binary mode: $vips_binary_open, enable debug: $enable_debug, enable deprecated library components: $enable_deprecated, enable docs with gtkdoc: $enable_gtk_doc, gobject introspection: $found_introspection, enable radiance support: $with_radiance, enable analyze support: $with_analyze, enable PPM support: $with_ppm, generate C++ docs: $with_doxygen, use fftw3 for FFT: $with_fftw, Magick package: $with_magickpackage, Magick API version: $magick_version, load with libMagick: $enable_magickload, save with libMagick: $enable_magicksave, ICC profile support with lcms: $with_lcms, file import with niftiio: $with_nifti, file import with libheif: $with_heif, file import with OpenEXR: $with_OpenEXR, file import with OpenSlide: $with_openslide, file import with matio: $with_matio, PDF import with PDFium: $with_pdfium, PDF import with poppler-glib: $with_poppler, SVG import with librsvg-2.0: $with_rsvg, zlib: $with_zlib, file import with cfitsio: $with_cfitsio, file import/export with libwebp: $with_libwebp, text rendering with pangoft2: $with_pangoft2, file import/export with libspng: $with_libspng, file import/export with libpng: $with_png, support 8bpp PNG quantisation: $with_imagequant, file import/export with libtiff: $with_tiff, file import/export with giflib: $with_giflib, file import/export with libjpeg: $with_jpeg, image pyramid export: $with_gsf, use libexif to load/save JPEG metadata: $with_libexif"
 
 AC_SUBST(VIPS_LIBDIR)
 
@@ -1367,8 +1331,6 @@ Magick package: 			$with_magickpackage
 Magick API version: 			$magick_version
 load with libMagick: 			$enable_magickload
 save with libMagick: 			$enable_magicksave
-accelerate loops with orc: 		$with_orc
-  (requires orc-0.4.11 or later)
 ICC profile support with lcms: 		$with_lcms
 file import with niftiio: 		$with_nifti
 file import with libheif: 		$with_heif

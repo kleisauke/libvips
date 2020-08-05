@@ -30,7 +30,6 @@ addons:
       - libgsl-dev
       - libmatio-dev
       - libnifti-dev
-      - liborc-0.4-dev
       - liblcms2-dev
       - libpoppler-glib-dev
       - librsvg2-dev
@@ -61,7 +60,6 @@ addons:
       - little-cms2
       - openexr
       - openslide
-      - orc
       - pango
       - poppler
       - webp
