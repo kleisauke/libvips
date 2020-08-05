@@ -467,22 +467,6 @@ if libhwy_dep.found()
     add_project_arguments('-DHWY_DISABLED_TARGETS=@0@'.format('|'.join(disabled_targets)), language: ['cpp'])
 endif
 
-# only if highway not found
-orc_dep = disabler()
-if not libhwy_dep.found()
-    # we use loadpw etc.
-    orc_dep = dependency('orc-0.4', version: '>=0.4.11', required: get_option('orc'))
-    if orc_dep.found()
-        libvips_deps += orc_dep
-        cfg_var.set('HAVE_ORC', '1')
-        # orc 0.4.30+ works with cf-protection, but 0.4.30 has a bug with multiple
-        # definitions of OrcTargetPowerPCFlags, so insist on 0.4.31
-        if orc_dep.version().version_compare('>=0.4.31')
-            cfg_var.set('HAVE_ORC_CF_PROTECTION', '1')
-        endif
-    endif
-endif
-
 # pick 4200 as the starting version number ... no reason, really, it'd
 # probably work with much older versions
 pdfium_dep = dependency('pdfium', version: '>=4200', required: get_option('pdfium'))
@@ -706,7 +690,6 @@ build_summary = {
   'Optional external packages':
     {'use fftw for FFTs': [fftw_dep.found()],
      'SIMD support with highway': [libhwy_dep.found()],
-     'accelerate loops with ORC': [orc_dep.found()],
      'ICC profile support with lcms': [lcms_dep.found()],
      'zlib': [zlib_dep.found()],
      'text rendering with pangocairo': [pangocairo_dep.found()],
