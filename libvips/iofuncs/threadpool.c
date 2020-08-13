@@ -121,6 +121,11 @@ int vips__thinstrip_height = VIPS__THINSTRIP_HEIGHT;
  */
 int vips__concurrency = 0;
 
+/* The amount of background threads that may run additionally
+ * within the thread pool (see vips_sink_disc).
+ */
+const int vips__bg_threads = 2;
+
 /* Set this GPrivate to indicate that this is a vips worker.
  */
 static GPrivate *is_worker_key = NULL;
@@ -128,6 +133,11 @@ static GPrivate *is_worker_key = NULL;
 /* Set to stall threads for debugging.
  */
 static gboolean vips__stall = FALSE;
+
+/* Whether the thread pool owns all threads exclusive or shares
+ * them with other thread pools.
+ */
+static gboolean vips__exclusive = TRUE;
 
 /* The thread pool we'll use.
  */
@@ -376,6 +386,10 @@ vips_concurrency_set( int concurrency )
 	}
 
 	vips__concurrency = concurrency;
+
+	if( vips__exclusive )
+		g_thread_pool_set_max_threads( vips__pool,
+			vips__concurrency + vips__bg_threads, NULL );
 }
 
 /**
@@ -900,11 +914,15 @@ vips__threadpool_init( void )
 	if( g_getenv( "VIPS_STALL" ) )
 		vips__stall = TRUE;
 
+	if( g_getenv( "VIPS_SHARED_THREADPOOL" ) )
+		vips__exclusive = FALSE;
+
 	if( vips__concurrency == 0 )
 		vips__concurrency = vips__concurrency_get_default();
 
 	vips__pool = g_thread_pool_new( vips_thread_main_loop, NULL,
-		-1, FALSE, NULL );
+		vips__exclusive ? vips__concurrency + vips__bg_threads : -1,
+		vips__exclusive, NULL );
 }
 
 /**
