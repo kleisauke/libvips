@@ -124,7 +124,7 @@ int vips__concurrency = 0;
 /* The amount of background threads that may run additionally
  * within the thread pool (see vips_sink_disc).
  */
-const int vips__bg_threads = 2;
+const int vips__bg_threads = 3;
 
 /* Set this GPrivate to indicate that this is a vips worker.
  */
