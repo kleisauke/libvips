@@ -88,7 +88,7 @@ typedef struct _VipsThreadState {
 
 	/* The client data passed to the enclosing vips_threadpool_run().
 	 */
-	void *a;
+        void *a;
 
 	/* Set in allocate to stall this thread for a moment. Handy for
 	 * debugging race conditions.

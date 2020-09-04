@@ -60,7 +60,7 @@ typedef struct _SinkArea {
 	struct _Sink *sink;
 
 	VipsRect rect;		/* Part of image this area covers */
-	VipsSemaphore n_thread;	/* Number of threads scanning this area */
+        VipsSemaphore n_thread;	/* Number of threads scanning this area */
 } SinkArea;
 
 /* Per-call state.
@@ -100,7 +100,7 @@ typedef struct _SinkThreadState {
 
 	/* Sequence value for this thread.
 	 */
-	void *seq;
+        void *seq;
 
 	/* The region we walk over sink.t copy. We can't use
 	 * parent_object.reg, it's defined on the outer image.
@@ -109,7 +109,7 @@ typedef struct _SinkThreadState {
 
 	/* The area we were allocated from. 
 	 */
-	SinkArea *area;
+        SinkArea *area;
 
 } SinkThreadState;
 

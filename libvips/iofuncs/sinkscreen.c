@@ -182,7 +182,7 @@ static GSList *render_dirty_all = NULL;
 /* A semaphore where the bg render thread waits on holding the number of
  * renders with dirty tiles
  */
-static VipsSemaphore n_render_dirty_sem;
+static VipsSemaphore n_render_dirty_sem; 
 
 /* A semaphore where the main thread waits for when the bg render thread
  * is shutdown.
@@ -468,7 +468,7 @@ vips__render_shutdown( void )
 
 			g_mutex_unlock( render_dirty_lock );
 
-			vips_semaphore_up( &n_render_dirty_sem );
+			vips_semaphore_up( &n_render_dirty_sem ); 
 
 			vips_semaphore_down( &render_finish );
 
@@ -483,7 +483,7 @@ vips__render_shutdown( void )
 	}
 }
 
-static int
+static int       
 render_dirty_sort( Render *a, Render *b, void *user_data )
 {
 	return( b->priority - a->priority );
@@ -902,7 +902,7 @@ image_fill( VipsRegion *out, void *seq, void *a, void *b, gboolean *stop )
 
 	VIPS_DEBUG_MSG( "image_fill: left = %d, top = %d, "
 		"width = %d, height = %d\n",
-  			r->left, r->top, r->width, r->height );
+                r->left, r->top, r->width, r->height );
 
 	g_mutex_lock( render->lock );
 
@@ -954,7 +954,7 @@ mask_fill( VipsRegion *out, void *seq, void *a, void *b, gboolean *stop )
 
 	VIPS_DEBUG_MSG( "mask_fill: left = %d, top = %d, "
 		"width = %d, height = %d\n",
-			r->left, r->top, r->width, r->height );
+                r->left, r->top, r->width, r->height );
 
 	g_mutex_lock( render->lock );
 
@@ -971,7 +971,7 @@ mask_fill( VipsRegion *out, void *seq, void *a, void *b, gboolean *stop )
 
 			tile = render_tile_lookup( render, &area );
 			value = (tile &&
-						tile->painted && 
+                                tile->painted && 
 				!tile->region->invalid) ? 255 : 0;
 
 			/* Only mark painted tiles containing valid pixels.

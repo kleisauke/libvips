@@ -72,11 +72,11 @@ typedef struct _WriteBuffer {
 
 	VipsRegion *region;	/* Pixels */
 	VipsRect area;		/* Part of image this region covers */
-	VipsSemaphore go; 	/* Start bg thread loop */
-	VipsSemaphore nwrite; 	/* Number of threads writing to region */
-	VipsSemaphore done; 	/* Bg thread has done write */
+        VipsSemaphore go; 	/* Start bg thread loop */
+        VipsSemaphore nwrite; 	/* Number of threads writing to region */
+        VipsSemaphore done; 	/* Bg thread has done write */
 	VipsSemaphore finish; 	/* Bg thread has finished */
-	int write_errno;	/* Save write errors here */
+       int write_errno;	/* Save write errors here */
 	gboolean running;	/* Whether the bg writer thread is running */
 	gboolean kill;		/* Set to ask thread to exit */
 } WriteBuffer;
@@ -140,9 +140,9 @@ write_thread_state_new( VipsImage *im, void *a )
 static void
 wbuffer_free( WriteBuffer *wbuffer )
 {
-	/* Is there a thread running this region? Kill it!
-	 */
-	if( wbuffer->running ) {
+        /* Is there a thread running this region? Kill it!
+         */
+        if( wbuffer->running ) {
                 wbuffer->kill = TRUE;
 		vips_semaphore_up( &wbuffer->go );
 

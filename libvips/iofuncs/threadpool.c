@@ -496,19 +496,19 @@ typedef struct _VipsTask {
 	VipsThreadpoolAllocateFn allocate;
 	VipsThreadpoolWorkFn work;
 	GMutex *allocate_lock;
-	void *a;		/* User argument to start / allocate / etc. */
+        void *a;		/* User argument to start / allocate / etc. */
 
 	/* The caller blocks here until all tasks finish.
 	 */
-	VipsSemaphore finish;
+	VipsSemaphore finish;	
 
 	/* Workers up this for every loop to make the main thread tick.
 	 */
-	VipsSemaphore tick;
+	VipsSemaphore tick;	
 
 	/* Set this to abort evaluation early with an error.
 	 */
-	gboolean error;	
+	gboolean error;		
 
 	/* Set by Allocate (via an arg) to indicate normal end of computation.
 	 */
@@ -700,20 +700,29 @@ vips_threadpool_push( const char *name, GFunc func, gpointer data )
 {
 	VipsThreadExec *exec;
 	GError *error = NULL;
+#if GLIB_CHECK_VERSION( 2, 32, 0 )
+	gboolean result;
+#else
+	gboolean result = TRUE;
+#endif
 
 	exec = g_new( VipsThreadExec, 1 );
 	exec->name = name;
 	exec->func = func;
 	exec->data = data;
 
-	// TODO: this function returns a success status since GLib 2.32.
+#if GLIB_CHECK_VERSION( 2, 32, 0 )
+	// Returns a success status since GLib 2.32.
+	result = g_thread_pool_push( vips__pool, exec, &error );
+#else
 	g_thread_pool_push( vips__pool, exec, &error );
+#endif
 	if( error ) {
 		vips_g_error( &error );
 		return( -1 );
 	}
 
-	return( 0 );
+	return( result ? 0 : -1 );
 }
 
 /**
