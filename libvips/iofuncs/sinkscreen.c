@@ -166,8 +166,7 @@ typedef struct _RenderThreadStateClass {
 
 G_DEFINE_TYPE( RenderThreadState, render_thread_state, VIPS_TYPE_THREAD_STATE );
 
-/* The BG thread which sits waiting to do some calculations, and the semaphore
- * it waits on holding the number of renders with dirty tiles. 
+/* A boolean indicating if the bg render thread is running.
  */
 static gboolean render_running = FALSE;
 
@@ -175,12 +174,20 @@ static gboolean render_running = FALSE;
  */
 static gboolean render_kill = FALSE;
 
-/* All the renders with dirty tiles, and a semaphore that the bg render thread
- * waits on.
+/* All the renders with dirty tiles.
  */
 static GMutex *render_dirty_lock = NULL;
 static GSList *render_dirty_all = NULL;
-static VipsSemaphore n_render_dirty_sem; 
+
+/* A semaphore where the bg render thread waits on holding the number of
+ * renders with dirty tiles
+ */
+static VipsSemaphore n_render_dirty_sem;
+
+/* A semaphore where the main thread waits for when the bg render thread
+ * is shutdown.
+ */
+static VipsSemaphore render_finish;
 
 /* Set this to make the bg thread stop and reschedule.
  */
@@ -462,12 +469,17 @@ vips__render_shutdown( void )
 			g_mutex_unlock( render_dirty_lock );
 
 			vips_semaphore_up( &n_render_dirty_sem );
+
+            vips_semaphore_down( &render_finish );
+
+            render_running = FALSE;
 		}
 		else
 			g_mutex_unlock( render_dirty_lock );
 
 		VIPS_FREEF( vips_g_mutex_free, render_dirty_lock );
 		vips_semaphore_destroy( &n_render_dirty_sem );
+        vips_semaphore_destroy( &render_finish );
 	}
 }
 
@@ -1042,9 +1054,9 @@ render_thread_main( void *data, void *user_data )
 		}
 	}
 
-	/* We are exiting, so render_running must now be set to FALSE.
-	 */
-	render_running = FALSE;
+    /* We are exiting: tell the main thread.
+     */
+    vips_semaphore_up( &render_finish );
 }
 
 static void *
@@ -1055,6 +1067,7 @@ vips__sink_screen_init( void *data )
 
 	render_dirty_lock = vips_g_mutex_new();
 	vips_semaphore_init( &n_render_dirty_sem, 0, "n_render_dirty" );
+    vips_semaphore_init( &render_finish, 0, "render_finish" );
 
 	if ( vips_threadpool_push( "sink_screen", render_thread_main,
 		NULL ) ) {
