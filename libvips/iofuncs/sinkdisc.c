@@ -76,7 +76,7 @@ typedef struct _WriteBuffer {
         VipsSemaphore nwrite; 	/* Number of threads writing to region */
         VipsSemaphore done; 	/* Bg thread has done write */
 	VipsSemaphore finish; 	/* Bg thread has finished */
-       int write_errno;	/* Save write errors here */
+        int write_errno;	/* Save write errors here */
 	gboolean running;	/* Whether the bg writer thread is running */
 	gboolean kill;		/* Set to ask thread to exit */
 } WriteBuffer;

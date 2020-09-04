@@ -492,11 +492,11 @@ typedef struct _VipsTask {
 	 * and allocate a unit of work (serial). Plus the mutex we use to 
 	 * serialize work allocation.
 	 */
-	VipsThreadStartFn start;
+	VipsThreadStartFn start; 
 	VipsThreadpoolAllocateFn allocate;
 	VipsThreadpoolWorkFn work;
 	GMutex *allocate_lock;
-        void *a;		/* User argument to start / allocate / etc. */
+        void *a; 		/* User argument to start / allocate / etc. */
 
 	/* The caller blocks here until all tasks finish.
 	 */
