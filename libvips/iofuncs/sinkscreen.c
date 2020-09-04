@@ -470,16 +470,16 @@ vips__render_shutdown( void )
 
 			vips_semaphore_up( &n_render_dirty_sem );
 
-            vips_semaphore_down( &render_finish );
+			vips_semaphore_down( &render_finish );
 
-            render_running = FALSE;
+			render_running = FALSE;
 		}
 		else
 			g_mutex_unlock( render_dirty_lock );
 
 		VIPS_FREEF( vips_g_mutex_free, render_dirty_lock );
 		vips_semaphore_destroy( &n_render_dirty_sem );
-        vips_semaphore_destroy( &render_finish );
+		vips_semaphore_destroy( &render_finish );
 	}
 }
 
@@ -902,7 +902,7 @@ image_fill( VipsRegion *out, void *seq, void *a, void *b, gboolean *stop )
 
 	VIPS_DEBUG_MSG( "image_fill: left = %d, top = %d, "
 		"width = %d, height = %d\n",
-                r->left, r->top, r->width, r->height );
+  			r->left, r->top, r->width, r->height );
 
 	g_mutex_lock( render->lock );
 
@@ -954,7 +954,7 @@ mask_fill( VipsRegion *out, void *seq, void *a, void *b, gboolean *stop )
 
 	VIPS_DEBUG_MSG( "mask_fill: left = %d, top = %d, "
 		"width = %d, height = %d\n",
-                r->left, r->top, r->width, r->height );
+			r->left, r->top, r->width, r->height );
 
 	g_mutex_lock( render->lock );
 
@@ -971,7 +971,7 @@ mask_fill( VipsRegion *out, void *seq, void *a, void *b, gboolean *stop )
 
 			tile = render_tile_lookup( render, &area );
 			value = (tile &&
-                                tile->painted && 
+						tile->painted && 
 				!tile->region->invalid) ? 255 : 0;
 
 			/* Only mark painted tiles containing valid pixels.
@@ -1054,9 +1054,9 @@ render_thread_main( void *data, void *user_data )
 		}
 	}
 
-    /* We are exiting: tell the main thread.
-     */
-    vips_semaphore_up( &render_finish );
+	/* We are exiting: tell the main thread.
+	  */
+	 vips_semaphore_up( &render_finish );
 }
 
 static void *
@@ -1067,7 +1067,7 @@ vips__sink_screen_init( void *data )
 
 	render_dirty_lock = vips_g_mutex_new();
 	vips_semaphore_init( &n_render_dirty_sem, 0, "n_render_dirty" );
-    vips_semaphore_init( &render_finish, 0, "render_finish" );
+	vips_semaphore_init( &render_finish, 0, "render_finish" );
 
 	if ( vips_threadpool_push( "sink_screen", render_thread_main,
 		NULL ) ) {
