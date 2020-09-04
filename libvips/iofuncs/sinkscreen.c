@@ -1060,7 +1060,7 @@ vips__sink_screen_init( void *data )
 		NULL ) ) {
 		vips_error("vips_sink_screen_init", "%s",
 			_("unable to init render thread"));
-		return;
+		return( NULL );
 	}
 
 	return( NULL );
