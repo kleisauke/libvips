@@ -1063,6 +1063,8 @@ vips__sink_screen_init( void *data )
 		return( NULL );
 	}
 
+    render_running = TRUE;
+
 	return( NULL );
 }
 
