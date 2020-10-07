@@ -449,8 +449,8 @@ vips_dilate_gen( VipsRegion *or,
 		seq->ss = 0;
 		seq->cs = 0;
 		for( y = 0; y < M->Ysize; y++ )
-			for( x = 0; x < M->Xsize; x++ )
-				switch( t[x] ) {
+			for( x = 0; x < M->Xsize; x++, t++ )
+				switch( *t ) {
 				case 255:
 					soff[seq->ss++] =
 						VIPS_REGION_ADDR( ir, 
@@ -560,8 +560,8 @@ vips_erode_gen( VipsRegion *or,
 		seq->ss = 0;
 		seq->cs = 0;
 		for( y = 0; y < M->Ysize; y++ )
-			for( x = 0; x < M->Xsize; x++ )
-				switch( t[x] ) {
+			for( x = 0; x < M->Xsize; x++, t++ )
+				switch( *t ) {
 				case 255:
 					soff[seq->ss++] =
 						VIPS_REGION_ADDR( ir, 
