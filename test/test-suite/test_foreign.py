@@ -5,6 +5,7 @@ import os
 import shutil
 import tempfile
 import pytest
+import base64
 
 import pyvips
 from helpers import \
@@ -126,6 +127,22 @@ class TestForeign:
         assert len(before_exif) == len(after_exif)
         for i in range(len(before_exif)):
             assert before_exif[i] == after_exif[i]
+
+        # https://github.com/libvips/libvips/issues/1847
+        filename = temp_filename(self.tempdir, ".v")
+        x = pyvips.Image.black(16, 16) + 128
+        x.write_to_file(filename)
+
+        # Debugging
+        with open(filename, "rb") as image_file:
+            print("Base64 encoded vips image:")
+            print(base64.b64encode(image_file.read()))
+
+        x = pyvips.Image.new_from_file(filename)
+        assert x.width == 16
+        assert x.height == 16
+        assert x.bands == 1
+        assert x.avg() == 128
 
         x = None
 
