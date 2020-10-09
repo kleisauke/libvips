@@ -66,6 +66,7 @@ jobs:
   allow_failures:
     - os: osx
     - arch: arm64
+    - arch: s390x
   fast_finish: true
   include:
     - os: linux
@@ -131,6 +132,26 @@ jobs:
       dist: bionic
       compiler: gcc
       name: "Linux ARM64v8 (Ubuntu 18.04) - GCC 10"
+      addons:
+        apt:
+          sources:
+            - *common_sources
+            - ubuntu-toolchain-r-test
+          packages:
+            - *common_packages
+            - g++-10
+      env:
+        - JPEG=/usr
+        - JOBS=`nproc`
+        - WITH_MAGICK=no
+        - CC="gcc-10"
+        - CXX="g++-10"
+        - LDSHARED="$CC -shared"
+    - os: linux
+      arch: s390x
+      dist: bionic
+      compiler: gcc
+      name: "Linux on IBM Z (Ubuntu 18.04) - GCC 10"
       addons:
         apt:
           sources:
