@@ -41,6 +41,8 @@ BMP_FILE = os.path.join(IMAGES, "MARBLES.BMP")
 NIFTI_FILE = os.path.join(IMAGES, "avg152T1_LR_nifti.nii.gz")
 ICO_FILE = os.path.join(IMAGES, "favicon.ico")
 AVIF_FILE = os.path.join(IMAGES, "avif-orientation-6.avif")
+VIPS_SPARC = os.path.join(IMAGES, "s390x.v")
+VIPS_INTEL = os.path.join(IMAGES, "amd64.v")
 MOSAIC_FILES = [os.path.join(IMAGES, "cd1.1.jpg"), os.path.join(IMAGES, "cd1.2.jpg"),
                 os.path.join(IMAGES, "cd2.1.jpg"), os.path.join(IMAGES, "cd2.2.jpg"),
                 os.path.join(IMAGES, "cd3.1.jpg"), os.path.join(IMAGES, "cd3.2.jpg"),

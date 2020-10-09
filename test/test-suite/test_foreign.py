@@ -5,7 +5,6 @@ import os
 import shutil
 import tempfile
 import pytest
-import base64
 
 import pyvips
 from helpers import \
@@ -132,11 +131,6 @@ class TestForeign:
         filename = temp_filename(self.tempdir, ".v")
         x = pyvips.Image.black(16, 16) + 128
         x.write_to_file(filename)
-
-        # Debugging
-        with open(filename, "rb") as image_file:
-            print("Base64 encoded vips image:")
-            print(base64.b64encode(image_file.read()))
 
         x = pyvips.Image.new_from_file(filename)
         assert x.width == 16
