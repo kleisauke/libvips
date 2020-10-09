@@ -65,12 +65,13 @@ addons:
 jobs:
   allow_failures:
     - os: osx
+    - arch: arm64
   fast_finish: true
   include:
     - os: linux
       dist: bionic
       compiler: gcc
-      name: "Ubuntu 18.04 / GCC 10"
+      name: "Linux x64 (Ubuntu 18.04) - GCC 10"
       addons:
         apt:
           sources:
@@ -92,7 +93,7 @@ jobs:
     - os: linux
       dist: bionic
       compiler: clang
-      name: "Ubuntu 18.04 / Clang 10 with ASan and UBSan"
+      name: "Linux x64 (Ubuntu 18.04) - Clang 10 with ASan and UBSan"
       addons:
         apt:
           sources:
@@ -125,9 +126,29 @@ jobs:
         # otherwise libIlmImf-2_2.so ends up as <unknown module>
         - echo -e '#include <stdio.h>\nint dlclose(void*handle){return 0;}' | $CC -shared -xc -odlclose.so -
       cache: ccache
+    - os: linux
+      arch: arm64
+      dist: bionic
+      compiler: gcc
+      name: "Linux ARM64v8 (Ubuntu 18.04) - GCC 10"
+      addons:
+        apt:
+          sources:
+            - *common_sources
+            - ubuntu-toolchain-r-test
+          packages:
+            - *common_packages
+            - g++-10
+      env:
+        - JPEG=/usr
+        - JOBS=`nproc`
+        - WITH_MAGICK=no
+        - CC="gcc-10"
+        - CXX="g++-10"
+        - LDSHARED="$CC -shared"
     - os: osx
       osx_image: xcode11
-      name: "macOS 10.14.6 / GCC 9"
+      name: "macOS (10.14.6) - GCC 9"
       env:
         - JPEG=/usr/local/opt/jpeg-turbo
         - JOBS="`sysctl -n hw.ncpu`"
