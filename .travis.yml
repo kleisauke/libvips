@@ -190,7 +190,7 @@ install:
     --disable-deprecated
     --with-jpeg-includes=$JPEG/include
     --with-jpeg-libraries=$JPEG/lib
-    --with-magick=$WITH_MAGICK
+    --with-magick=$WITH_MAGICK || (cat config.log && exit 1)
   - make -j$JOBS -s
 
 script:
