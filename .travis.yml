@@ -112,7 +112,7 @@ jobs:
         - CC="clang-10"
         - CXX="clang++-10"
         - LDSHARED="$CC -shared"
-        - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
+        - CFLAGS="-g -fsanitize=address,undefined -fno-omit-frame-pointer -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - CXXFLAGS="$CFLAGS"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan"
         - ASAN_DSO=`$CC -print-file-name=libclang_rt.asan-s390x.so`
