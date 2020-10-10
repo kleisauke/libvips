@@ -1077,7 +1077,7 @@ vips__image_copy_fields_array( VipsImage *out, VipsImage *in[] )
  * convenience function vips_image_set_int() in practice), you would do:
  *
  * |[
- * GValue value = { 0 };
+ * GValue value = G_VALUE_INIT;
  *
  * g_value_init (&value, G_TYPE_INT);
  * g_value_set_int (&value, 42);
@@ -1166,7 +1166,7 @@ vips_set_value_from_pointer( GValue *value, void *data )
  * vips_image_get_double() in practice):
  *
  * |[
- * GValue value = { 0 };
+ * GValue value = G_VALUE_INIT;
  * double d;
  *
  * if (vips_image_get (image, name, &value))

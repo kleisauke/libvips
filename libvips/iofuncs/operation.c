@@ -517,7 +517,7 @@ vips_operation_vips_operation_print_summary_arg( VipsObject *object,
 		const char *name = g_param_spec_get_name( pspec );
 		GType type = G_PARAM_SPEC_VALUE_TYPE( pspec );
 
-		GValue gvalue = { 0, };
+		GValue gvalue = { 0 };
 		char *str;
 
 		g_value_init( &gvalue, type );
@@ -1141,7 +1141,7 @@ vips_call_options_set( const gchar *option_name, const gchar *value,
 #ifdef VIPS_DEBUG
 {
 		GType type = G_PARAM_SPEC_VALUE_TYPE( pspec );
-		GValue gvalue = { 0, };
+		GValue gvalue = { 0 };
 		char *str;
 
 		g_value_init( &gvalue, type );
