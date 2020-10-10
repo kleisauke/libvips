@@ -105,7 +105,6 @@ jobs:
           packages:
             - *common_packages
             - clang-10
-            - libomp-10-dev
       env:
         - JPEG=/usr
         - JOBS=`nproc`
@@ -113,9 +112,9 @@ jobs:
         - CC="clang-10"
         - CXX="clang++-10"
         - LDSHARED="$CC -shared"
-        - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
+        - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - CXXFLAGS="$CFLAGS"
-        - LDFLAGS="-fsanitize=address,undefined -shared-libasan -fopenmp=libomp"
+        - LDFLAGS="-fsanitize=address,undefined -shared-libasan"
         - ASAN_DSO=`$CC -print-file-name=libclang_rt.asan-x86_64.so`
         - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
         - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
