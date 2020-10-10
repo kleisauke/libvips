@@ -128,11 +128,7 @@ class TestForeign:
             assert before_exif[i] == after_exif[i]
 
         # https://github.com/libvips/libvips/issues/1847
-        filename = temp_filename(self.tempdir, ".v")
         x = pyvips.Image.black(16, 16) + 128
-        x.write_to_file(filename)
-
-        x = pyvips.Image.new_from_file(filename)
         assert x.width == 16
         assert x.height == 16
         assert x.bands == 1

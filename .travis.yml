@@ -116,7 +116,7 @@ jobs:
         - CXXFLAGS="$CFLAGS"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan"
         - ASAN_DSO=`$CC -print-file-name=libclang_rt.asan-s390x.so`
-        - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
+        - ASAN_SYMBOLIZER_PATH="/usr/lib/llvm-10/bin/llvm-symbolizer"
         - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp:halt_on_error=1:abort_on_error=1"
