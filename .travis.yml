@@ -92,6 +92,7 @@ jobs:
         - CFLAGS="-Wcast-function-type"
       cache: ccache
     - os: linux
+      arch: s390x
       dist: bionic
       compiler: clang
       name: "Linux x64 (Ubuntu 18.04) - Clang 10 with ASan and UBSan"
