@@ -123,7 +123,7 @@ jobs:
         - LD_LIBRARY_PATH="/usr/lib/llvm-10/lib:`dirname $ASAN_DSO`"
         - DLCLOSE_PRELOAD="$TRAVIS_BUILD_DIR/dlclose.so"
       before_script:
-        - sudo ln -s /usr/bin/llvm-symbolizer-10 /usr/bin/llvm-symbolizer
+        - sudo ln -sf /usr/bin/llvm-symbolizer-10 /usr/bin/llvm-symbolizer
         # workaround for https://github.com/google/sanitizers/issues/89
         # otherwise libIlmImf-2_2.so ends up as <unknown module>
         - echo -e '#include <stdio.h>\nint dlclose(void*handle){return 0;}' | $CC -shared -xc -odlclose.so -
