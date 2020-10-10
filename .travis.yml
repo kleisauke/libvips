@@ -95,7 +95,7 @@ jobs:
       arch: s390x
       dist: bionic
       compiler: clang
-      name: "Linux x64 (Ubuntu 18.04) - Clang 10 with ASan and UBSan"
+      name: "Linux on IBM Z (Ubuntu 18.04) - Clang 10 with ASan and UBSan"
       addons:
         apt:
           sources:
@@ -115,7 +115,7 @@ jobs:
         - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - CXXFLAGS="$CFLAGS"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan"
-        - ASAN_DSO=`$CC -print-file-name=libclang_rt.asan-x86_64.so`
+        - ASAN_DSO=`$CC -print-file-name=libclang_rt.asan-s390x.so`
         - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
         - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
