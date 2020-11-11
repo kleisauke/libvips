@@ -24,7 +24,8 @@ static gint64
 read_cb( VipsSourceCustom *source_custom, 
 	void *buffer, gint64 length, MyInput *my_input )
 {
-	gint64 bytes_read = VIPS_MIN( length, 
+	// Read only 1 byte of data at a time
+	gint64 bytes_read = VIPS_MIN( /*length*/1,
 		my_input->length - my_input->read_position );
 
 	/*
@@ -81,7 +82,8 @@ write_cb( VipsTargetCustom *target_custom,
 	printf( "write_cb: data = 0x%p, length = %zd\n", data, length );
 	 */
 
-	bytes_written = write( my_output->fd, data, length );
+	// Write only 1 byte of data at a time
+	bytes_written = write( my_output->fd, data, /*length*/1 );
 
 	return( bytes_written );
 }
@@ -122,8 +124,9 @@ main( int argc, char **argv )
 		vips_error_exit( "unable to load from %s", my_input.filename );
 
 	source_custom = vips_source_custom_new();
-	g_signal_connect( source_custom, "seek", 
-		G_CALLBACK( seek_cb ), &my_input );
+	// Make the source unseekable
+	/*g_signal_connect( source_custom, "seek", 
+		G_CALLBACK( seek_cb ), &my_input );*/
 	g_signal_connect( source_custom, "read", 
 		G_CALLBACK( read_cb ), &my_input );
 
