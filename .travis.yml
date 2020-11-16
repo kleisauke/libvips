@@ -70,7 +70,7 @@ jobs:
     - os: linux
       dist: bionic
       compiler: gcc
-      name: "Ubuntu 18.04 / GCC 10"
+      name: "Linux x64 (Ubuntu 18.04) - GCC 10"
       addons:
         apt:
           sources:
@@ -92,33 +92,33 @@ jobs:
     - os: linux
       dist: bionic
       compiler: clang
-      name: "Ubuntu 18.04 / Clang 10 with ASan and UBSan"
+      name: "Linux x64 (Ubuntu 18.04) - Clang 11 with ASan and UBSan"
       addons:
         apt:
           sources:
             - *common_sources
-            - sourceline: deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main
+            - sourceline: deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-11 main
               key_url: https://apt.llvm.org/llvm-snapshot.gpg.key
           packages:
             - *common_packages
-            - clang-10
-            - libomp-10-dev
+            - clang-11
+            - libomp-11-dev
       env:
         - JPEG=/usr
         - JOBS=`nproc`
         - WITH_MAGICK=no
-        - CC="clang-10"
-        - CXX="clang++-10"
+        - CC="clang-11"
+        - CXX="clang++-11"
         - LDSHARED="$CC -shared"
-        - CFLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
+        - CFLAGS="-g -fsanitize=address,undefined -fno-omit-frame-pointer -fopenmp -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - CXXFLAGS="$CFLAGS"
         - LDFLAGS="-fsanitize=address,undefined -shared-libasan -fopenmp=libomp"
         - ASAN_DSO=`$CC -print-file-name=libclang_rt.asan-x86_64.so`
-        - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-10`
+        - ASAN_SYMBOLIZER_PATH=`which llvm-symbolizer-11`
         - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp:print_stacktrace=1"
-        - LD_LIBRARY_PATH="/usr/lib/llvm-10/lib:`dirname $ASAN_DSO`"
+        - LD_LIBRARY_PATH="/usr/lib/llvm-11/lib:`dirname $ASAN_DSO`"
         - DLCLOSE_PRELOAD="$TRAVIS_BUILD_DIR/dlclose.so"
       before_script:
         # workaround for https://github.com/google/sanitizers/issues/89
@@ -127,7 +127,7 @@ jobs:
       cache: ccache
     - os: osx
       osx_image: xcode11
-      name: "macOS 10.14.6 / GCC 9"
+      name: "macOS (10.14.6) - GCC 9"
       env:
         - JPEG=/usr/local/opt/jpeg-turbo
         - JOBS="`sysctl -n hw.ncpu`"
