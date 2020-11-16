@@ -95,22 +95,22 @@ jobs:
       arch: s390x
       dist: bionic
       compiler: clang
-      name: "Linux on IBM Z (Ubuntu 18.04) - Clang 10 with ASan and UBSan"
+      name: "Linux on IBM Z (Ubuntu 18.04) - Clang 11 with ASan and UBSan"
       addons:
         apt:
           sources:
             - *common_sources
-            - sourceline: deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main
+            - sourceline: deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-11 main
               key_url: https://apt.llvm.org/llvm-snapshot.gpg.key
           packages:
             - *common_packages
-            - clang-10
+            - clang-11
       env:
         - JPEG=/usr
         - JOBS=`nproc`
         - WITH_MAGICK=no
-        - CC="clang-10"
-        - CXX="clang++-10"
+        - CC="clang-11"
+        - CXX="clang++-11"
         - LDSHARED="$CC -shared"
         - CFLAGS="-g -fsanitize=address,undefined -fno-omit-frame-pointer -DFUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION"
         - CXXFLAGS="$CFLAGS"
@@ -120,7 +120,7 @@ jobs:
         - ASAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/asan.supp"
         - LSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/lsan.supp"
         - UBSAN_OPTIONS="suppressions=$TRAVIS_BUILD_DIR/suppressions/ubsan.supp:halt_on_error=1:abort_on_error=1"
-        - LD_LIBRARY_PATH="/usr/lib/llvm-10/lib:`dirname $ASAN_DSO`"
+        - LD_LIBRARY_PATH="/usr/lib/llvm-11/lib:`dirname $ASAN_DSO`"
         - DLCLOSE_PRELOAD="$TRAVIS_BUILD_DIR/dlclose.so"
       before_script:
         # workaround for https://github.com/google/sanitizers/issues/89
