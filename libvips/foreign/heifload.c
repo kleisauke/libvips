@@ -144,11 +144,6 @@ typedef struct _VipsForeignLoadHeif {
 	 */
 	gboolean has_alpha;
 
-	/* Size of final output image. 
-	 */
-	int width;
-	int height;
-
 	/* Size of each page.
 	 */
 	int page_width;
@@ -425,7 +420,8 @@ vips_foreign_load_heif_set_page( VipsForeignLoadHeif *heif,
 }
 
 static int
-vips_foreign_load_heif_set_header( VipsForeignLoadHeif *heif, VipsImage *out )
+vips_foreign_load_heif_set_header( VipsForeignLoadHeif *heif, VipsImage *out,
+	gboolean header_only )
 {
 	VipsForeignLoad *load = (VipsForeignLoad *) heif;
 
@@ -450,6 +446,35 @@ vips_foreign_load_heif_set_header( VipsForeignLoadHeif *heif, VipsImage *out )
 		heif->has_alpha );
 #endif /*DEBUG*/
 	bands = heif->has_alpha ? 4 : 3;
+
+	if( header_only ) {
+		struct heif_decoding_options *options;
+		enum heif_chroma chroma = heif->has_alpha ? 
+			heif_chroma_interleaved_RGBA :
+			heif_chroma_interleaved_RGB;
+
+		options = heif_decoding_options_alloc();
+#ifdef HAVE_HEIF_DECODING_OPTIONS_CONVERT_HDR_TO_8BIT
+		/* VIPS_FORMAT_UCHAR is assumed so downsample HDR to 8bpc
+		 */
+		options->convert_hdr_to_8bit = TRUE;
+#endif /*HAVE_HEIF_DECODING_OPTIONS_CONVERT_HDR_TO_8BIT*/
+		error = heif_decode_image( heif->handle, &heif->img, 
+			heif_colorspace_RGB, chroma, 
+			options );
+		heif_decoding_options_free( options );
+		if( error.code ) {
+			vips__heif_error( &error );
+			return( -1 );
+		}
+
+		/* Patch in the correct size.
+		 */
+		heif->page_width = heif_image_get_width( heif->img, 
+			heif_channel_interleaved );
+		heif->page_height = heif_image_get_height( heif->img, 
+			heif_channel_interleaved );
+	}
 
 	/* FIXME .. IPTC as well?
 	 */
@@ -755,7 +780,7 @@ vips_foreign_load_heif_header( VipsForeignLoad *load )
 	}
 #endif /*DEBUG*/
 
-	if( vips_foreign_load_heif_set_header( heif, load->out ) )
+	if( vips_foreign_load_heif_set_header( heif, load->out, TRUE ) )
 		return( -1 );
 
 	vips_source_minimise( heif->source );
@@ -852,22 +877,6 @@ vips_foreign_load_heif_generate( VipsRegion *or,
 	}
 
 	if( !heif->data ) {
-		int image_width = heif_image_get_width( heif->img, 
-			heif_channel_interleaved );
-		int image_height = heif_image_get_height( heif->img, 
-			heif_channel_interleaved );
-
-		/* We can sometimes get inconsistency between the dimensions
-		 * reported on the handle, and the final image we fetch. Error
-		 * out to prevent a segv.
-		 */
-		if( image_width != heif->page_width ||
-			image_height != heif->page_height ) {
-			vips_error( class->nickname, 
-				"%s", _( "bad image dimensions on decode" ) );
-			return( -1 );
-		}
-
 		if( !(heif->data = heif_image_get_plane_readonly( heif->img, 
 			heif_channel_interleaved, &heif->stride )) ) {
 			vips_error( class->nickname, 
@@ -902,10 +911,10 @@ vips_foreign_load_heif_load( VipsForeignLoad *load )
 #endif /*DEBUG*/
 
 	t[0] = vips_image_new();
-	if( vips_foreign_load_heif_set_header( heif, t[0] ) )
+	if( vips_foreign_load_heif_set_header( heif, t[0], FALSE ) )
 		return( -1 );
 
-	/* CLose input immediately at end of read.
+	/* Close input immediately at end of read.
 	 */
 	g_signal_connect( t[0], "minimise", 
 		G_CALLBACK( vips_foreign_load_heif_minimise ), heif ); 
