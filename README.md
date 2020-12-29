@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/libvips/libvips.svg?branch=master)](https://travis-ci.org/libvips/libvips)
 [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/libvips.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=2&q=proj:libvips)
 [![Coverity Status](https://scan.coverity.com/projects/6503/badge.svg)](https://scan.coverity.com/projects/jcupitt-libvips)
+[![Test](https://github.com/libvips/libvips/workflows/Test/badge.svg)](https://github.com/libvips/libvips/actions?query=workflow%3ATest)
 
 # Introduction
 
@@ -162,8 +163,31 @@ via imagemagick instead.
 
 ### PDFium
 
-If present, libvips will attempt to load PDFs via PDFium. This library must be
-packaged by https://github.com/jcupitt/docker-builds/tree/master/pdfium
+If present, libvips will attempt to load PDFs with PDFium. Download the 
+prebuilt pdfium binary from: 
+
+    https://github.com/bblanchon/pdfium-binaries
+
+Untar to the libvips install prefix, for example:
+
+    cd ~/vips
+    tar xf ~/pdfium-linux.tgz
+
+Create a `pdfium.pc` like this (update the version number):
+
+    VIPSHOME=/home/john/vips
+    cat > $VIPSHOME/lib/pkgconfig/pdfium.pc << EOF
+         prefix=$VIPSHOME
+         exec_prefix=\${prefix}
+         libdir=\${exec_prefix}/lib
+         includedir=\${prefix}/include
+         Name: pdfium
+         Description: pdfium
+         Version: 4290
+         Requires:
+         Libs: -L\${libdir} -lpdfium
+         Cflags: -I\${includedir}
+    EOF
 
 If PDFium is not detected, libvips will look for poppler-glib instead.
 
@@ -190,9 +214,15 @@ If libvips finds this library, it uses it for fourier transforms.
 If present, `vips_icc_import()`, `vips_icc_export()` and `vips_icc_transform()`
 are available for transforming images with ICC profiles. 
 
+### libspng
+
+If present, libvips will load PNG files using libspng. At the moment, libpng
+is still necessary for save.
+
 ### libpng
 
-If present, libvips can load and save png files. 
+If libspng is not present and libpng is, libvips will load PNG files with
+libpng. It will always save PNG files with libpng.
 
 ### libimagequant
 

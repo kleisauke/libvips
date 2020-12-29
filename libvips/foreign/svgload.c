@@ -368,7 +368,7 @@ vips_foreign_load_svg_generate( VipsRegion *or,
 	/* Cairo makes pre-multipled BRGA -- we must byteswap and unpremultiply.
 	 */
 	for( y = 0; y < r->height; y++ ) 
-		vips__cairo2rgba( 
+                vips__premultiplied_bgra2rgba( 
 			(guint32 *) VIPS_REGION_ADDR( or, r->left, r->top + y ),
 			r->width ); 
 
@@ -421,7 +421,7 @@ vips_foreign_load_svg_class_init( VipsForeignLoadSvgClass *class )
 	gobject_class->set_property = vips_object_set_property;
 	gobject_class->get_property = vips_object_get_property;
 
-	object_class->nickname = "svgload";
+	object_class->nickname = "svgload_base";
 	object_class->description = _( "load SVG with rsvg" );
 
 	/* is_a() is not that quick ... lower the priority.

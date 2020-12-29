@@ -7,6 +7,9 @@
  * 	- add vips_pipe_read_limit_set()
  * 3/10/20
  * 	- improve behaviour with read and seek on pipes
+ * 26/11/20
+ * 	- use _setmode() on win to force binary read for previously opened
+ * 	  descriptors
  */
 
 /*
@@ -62,6 +65,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#ifdef OS_WIN32
+#include <io.h>
+#endif /*OS_WIN32*/
 
 #include <vips/vips.h>
 #include <vips/internal.h>
@@ -260,6 +266,8 @@ vips_source_finalize( GObject *gobject )
 {
 	VipsSource *source = VIPS_SOURCE( gobject );
 
+	VIPS_DEBUG_MSG( "vips_source_finalize: %p\n", source );
+
 	VIPS_FREEF( g_byte_array_unref, source->header_bytes ); 
 	VIPS_FREEF( g_byte_array_unref, source->sniff ); 
 	if( source->mmap_baseaddr ) {
@@ -298,12 +306,21 @@ vips_source_build( VipsObject *object )
 	if( vips_object_argument_isset( object, "descriptor" ) ) {
 		connection->descriptor = dup( connection->descriptor );
 		connection->close_descriptor = connection->descriptor;
+
+#ifdef OS_WIN32
+		/* Windows will create eg. stdin and stdout in text mode.
+		 * We always read in binary mode.
+		 */
+		_setmode( connection->descriptor, _O_BINARY );
+#endif /*OS_WIN32*/
 	}
 
 	if( vips_object_argument_isset( object, "blob" ) ) {
 		size_t length;
 
-		source->data = vips_blob_get( source->blob, &length );
+		if( !(source->data = vips_blob_get( source->blob, &length )) )
+			return( -1 );
+
 		source->length = VIPS_MIN( length, G_MAXSSIZE );
 	}
 
@@ -331,16 +348,16 @@ vips_source_seek_real( VipsSource *source, gint64 offset, int whence )
 {
 	VipsConnection *connection = VIPS_CONNECTION( source );
 
-	gint64 new_pos;
-
 	VIPS_DEBUG_MSG( "vips_source_seek_real:\n" );
 
 	/* Like _read_real(), we must not set a vips_error. We need to use the
 	 * vips__seek() wrapper so we can seek long files on Windows.
 	 */
-	new_pos = vips__seek_no_error( connection->descriptor, offset, whence );
+	if( connection->descriptor != -1 )
+		return( vips__seek_no_error( connection->descriptor, 
+			offset, whence ) );
 
-	return( new_pos );
+	return( -1 );
 }
 
 static void
@@ -555,8 +572,6 @@ vips_source_minimise( VipsSource *source )
 {
 	VipsConnection *connection = VIPS_CONNECTION( source );
 
-	VIPS_DEBUG_MSG( "vips_source_minimise:\n" );
-
 	SANITY( source );
 
 	(void) vips_source_test_features( source );
@@ -565,7 +580,7 @@ vips_source_minimise( VipsSource *source )
 		connection->descriptor != -1 &&
 		connection->tracked_descriptor == connection->descriptor &&
 		!source->is_pipe ) {
-		VIPS_DEBUG_MSG( "    tracked_close()\n" );
+		VIPS_DEBUG_MSG( "vips_source_minimise:\n" );
 		vips_tracked_close( connection->tracked_descriptor );
 		connection->tracked_descriptor = -1;
 		connection->descriptor = -1;
@@ -590,12 +605,12 @@ vips_source_unminimise( VipsSource *source )
 {
 	VipsConnection *connection = VIPS_CONNECTION( source );
 
-	VIPS_DEBUG_MSG( "vips_source_unminimise:\n" );
-
 	if( connection->descriptor == -1 &&
 		connection->tracked_descriptor == -1 &&
 		connection->filename ) {
 		int fd;
+
+		VIPS_DEBUG_MSG( "vips_source_unminimise: %p\n", source );
 
 		if( (fd = vips_tracked_open( connection->filename, 
 			MODE_READ, 0 )) == -1 ) {

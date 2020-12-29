@@ -17,8 +17,8 @@ from helpers import \
     GIF_ANIM_DISPOSE_PREVIOUS_FILE, \
     GIF_ANIM_DISPOSE_PREVIOUS_EXPECTED_PNG_FILE, \
     temp_filename, assert_almost_equal_objects, have, skip_if_no, \
-    TIF1_FILE, TIF2_FILE, TIF4_FILE, WEBP_LOOKS_LIKE_SVG_FILE
-
+    TIF1_FILE, TIF2_FILE, TIF4_FILE, WEBP_LOOKS_LIKE_SVG_FILE, \
+    WEBP_ANIMATED_FILE
 
 class TestForeign:
     tempdir = None
@@ -127,6 +127,17 @@ class TestForeign:
         assert len(before_exif) == len(after_exif)
         for i in range(len(before_exif)):
             assert before_exif[i] == after_exif[i]
+
+        # https://github.com/libvips/libvips/issues/1847
+        filename = temp_filename(self.tempdir, ".v")
+        x = pyvips.Image.black(16, 16) + 128
+        x.write_to_file(filename)
+
+        x = pyvips.Image.new_from_file(filename)
+        assert x.width == 16
+        assert x.height == 16
+        assert x.bands == 1
+        assert x.avg() == 128
 
         x = None
 
@@ -374,10 +385,7 @@ class TestForeign:
 
         self.file_loader("tiffload", TIF4_FILE, tiff4_valid)
 
-        if pyvips.at_least_libvips(8, 5):
-            self.save_load_buffer("tiffsave_buffer",
-                                  "tiffload_buffer",
-                                  self.colour)
+        self.save_load_buffer("tiffsave_buffer", "tiffload_buffer", self.colour)
         self.save_load("%s.tif", self.mono)
         self.save_load("%s.tif", self.colour)
         self.save_load("%s.tif", self.cmyk)
@@ -510,14 +518,14 @@ class TestForeign:
         assert a.height == b.height
         assert a.avg() == b.avg()
 
-        x = pyvips.Image.new_from_file(TIF_FILE)
-        buf = x.tiffsave_buffer(tile=True, pyramid=True, region_shrink="mean")
-        buf = x.tiffsave_buffer(tile=True, pyramid=True, region_shrink="mode")
-        buf = x.tiffsave_buffer(tile=True, pyramid=True, region_shrink="median")
-        buf = x.tiffsave_buffer(tile=True, pyramid=True, region_shrink="max")
-        buf = x.tiffsave_buffer(tile=True, pyramid=True, region_shrink="min")
-        buf = x.tiffsave_buffer(tile=True, pyramid=True,
-                                region_shrink="nearest")
+        # just 0/255 in each band, shrink with mode and all pixels should be 0
+        # or 255 in layer 1
+        x = pyvips.Image.new_from_file(TIF_FILE) > 128
+        for shrink in ["mode", "median", "max", "min"]:
+            buf = x.tiffsave_buffer(pyramid=True, region_shrink=shrink)
+            y = pyvips.Image.new_from_buffer(buf, "", page=1)
+            z = y.hist_find(band=0)
+            assert z(0, 0)[0] + z(255, 0)[0] == y.width * y.height
 
     @skip_if_no("magickload")
     def test_magickload(self):
@@ -685,6 +693,12 @@ class TestForeign:
         if have("svgload"):
             x = pyvips.Image.new_from_file(WEBP_LOOKS_LIKE_SVG_FILE)
             assert x.get("vips-loader") == "webpload"
+
+        # Animated WebP roundtrip
+        x = pyvips.Image.new_from_file(WEBP_ANIMATED_FILE, n=-1)
+        assert x.width == 13
+        assert x.height == 16393
+        buf = x.webpsave_buffer()
 
     @skip_if_no("analyzeload")
     def test_analyzeload(self):
@@ -877,6 +891,20 @@ class TestForeign:
         self.save_load("%s.ppm", self.mono)
         self.save_load("%s.ppm", self.colour)
 
+        self.save_load_file("%s.ppm", "[ascii]", self.mono, 0)
+        self.save_load_file("%s.ppm", "[ascii]", self.colour, 0)
+
+        self.save_load_file("%s.ppm", "[ascii,bitdepth=1]", self.onebit, 0)
+
+        rgb16 = self.colour.colourspace("rgb16")
+        grey16 = self.mono.colourspace("rgb16")
+
+        self.save_load("%s.ppm", grey16)
+        self.save_load("%s.ppm", rgb16)
+
+        self.save_load_file("%s.ppm", "[ascii]", grey16, 0)
+        self.save_load_file("%s.ppm", "[ascii]", rgb16, 0)
+
     @skip_if_no("radload")
     def test_rad(self):
         self.save_load("%s.hdr", self.colour)
@@ -1028,6 +1056,13 @@ class TestForeign:
         buf = self.colour.dzsave_buffer(region_shrink="mean")
         buf = self.colour.dzsave_buffer(region_shrink="mode")
         buf = self.colour.dzsave_buffer(region_shrink="median")
+
+        # test no-strip ... icc profiles should be passed down
+        filename = temp_filename(self.tempdir, '')
+        self.colour.dzsave(filename, no_strip=True)
+
+        y = pyvips.Image.new_from_file(filename + "_files/0/0_0.jpeg")
+        assert y.get_typeof("icc-profile-data") != 0
 
     @skip_if_no("heifload")
     def test_heifload(self):
