@@ -141,24 +141,6 @@ AM_CONDITIONAL(ENABLE_DEPRECATED, [test x"$enable_deprecated" = x"yes"])
 # this gets pasted into version.h as a #define
 AC_SUBST(VIPS_ENABLE_DEPRECATED)
 
-# we are a C library with some optional C++ components inside it
-
-# on most platforms, but not all, we just include -lstdc++ in the link line 
-# for programs
-
-# we ought to have a proper configure test for this :( 
-
-AC_MSG_CHECKING([for needs -lstdc++])
-case "$host_os" in
-  freebsd*)
-    vips_needs_stdcpp=no
-    ;;
-  *)
-    vips_needs_stdcpp=yes
-    ;;
-esac
-AC_MSG_RESULT([$vips_needs_stdcpp])
-
 AC_MSG_CHECKING([for native Win32])
 case "$host" in
   *-*-mingw*)
@@ -251,7 +233,7 @@ if test x"$with_doxygen" != x"no"; then
     with_doxygen=no
   fi
 fi
-AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
+AM_CONDITIONAL(HAVE_DOXYGEN, [test x"$with_doxygen" = x"yes"])
 
 # we need a fully expanded version of $libdir
 # without this we get something like

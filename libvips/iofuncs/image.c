@@ -930,7 +930,7 @@ vips_image_build( VipsObject *object )
 		 * Otherwise save with VipsForeign when the image has been 
 		 * written to.
 		 */
-		if( strcmp( file_op, "VipsForeignSaveVips" ) == 0 )
+		if( vips_isprefix( "VipsForeignSaveVips", file_op ) )
 			image->dtype = VIPS_IMAGE_OPENOUT;
 		else {
 			image->dtype = VIPS_IMAGE_PARTIAL;

@@ -1,9 +1,9 @@
 # libvips : an image processing library
 
-[![Build Status](https://travis-ci.org/libvips/libvips.svg?branch=master)](https://travis-ci.org/libvips/libvips)
+[![Test](https://github.com/libvips/libvips/workflows/Test/badge.svg)](https://github.com/libvips/libvips/actions?query=workflow%3ATest)
 [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/libvips.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=2&q=proj:libvips)
 [![Coverity Status](https://scan.coverity.com/projects/6503/badge.svg)](https://scan.coverity.com/projects/jcupitt-libvips)
-[![Test](https://github.com/libvips/libvips/workflows/Test/badge.svg)](https://github.com/libvips/libvips/actions?query=workflow%3ATest)
+[![Gitter](https://badges.gitter.im/libvips/devchat.svg)](https://gitter.im/libvips/devchat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 # Introduction
 
@@ -23,9 +23,9 @@ statistics and others. It supports a large range of [numeric
 types](http://libvips.github.io/libvips/API/current/VipsImage.html#VipsBandFormat),
 from 8-bit int to 128-bit complex. Images can have any number of bands.
 It supports a good range of image formats, including JPEG, TIFF, PNG,
-WebP, HEIC, FITS, Matlab, OpenEXR, PDF, SVG, HDR, PPM / PGM / PFM, CSV,
-GIF, Analyze, NIfTI, DeepZoom, and OpenSlide. It can also load images via
-ImageMagick or GraphicsMagick, letting it work with formats like DICOM.
+WebP, HEIC, AVIF, FITS, Matlab, OpenEXR, PDF, SVG, HDR, PPM / PGM / PFM,
+CSV, GIF, Analyze, NIfTI, DeepZoom, and OpenSlide. It can also load images
+via ImageMagick or GraphicsMagick, letting it work with formats like DICOM.
 
 It comes with bindings for
 [C](http://libvips.github.io/libvips/API/current/using-from-c.html),
@@ -279,7 +279,7 @@ files: Aperio, Hamamatsu, Leica, MIRAX, Sakura, Trestle, and Ventana.
 
 ### libheif
 
-If available, libvips can load and save HEIC images. 
+If available, libvips can load and save HEIC and AVIF images. 
 
 # Contributors
 
