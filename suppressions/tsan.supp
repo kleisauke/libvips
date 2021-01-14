@@ -35,6 +35,7 @@ race:vips_error_freeze_count
 race:vips__link_make
 race:vips__link_map
 race:vips__link_break_all
+race:tile_name
 
 # the double-buffered output and write-behind thread are non-racy
 race:wbuffer_new
@@ -46,6 +47,16 @@ race:write_thread_state_new
 # thread-local variables (i.e. GPrivate) are harmless
 race:vips_thread_profile_key
 race:buffer_thread_key
+
+# glib signals are probably non-racy
+race:vips_image_preeval
+race:vips_image_eval
+race:vips_image_posteval
+race:vips_image_written
+race:vips_image_real_written
+race:vips_image_save_cb
+race:render_close_cb
+race:readjpeg_close_cb
 
 # semaphores are probably non-racy
 race:vips_semaphore_*
@@ -74,12 +85,18 @@ race:vips_sink_base_init
 race:vips_sink_thread_state_new
 race:sink_memory_init
 race:sink_memory_thread_state_new
+race:sink_memory_free
 race:sink_thread_state_build
 race:sink_thread_state_dispose
 race:buffer_cache_free
 race:sink_init
+race:sink_free
 race:vips_sequential_dispose
 race:vips_block_cache_dispose
+race:vips_image_init
+race:vips_image_build
+race:vips_image_finalize
+race:vips_image_dispose
 
 # guarded with image->sslock, so it should be fine
 race:vips__region_start
@@ -95,3 +112,4 @@ race:meta_new
 race:meta_cp
 race:vips_image_set
 race:vips__image_copy_fields_array
+race:vips__image_meta_copy
