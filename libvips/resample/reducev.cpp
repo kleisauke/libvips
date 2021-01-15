@@ -97,6 +97,10 @@ typedef struct _VipsReducev {
 	int *matrixi[VIPS_TRANSFORM_SCALE + 1];
 	double *matrixf[VIPS_TRANSFORM_SCALE + 1];
 
+	/* And another set for SIMD.
+	 */
+	short *matrixs[VIPS_TRANSFORM_SCALE + 1];
+
 	/* Deprecated.
 	 */
 	gboolean centre;
@@ -283,6 +287,7 @@ vips_reducev_gen( VipsRegion *out_region, void *seq,
 		const int sy = Y * VIPS_TRANSFORM_SCALE * 2;
 		const int siy = sy & (VIPS_TRANSFORM_SCALE * 2 - 1);
 		const int ty = (siy + 1) >> 1;
+		const short *cys = reducev->matrixs[ty];
 		const int *cyi = reducev->matrixi[ty];
 		const double *cyf = reducev->matrixf[ty];
 		const int lskip = VIPS_REGION_LSKIP( ir );
@@ -317,10 +322,16 @@ vips_reducev_gen( VipsRegion *out_region, void *seq,
 			break;
 
 		case VIPS_FORMAT_UINT:
+#if defined(__AVX2__) || defined(__SSE4_2__)
+			vips_reduce_uint_simd(
+				q, p,
+				reducev->n_point, ne, lskip, cys );
+#else
 			reducev_unsigned_int32_tab
 				<unsigned int, INT_MAX>(
 				reducev,
 				q, p, ne, lskip, cyf );
+#endif
 			break;
 
 		case VIPS_FORMAT_INT:
@@ -445,17 +456,22 @@ vips_reducev_build( VipsObject *object )
 			VIPS_ARRAY( object, reducev->n_point, double ); 
 		reducev->matrixi[y] = 
 			VIPS_ARRAY( object, reducev->n_point, int ); 
+		reducev->matrixs[y] =
+			VIPS_ARRAY( object, reducev->n_point, short );
 		if( !reducev->matrixf[y] ||
-			!reducev->matrixi[y] )
+			!reducev->matrixi[y] ||
+			!reducev->matrixs[y] )
 			return( -1 ); 
 
 		vips_reduce_make_mask( reducev->matrixf[y],
 			reducev->kernel, reducev->vshrink, 
 			(float) y / VIPS_TRANSFORM_SCALE ); 
 
-		for( int i = 0; i < reducev->n_point; i++ )
+		for( int i = 0; i < reducev->n_point; i++ ) {
 			reducev->matrixi[y][i] = reducev->matrixf[y][i] *
 				VIPS_INTERPOLATE_SCALE;
+			reducev->matrixs[y][i] = (short) reducev->matrixi[y][i];
+		}
 
 #ifdef DEBUG
 		printf( "vips_reducev_build: mask %d\n    ", y );
