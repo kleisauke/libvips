@@ -10,6 +10,7 @@ resample_sources = files(
     'shrinkh.c',
     'shrinkv.c',
     'reduce.c',
+    'reduce_simd.c',
     'reduceh.cpp',
     'reducev.cpp',
     'interpolate.c',
