@@ -53,13 +53,11 @@ reducev_unsigned_int_simd( VipsPel *pout, const VipsPel *pin,
 	int x;
 	int xx = 0;
 
-	__m128i initial = _mm_setzero_si128();
-	//__m128i initial = _mm_set1_epi32(1 << (VIPS_INTERPOLATE_SHIFT - 1)); // TODO(kleisauke): ??
+	__m128i initial = _mm_set1_epi32(1 << (VIPS_INTERPOLATE_SHIFT - 1));
 
 #ifdef __AVX2__
 
-	__m256i initial_256 = _mm256_setzero_si256();
-	//__m256i initial_256 = _mm256_set1_epi32(1 << (VIPS_INTERPOLATE_SHIFT - 1)); // TODO(kleisauke): ??
+	__m256i initial_256 = _mm256_set1_epi32(1 << (VIPS_INTERPOLATE_SHIFT - 1));
 
 	for( ; xx < ne - 7; xx += 8 ) {
 		__m256i sss0 = initial_256;
