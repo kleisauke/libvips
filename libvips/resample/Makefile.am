@@ -13,7 +13,7 @@ libresample_la_SOURCES = \
 	reduce.c \
 	reduceh.cpp \
 	reducev.cpp \
-	reducev_simd.cpp \
+	reducev_simd.c \
 	interpolate.c \
 	transform.c \
 	bicubic.cpp \
