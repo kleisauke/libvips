@@ -87,13 +87,16 @@ typedef struct _VipsReducev {
 	 */
 	double voffset;
 
-	/* Precalculated interpolation matrices. short (for SIMD),
-	 * int (used for pel sizes up to short), and double (for all
-	 * others). We go to scale + 1 so we can round-to-nearest safely.
+	/* Precalculated interpolation matrices. int (used for pel
+	 * sizes up to short), and double (for all others). We go to
+	 * scale + 1 so we can round-to-nearest safely.
 	 */
-	short *matrixs[VIPS_TRANSFORM_SCALE + 1];
 	int *matrixi[VIPS_TRANSFORM_SCALE + 1];
 	double *matrixf[VIPS_TRANSFORM_SCALE + 1];
+
+	/* And another set for SIMD.
+	 */
+	short *matrixs[VIPS_TRANSFORM_SCALE + 1];
 
 	/* Deprecated.
 	 */
@@ -320,7 +323,7 @@ vips_reducev_gen( VipsRegion *out_region, void *seq,
 				<unsigned int, INT_MAX>(
 				reducev,
 				q, p, ne, lskip, cyf );*/
-			reducev_unsigned_int_tab_simd(
+			reducev_unsigned_int_simd(
 				q, p,
 				reducev->n_point, ne, lskip, cys );
 			break;

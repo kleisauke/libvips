@@ -1,4 +1,4 @@
-/* From: https://github.com/uploadcare/pillow-simd/blob/simd/master/src/libImaging/ResampleSIMDVerticalConv.c
+/* From: ResampleSIMDVerticalConv.c (Pillow-SIMD)
  *
  * 15/01/21 kleisauke
  * 	- initial implementation
@@ -44,7 +44,7 @@ mm_cvtepu8_epi32(void *ptr) {
 #endif
 
 void
-reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
+reducev_unsigned_int_simd( VipsPel *pout, const VipsPel *pin,
 	const int n, const int ne, const int lskip, const short *restrict cy ) {
 	unsigned int* restrict out = (unsigned int *) pout;
 	const unsigned int* restrict in = (unsigned int *) pin;
@@ -53,11 +53,13 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 	int x;
 	int xx = 0;
 
-	__m128i initial = _mm_set1_epi32(1 << (n - 1));
+	__m128i initial = _mm_setzero_si128();
+	//__m128i initial = _mm_set1_epi32(1 << (VIPS_INTERPOLATE_SHIFT - 1)); // TODO(kleisauke): ??
 
 #ifdef __AVX2__
 
-	__m256i initial_256 = _mm256_set1_epi32(1 << (n - 1));
+	__m256i initial_256 = _mm256_setzero_si256();
+	//__m256i initial_256 = _mm256_set1_epi32(1 << (VIPS_INTERPOLATE_SHIFT - 1)); // TODO(kleisauke): ??
 
 	for( ; xx < ne - 7; xx += 8 ) {
 		__m256i sss0 = initial_256;
@@ -73,9 +75,9 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 			mmk = _mm256_set1_epi32(*(int *) &cy[x]);
 
 			source1 = _mm256_loadu_si256(  // top line
-				(__m256i *) &in[xx + l1 * x]);
+				(__m256i *) &in[x * l1 + xx]);
 			source2 = _mm256_loadu_si256(  // bottom line
-				(__m256i *) &in[xx + l1 * x + 1]);
+				(__m256i *) &in[(x + 1) * l1 + xx]);
 
 			source = _mm256_unpacklo_epi8(source1, source2);
 			pix = _mm256_unpacklo_epi8(source, _mm256_setzero_si256());
@@ -94,7 +96,7 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 			mmk = _mm256_set1_epi32(cy[x]);
 
 			source1 = _mm256_loadu_si256(  // top line
-				(__m256i *) &in[xx + l1 * x]);
+				(__m256i *) &in[x * l1 + xx]);
 
 			source = _mm256_unpacklo_epi8(source1, _mm256_setzero_si256());
 			pix = _mm256_unpacklo_epi8(source, _mm256_setzero_si256());
@@ -108,10 +110,10 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 			pix = _mm256_unpackhi_epi8(source, _mm256_setzero_si256());
 			sss3 = _mm256_add_epi32(sss3, _mm256_madd_epi16(pix, mmk));
 		}
-		sss0 = _mm256_srai_epi32(sss0, n);
-		sss1 = _mm256_srai_epi32(sss1, n);
-		sss2 = _mm256_srai_epi32(sss2, n);
-		sss3 = _mm256_srai_epi32(sss3, n);
+		sss0 = _mm256_srai_epi32(sss0, VIPS_INTERPOLATE_SHIFT);
+		sss1 = _mm256_srai_epi32(sss1, VIPS_INTERPOLATE_SHIFT);
+		sss2 = _mm256_srai_epi32(sss2, VIPS_INTERPOLATE_SHIFT);
+		sss3 = _mm256_srai_epi32(sss3, VIPS_INTERPOLATE_SHIFT);
 
 		sss0 = _mm256_packs_epi32(sss0, sss1);
 		sss2 = _mm256_packs_epi32(sss2, sss3);
@@ -139,9 +141,9 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 			mmk = _mm_set1_epi32(*(int *) &cy[x]);
 
 			source1 = _mm_loadu_si128(  // top line
-				(__m128i *) &in[xx + l1 * x]);
+				(__m128i *) &in[x * l1 + xx]);
 			source2 = _mm_loadu_si128(  // bottom line
-				(__m128i *) &in[xx + l1 * x + 1]);
+				(__m128i *) &in[(x + 1) * l1 + xx]);
 
 			source = _mm_unpacklo_epi8(source1, source2);
 			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
@@ -156,9 +158,9 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 			sss3 = _mm_add_epi32(sss3, _mm_madd_epi16(pix, mmk));
 
 			source1 = _mm_loadu_si128(  // top line
-				(__m128i *) &in[xx + 4 + l1 * x]);
+				(__m128i *) &in[x * l1 + xx + 4]);
 			source2 = _mm_loadu_si128(  // bottom line
-				(__m128i *) &in[xx + 4 + l1 * x + 1]);
+				(__m128i *) &in[(x + 1) * l1 + xx + 4]);
 
 			source = _mm_unpacklo_epi8(source1, source2);
 			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
@@ -177,7 +179,7 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 			mmk = _mm_set1_epi32(cy[x]);
 
 			source1 = _mm_loadu_si128(  // top line
-				(__m128i *) &in[xx + l1 * x]);
+				(__m128i *) &in[x * l1 + xx]);
 	
 			source = _mm_unpacklo_epi8(source1, _mm_setzero_si128());
 			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
@@ -192,7 +194,7 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 			sss3 = _mm_add_epi32(sss3, _mm_madd_epi16(pix, mmk));
 
 			source1 = _mm_loadu_si128(  // top line
-				(__m128i *) &in[xx + 4 + l1 * x]);
+				(__m128i *) &in[x * l1 + xx + 4]);
 
 			source = _mm_unpacklo_epi8(source1, _mm_setzero_si128());
 			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
@@ -206,14 +208,14 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
 			sss7 = _mm_add_epi32(sss7, _mm_madd_epi16(pix, mmk));
 		}
-		sss0 = _mm_srai_epi32(sss0, n);
-		sss1 = _mm_srai_epi32(sss1, n);
-		sss2 = _mm_srai_epi32(sss2, n);
-		sss3 = _mm_srai_epi32(sss3, n);
-		sss4 = _mm_srai_epi32(sss4, n);
-		sss5 = _mm_srai_epi32(sss5, n);
-		sss6 = _mm_srai_epi32(sss6, n);
-		sss7 = _mm_srai_epi32(sss7, n);
+		sss0 = _mm_srai_epi32(sss0, VIPS_INTERPOLATE_SHIFT);
+		sss1 = _mm_srai_epi32(sss1, VIPS_INTERPOLATE_SHIFT);
+		sss2 = _mm_srai_epi32(sss2, VIPS_INTERPOLATE_SHIFT);
+		sss3 = _mm_srai_epi32(sss3, VIPS_INTERPOLATE_SHIFT);
+		sss4 = _mm_srai_epi32(sss4, VIPS_INTERPOLATE_SHIFT);
+		sss5 = _mm_srai_epi32(sss5, VIPS_INTERPOLATE_SHIFT);
+		sss6 = _mm_srai_epi32(sss6, VIPS_INTERPOLATE_SHIFT);
+		sss7 = _mm_srai_epi32(sss7, VIPS_INTERPOLATE_SHIFT);
 
 		sss0 = _mm_packs_epi32(sss0, sss1);
 		sss2 = _mm_packs_epi32(sss2, sss3);
@@ -239,9 +241,9 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 			mmk = _mm_set1_epi32(*(int *) &cy[x]);
 
 			source1 = _mm_loadl_epi64(  // top line
-				(__m128i *) &in[xx + l1 * x]);
+				(__m128i *) &in[x * l1 + xx]);
 			source2 = _mm_loadl_epi64(  // bottom line
-				(__m128i *) &in[xx + l1 * x + 1]);
+				(__m128i *) &in[(x + 1) * l1 + xx]);
 
 			source = _mm_unpacklo_epi8(source1, source2);
 			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
@@ -254,7 +256,7 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 			mmk = _mm_set1_epi32(cy[x]);
 
 			source1 = _mm_loadl_epi64(  // top line
-				(__m128i *) &in[xx + l1 * x]);
+				(__m128i *) &in[x * l1 + xx]);
 
 			source = _mm_unpacklo_epi8(source1, _mm_setzero_si128());
 			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
@@ -262,8 +264,8 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 			pix = _mm_unpackhi_epi8(source, _mm_setzero_si128());
 			sss1 = _mm_add_epi32(sss1, _mm_madd_epi16(pix, mmk));
 		}
-		sss0 = _mm_srai_epi32(sss0, n);
-		sss1 = _mm_srai_epi32(sss1, n);
+		sss0 = _mm_srai_epi32(sss0, VIPS_INTERPOLATE_SHIFT);
+		sss1 = _mm_srai_epi32(sss1, VIPS_INTERPOLATE_SHIFT);
 
 		sss0 = _mm_packs_epi32(sss0, sss1);
 		sss0 = _mm_packus_epi16(sss0, sss0);
@@ -281,20 +283,20 @@ reducev_unsigned_int_tab_simd( VipsPel *pout, const VipsPel *pin,
 			mmk = _mm_set1_epi32(*(int *) &cy[x]);
 
 			source1 = _mm_cvtsi32_si128(  // top line
-				*(int *) &in[xx + l1 * x]);
+				*(int *) &in[x * l1 + xx]);
 			source2 = _mm_cvtsi32_si128(  // bottom line
-				*(int *) &in[xx + l1 * x + 1]);
+				*(int *) &in[(x + 1) * l1 + xx]);
 
 			source = _mm_unpacklo_epi8(source1, source2);
 			pix = _mm_unpacklo_epi8(source, _mm_setzero_si128());
 			sss = _mm_add_epi32(sss, _mm_madd_epi16(pix, mmk));
 		}
 		for( ; x < n; x++ ) {
-			__m128i pix = mm_cvtepu8_epi32((void *) &in[xx + l1 * x]);
+			__m128i pix = mm_cvtepu8_epi32((void *) &in[x * l1 + xx]);
 			__m128i mmk = _mm_set1_epi32(cy[x]);
 			sss = _mm_add_epi32(sss, _mm_madd_epi16(pix, mmk));
 		}
-		sss = _mm_srai_epi32(sss, n);
+		sss = _mm_srai_epi32(sss, VIPS_INTERPOLATE_SHIFT);
 		sss = _mm_packs_epi32(sss, sss);
 		out[xx] = _mm_cvtsi128_si32(_mm_packus_epi16(sss, sss));
 	}
