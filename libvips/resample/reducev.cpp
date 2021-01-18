@@ -319,13 +319,16 @@ vips_reducev_gen( VipsRegion *out_region, void *seq,
 			break;
 
 		case VIPS_FORMAT_UINT:
-			/*reducev_unsigned_int32_tab
-				<unsigned int, INT_MAX>(
-				reducev,
-				q, p, ne, lskip, cyf );*/
-			reducev_unsigned_int_simd(
+#if defined(__AVX2__) || defined(__SSE4_2__)
+			vips_reduce_uint_simd(
 				q, p,
 				reducev->n_point, ne, lskip, cys );
+#else
+			reducev_unsigned_int32_tab
+				<unsigned int, INT_MAX>(
+				reducev,
+				q, p, ne, lskip, cyf );
+#endif
 			break;
 
 		case VIPS_FORMAT_INT:
