@@ -38,8 +38,8 @@
 
 #ifdef __SSE4_2__
 static __m128i inline
-mm_cvtepu8_epi32(void *ptr) {
-    return _mm_cvtepu8_epi32(_mm_cvtsi32_si128(*(int *) ptr));
+mm_cvtepu8_epi32(const void *ptr) {
+	return _mm_cvtepu8_epi32(_mm_cvtsi32_si128(*(int *) ptr));
 }
 #endif
 
@@ -290,7 +290,7 @@ reducev_unsigned_int_simd( VipsPel *pout, const VipsPel *pin,
 			sss = _mm_add_epi32(sss, _mm_madd_epi16(pix, mmk));
 		}
 		for( ; x < n; x++ ) {
-			__m128i pix = mm_cvtepu8_epi32((void *) &in[x * l1 + xx]);
+			__m128i pix = mm_cvtepu8_epi32(&in[x * l1 + xx]);
 			__m128i mmk = _mm_set1_epi32(cy[x]);
 			sss = _mm_add_epi32(sss, _mm_madd_epi16(pix, mmk));
 		}

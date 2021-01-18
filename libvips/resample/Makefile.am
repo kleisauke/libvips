@@ -12,6 +12,7 @@ libresample_la_SOURCES = \
 	shrinkv.c \
 	reduce.c \
 	reduceh.cpp \
+	reduceh_simd.c \
 	reducev.cpp \
 	reducev_simd.c \
 	interpolate.c \

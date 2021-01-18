@@ -84,6 +84,10 @@ typedef struct _VipsReduceh {
 	int *matrixi[VIPS_TRANSFORM_SCALE + 1];
 	double *matrixf[VIPS_TRANSFORM_SCALE + 1];
 
+	/* And another set for SIMD.
+	 */
+	short *matrixs[VIPS_TRANSFORM_SCALE + 1];
+	
 	/* Deprecated.
 	 */
 	gboolean centre;
@@ -423,6 +427,108 @@ vips_reduceh_gen( VipsRegion *out_region, void *seq,
 	return( 0 );
 }
 
+/* Process uint images with a SIMD path.
+ */
+static int
+vips_reduceh_simd_gen( VipsRegion *out_region, void *seq, 
+	void *a, void *b, gboolean *stop )
+{
+	VipsImage *in = (VipsImage *) a;
+	VipsReduceh *reduceh = (VipsReduceh *) b;
+	const int ps = VIPS_IMAGE_SIZEOF_PEL( in );
+	VipsRegion *ir = (VipsRegion *) seq;
+	VipsRect *r = &out_region->valid;
+
+	const int bands = in->Bands;
+
+	VipsRect s;
+
+#ifdef DEBUG
+	printf( "vips_reduceh_simd_gen: generating %d x %d at %d x %d\n",
+		r->width, r->height, r->left, r->top );
+#endif /*DEBUG*/
+
+	s.left = r->left * reduceh->hshrink - reduceh->hoffset;
+	s.top = r->top;
+	s.width = r->width * reduceh->hshrink + reduceh->n_point;
+	s.height = r->height;
+	if( vips_region_prepare( ir, &s ) )
+		return( -1 );
+
+	VIPS_GATE_START( "vips_reduceh_simd_gen: work" );
+
+  	int y = 0;
+
+  	// TODO(kleisauke): 4x reduceh?
+	/*for( ; y < r->height - 3; y += 4 ) {
+		VipsPel *p0;
+		VipsPel *q;
+
+		double X;
+
+		q = VIPS_REGION_ADDR( out_region, r->left, r->top + y );
+
+		X = (r->left + 0.5) * reduceh->hshrink - 0.5 -
+			reduceh->hoffset;
+  
+		p0 = VIPS_REGION_ADDR( ir, ir->valid.left, r->top + y ) -
+			 ir->valid.left * ps;
+
+		for( int x = 0; x < r->width; x++ ) {
+			const int ix = (int) X;
+		  	VipsPel *p = p0 + ix * ps;
+			const int sx = X * VIPS_TRANSFORM_SCALE * 2;
+			const int six = sx & (VIPS_TRANSFORM_SCALE * 2 - 1);
+			const int tx = (six + 1) >> 1;
+			const short *cxs = reduceh->matrixs[tx];
+
+			reduceh_unsigned_int_simd_4x(
+				q, p,
+				reduceh->n_point, bands, ps, cxs );
+
+			X += reduceh->hshrink;
+		  	q += ps;
+		}
+	}*/
+
+	for( ; y < r->height; y++ ) {
+		VipsPel *p0;
+		VipsPel *q;
+
+		double X;
+
+		q = VIPS_REGION_ADDR( out_region, r->left, r->top + y );
+
+		X = (r->left + 0.5) * reduceh->hshrink - 0.5 - 
+			reduceh->hoffset;
+
+		p0 = VIPS_REGION_ADDR( ir, ir->valid.left, r->top + y ) - 
+			ir->valid.left * ps;
+
+		for( int x = 0; x < r->width; x++ ) {
+			const int ix = (int) X;
+			VipsPel *p = p0 + ix * ps;
+			const int sx = X * VIPS_TRANSFORM_SCALE * 2;
+			const int six = sx & (VIPS_TRANSFORM_SCALE * 2 - 1);
+			const int tx = (six + 1) >> 1;
+			const short *cxs = reduceh->matrixs[tx];
+
+			reduceh_unsigned_int_simd(
+				q, p,
+				reduceh->n_point, bands, ps, cxs );
+
+			X += reduceh->hshrink;
+			q += ps;
+		}
+	}
+
+	VIPS_GATE_STOP( "vips_reduceh_simd_gen: work" ); 
+
+	VIPS_COUNT_PIXELS( out_region, "vips_reduceh_simd_gen" ); 
+
+	return( 0 );
+}
+
 static int
 vips_reduceh_build( VipsObject *object )
 {
@@ -430,11 +536,13 @@ vips_reduceh_build( VipsObject *object )
 	VipsResample *resample = VIPS_RESAMPLE( object );
 	VipsReduceh *reduceh = (VipsReduceh *) object;
 	VipsImage **t = (VipsImage **) 
-		vips_object_local_array( object, 2 );
+		vips_object_local_array( object, 4 );
 
 	VipsImage *in;
 	int width;
 	double extra_pixels;
+
+	VipsGenerateFn generate;
 
 	if( VIPS_OBJECT_CLASS( vips_reduceh_parent_class )->build( object ) )
 		return( -1 );
@@ -485,17 +593,22 @@ vips_reduceh_build( VipsObject *object )
 			VIPS_ARRAY( object, reduceh->n_point, double ); 
 		reduceh->matrixi[x] = 
 			VIPS_ARRAY( object, reduceh->n_point, int ); 
+		reduceh->matrixs[x] =
+			VIPS_ARRAY( object, reduceh->n_point, short );
 		if( !reduceh->matrixf[x] ||
-			!reduceh->matrixi[x] )
+			!reduceh->matrixi[x] ||
+			!reduceh->matrixs[x] )
 			return( -1 ); 
 
 		vips_reduce_make_mask( reduceh->matrixf[x], 
 			reduceh->kernel, reduceh->hshrink, 
 			(float) x / VIPS_TRANSFORM_SCALE );
 
-		for( int i = 0; i < reduceh->n_point; i++ )
+		for( int i = 0; i < reduceh->n_point; i++ ) {
 			reduceh->matrixi[x][i] = reduceh->matrixf[x][i] * 
 				VIPS_INTERPOLATE_SCALE;
+			reduceh->matrixs[x][i] = (short) reduceh->matrixi[x][i];
+		}
 
 #ifdef DEBUG
 		printf( "vips_reduceh_build: mask %d\n    ", x );
@@ -521,7 +634,16 @@ vips_reduceh_build( VipsObject *object )
 		return( -1 );
 	in = t[1];
 
-	if( vips_image_pipelinev( resample->out, 
+	/* Try to run a SIMD version, if we can.
+	 */
+	generate = vips_reduceh_gen;
+	if( in->BandFmt == VIPS_FORMAT_UINT ) {
+		g_info( "reducev: using SIMD path" );
+		generate = vips_reduceh_simd_gen;
+	}
+
+	t[2] = vips_image_new();
+	if( vips_image_pipelinev( t[2],
 		VIPS_DEMAND_STYLE_THINSTRIP, in, (void *) NULL ) )
 		return( -1 );
 
@@ -532,8 +654,8 @@ vips_reduceh_build( VipsObject *object )
 	 * example, vipsthumbnail knows the true reduce factor (including the
 	 * fractional part), we just see the integer part here.
 	 */
-	resample->out->Xsize = width;
-	if( resample->out->Xsize <= 0 ) { 
+  	t[2]->Xsize = width;
+	if( t[2]->Xsize <= 0 ) { 
 		vips_error( object_class->nickname, 
 			"%s", _( "image has shrunk to nothing" ) );
 		return( -1 );
@@ -542,15 +664,29 @@ vips_reduceh_build( VipsObject *object )
 #ifdef DEBUG
 	printf( "vips_reduceh_build: reducing %d x %d image to %d x %d\n", 
 		in->Xsize, in->Ysize, 
-		resample->out->Xsize, resample->out->Ysize );  
+		t[2]->Xsize, t[2]->Ysize );  
 #endif /*DEBUG*/
 
-	if( vips_image_generate( resample->out,
-		vips_start_one, vips_reduceh_gen, vips_stop_one, 
+	if( vips_image_generate( t[2],
+		vips_start_one, generate, vips_stop_one,
 		in, reduceh ) )
 		return( -1 );
 
-	vips_reorder_margin_hint( resample->out, reduceh->n_point ); 
+  	in = t[2];
+
+	vips_reorder_margin_hint( in, reduceh->n_point );
+
+	// TODO(kleisauke): 4x reduceh?
+	/*if( in->BandFmt == VIPS_FORMAT_UINT ) {
+		if( vips_sequential( in, &t[3],
+			"tile_height", 16,
+			(void *) NULL ) )
+			return( -1 );
+		in = t[3];
+	}*/
+
+	if( vips_image_write( in, resample->out ) )
+		return( -1 );
 
 	return( 0 );
 }
