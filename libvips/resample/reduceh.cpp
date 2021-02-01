@@ -358,10 +358,16 @@ vips_reduceh_gen( VipsRegion *out_region, void *seq,
 
 			switch( in->BandFmt ) {
 			case VIPS_FORMAT_UCHAR:
+#if defined(__AVX2__) || defined(__SSE4_2__)
+				vips_reduce_uchar_simd(
+					q, p,
+					reduceh->n_point, bands, ps, cys );
+#else
 				reduceh_unsigned_int_tab
 					<unsigned char, UCHAR_MAX>(
 					reduceh,
 					q, p, bands, cxi );
+#endif
 				break;
 
 			case VIPS_FORMAT_CHAR:
@@ -386,16 +392,10 @@ vips_reduceh_gen( VipsRegion *out_region, void *seq,
 				break;
 
 			case VIPS_FORMAT_UINT:
-#if defined(__AVX2__) || defined(__SSE4_2__)
-				vips_reduce_uint_simd(
-					q, p,
-					reduceh->n_point, bands, ps, cys );
-#else
 				reduceh_unsigned_int32_tab
 					<unsigned int, INT_MAX>(
 					reduceh,
 					q, p, bands, cxf );
-#endif
 				break;
 
 			case VIPS_FORMAT_INT:
