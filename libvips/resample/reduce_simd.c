@@ -2,6 +2,8 @@
  *
  * 15/01/21 kleisauke
  * 	- initial implementation
+ * 01/02/21 kleisauke
+ * 	- uint -> uchar
  */
 
 #ifdef HAVE_CONFIG_H
@@ -39,11 +41,12 @@ mm_cvtepu8_epi32(const void *ptr) {
 
 #if defined(__AVX2__) || defined(__SSE4_2__)
 void
-vips_reduce_uint_simd( VipsPel *pout, const VipsPel *pin,
-	const int n, const int ne, const int lskip, const short *restrict k ) {
-	unsigned int* restrict out = (unsigned int *) pout;
-	const unsigned int* restrict in = (unsigned int *) pin;
-	const int l1 = lskip / sizeof( unsigned int );
+vips_reduce_uchar_simd( VipsPel *pout, const VipsPel *pin,
+	const int n, const int ne, const int lskip, const short *restrict k )
+{
+	VipsPel * restrict out = (VipsPel *) pout;
+	const VipsPel * restrict in = (VipsPel *) pin;
+	const int l1 = lskip / sizeof( unsigned char );
 
 	int x;
 	int xx = 0;

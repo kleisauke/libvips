@@ -72,6 +72,8 @@ char *vips_strdup( VipsObject *object, const char *str );
 VIPS_API
 void vips_tracked_free( void *s );
 VIPS_API
+void *vips_tracked_aligned_alloc( size_t size, size_t align );
+VIPS_API
 void *vips_tracked_malloc( size_t size );
 VIPS_API
 size_t vips_tracked_get_mem( void );

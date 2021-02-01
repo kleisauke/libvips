@@ -467,6 +467,7 @@ buffer_move( VipsBuffer *buffer, VipsRect *area )
 {
 	VipsImage *im = buffer->im;
 	size_t new_bsize;
+	size_t align;
 
 	g_assert( buffer->ref_count == 1 );
 
@@ -477,11 +478,24 @@ buffer_move( VipsBuffer *buffer, VipsRect *area )
 
 	new_bsize = (size_t) VIPS_IMAGE_SIZEOF_PEL( im ) * 
 		area->width * area->height;
+
+	/* Need to pad buffer size to be aligned-up to
+	 * 32 bytes for SIMD reduce.
+	 */
+#if defined(__AVX2__) || defined(__SSE4_2__)
+	if( im->BandFmt == VIPS_FORMAT_UCHAR ) {
+		new_bsize = (new_bsize + 31) & ~0x1F;
+		align = 32;
+	}
+	else
+#endif
+		align = 16;
+
 	if( buffer->bsize < new_bsize ||
 		!buffer->buf ) {
 		buffer->bsize = new_bsize;
 		VIPS_FREEF( vips_tracked_free, buffer->buf );
-		if( !(buffer->buf = vips_tracked_malloc( buffer->bsize )) ) 
+		if( !(buffer->buf = vips_tracked_aligned_alloc( buffer->bsize, align )) ) 
 			return( -1 );
 	}
 
