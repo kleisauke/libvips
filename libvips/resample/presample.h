@@ -73,7 +73,7 @@ int vips_reduce_get_points( VipsKernel kernel, double shrink );
 void vips_reduce_make_mask( double *c, 
 	VipsKernel kernel, double shrink, double x );
 
-void vips_reduce_uint_simd( VipsPel *pout, VipsPel *pin,
+void vips_reduce_uchar_simd( VipsPel *pout, VipsPel *pin,
 	int n, int ne, int lskip, const short *restrict k );
 
 #ifdef __cplusplus
