@@ -352,7 +352,7 @@ vips_reduceh_gen( VipsRegion *out_region, void *seq,
 			const int sx = X * VIPS_TRANSFORM_SCALE * 2;
 			const int six = sx & (VIPS_TRANSFORM_SCALE * 2 - 1);
 			const int tx = (six + 1) >> 1;
-			const short *cys = reduceh->matrixs[tx];
+			const short *cxs = reduceh->matrixs[tx];
 			const int *cxi = reduceh->matrixi[tx];
 			const double *cxf = reduceh->matrixf[tx];
 
@@ -361,7 +361,7 @@ vips_reduceh_gen( VipsRegion *out_region, void *seq,
 #if defined(__AVX2__) || defined(__SSE4_2__)
 				vips_reduce_uchar_simd(
 					q, p,
-					reduceh->n_point, bands, ps, cys );
+					reduceh->n_point, bands, ps, cxs );
 #else
 				reduceh_unsigned_int_tab
 					<unsigned char, UCHAR_MAX>(
