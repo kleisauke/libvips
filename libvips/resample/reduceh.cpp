@@ -537,7 +537,7 @@ vips_reduceh_build( VipsObject *object )
 		return( -1 );
 	in = t[1];
 
-	if( vips_image_pipelinev(  resample->out, 
+	if( vips_image_pipelinev( resample->out, 
 		VIPS_DEMAND_STYLE_THINSTRIP, in, (void *) NULL ) )
 		return( -1 );
 
@@ -548,7 +548,7 @@ vips_reduceh_build( VipsObject *object )
 	 * example, vipsthumbnail knows the true reduce factor (including the
 	 * fractional part), we just see the integer part here.
 	 */
-  	resample->out->Xsize = width;
+	resample->out->Xsize = width;
 	if( resample->out->Xsize <= 0 ) { 
 		vips_error( object_class->nickname, 
 			"%s", _( "image has shrunk to nothing" ) );
@@ -562,11 +562,11 @@ vips_reduceh_build( VipsObject *object )
 #endif /*DEBUG*/
 
 	if( vips_image_generate( resample->out,
-		vips_start_one, vips_reduceh_gen, vips_stop_one,
+		vips_start_one, vips_reduceh_gen, vips_stop_one, 
 		in, reduceh ) )
 		return( -1 );
 
-	vips_reorder_margin_hint( resample->out, reduceh->n_point );
+	vips_reorder_margin_hint( resample->out, reduceh->n_point ); 
 
 	return( 0 );
 }

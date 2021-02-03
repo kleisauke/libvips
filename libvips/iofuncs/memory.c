@@ -230,7 +230,7 @@ vips_tracked_free( void *s )
 {
 	/* Keep the size of the alloc below the aligned buffer.
 	 */
-	void *start = ((void**)s)[-1];
+	void *start = ((void **) s)[-1];
 	size_t size = *((size_t *) start);
 
 	g_mutex_lock( vips_tracked_mutex );
