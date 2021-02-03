@@ -24,7 +24,6 @@
 
 #ifdef __SSE4_2__
 #include <emmintrin.h>
-#include <mmintrin.h>
 #include <smmintrin.h>
 #endif
 
