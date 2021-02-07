@@ -87,6 +87,10 @@
  */
 #include <lcms2.h>
 
+#ifdef HAVE_LCMS2_FAST_FLOAT_PLUGIN
+#include <lcms2_fast_float.h>
+#endif
+
 #include <vips/vips.h>
 
 #include "pcolour.h"
@@ -207,13 +211,31 @@ is_pcs( cmsHPROFILE profile )
 		cmsGetColorSpace( profile ) == cmsSigXYZData ); 
 }
 
+#ifdef HAVE_LCMS2_FAST_FLOAT_PLUGIN
+static void *
+vips_icc_fast_float_init_cb( void *a )
+{
+	cmsPlugin( cmsFastFloatExtensions() );
+
+	return( NULL );
+}
+#endif
+
 static int
 vips_icc_build( VipsObject *object )
 {
+#ifdef HAVE_LCMS2_FAST_FLOAT_PLUGIN
+	static GOnce once = G_ONCE_INIT;
+#endif
+
 	VipsObjectClass *class = VIPS_OBJECT_GET_CLASS( object ); 
 	VipsColour *colour = (VipsColour *) object;
 	VipsColourCode *code = (VipsColourCode *) object;
 	VipsIcc *icc = (VipsIcc *) object;
+
+#ifdef HAVE_LCMS2_FAST_FLOAT_PLUGIN
+	VIPS_ONCE( &once, vips_icc_fast_float_init_cb, NULL ); 
+#endif
 
 	if( icc->depth != 8 &&
 		icc->depth != 16 ) {

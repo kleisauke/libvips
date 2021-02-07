@@ -791,6 +791,18 @@ if test x"$with_lcms" != x"no"; then
   )
 fi
 
+# fast-float plugin (GPL3) added in 2.10.
+if test x"$with_lcms" != x"no"; then
+  save_CFLAGS="$CFLAGS"
+  CFLAGS="$CFLAGS $LCMS_CFLAGS"
+  AC_CHECK_DECL(LCMS2_FAST_FLOAT_VERSION,[
+     AC_DEFINE(HAVE_LCMS2_FAST_FLOAT_PLUGIN,1,
+	       [define if the fast-float plugin of lcms2 is available.])
+   ],[],
+   [#include <lcms2_fast_float.h>])
+  CFLAGS="$save_CFLAGS"
+fi
+
 # we need a conditional for this to only compile in fallback profiles if lcms
 # is detected
 AM_CONDITIONAL(ENABLE_LCMS, [test x"$with_lcms" != x"no"])
