@@ -68,6 +68,40 @@ install-exec-hook:
 	cp soname.h $(DESTDIR)$(pkgincludedir) && \
 	rm soname.h
 
+# Modules
+
+module_LTLIBRARIES = 
+
+moduledir = @VIPS_LIBDIR@/vips-plugins-@VIPS_MAJOR_VERSION@.@VIPS_MINOR_VERSION@
+
+if OPENSLIDE_MODULE
+module_LTLIBRARIES += vips-openslide.la
+endif # OPENSLIDE_MODULE
+
+MODULE_CPPFLAGS = \
+	-I${top_srcdir}/libvips/include \
+	$(REQUIRED_CFLAGS)
+
+MODULE_LDFLAGS = \
+	-no-undefined \
+	-shared \
+	-module \
+	-avoid-version
+
+MODULE_LIBADD = \
+	libvips.la \
+	$(REQUIRED_LIBS)
+
+vips_openslide_la_SOURCES = \
+	module/openslide.c \
+	foreign/openslide2vips.c \
+	foreign/openslideload.c
+vips_openslide_la_CPPFLAGS = $(MODULE_CPPFLAGS) $(OPENSLIDE_CFLAGS)
+vips_openslide_la_LDFLAGS = $(MODULE_LDFLAGS)
+vips_openslide_la_LIBADD = $(MODULE_LIBADD) $(OPENSLIDE_LIBS)
+
+# Introspection
+
 -include $(INTROSPECTION_MAKEFILE)
 INTROSPECTION_GIRS =
 INTROSPECTION_SCANNER_ARGS = --add-include-path=$(srcdir)

@@ -969,8 +969,14 @@ fi
 # OpenSlide
 AC_ARG_WITH([openslide],
   AS_HELP_STRING([--without-openslide], 
-    [build without OpenSlide (default: test)])
-)
+    [build without OpenSlide (default: test)]),
+  [with_openslide=$withval],
+  [with_openslide='module'])
+
+# OpenSlide as a dynamically loadable module
+AS_IF([test x"$with_openslide" = x"module"],
+  [with_openslide_module=yes],
+  [with_openslide_module=no])
 
 if test x"$with_openslide" != x"no"; then
   PKG_CHECK_MODULES(OPENSLIDE, [openslide >= 3.4.0],
@@ -987,11 +993,16 @@ if test x"$with_openslide" != x"no"; then
        ],
        [AC_MSG_WARN([OpenSlide >= 3.3.0 not found; disabling virtual slide support])
         with_openslide=no
+        with_openslide_module=no
        ]
      )
     ]
   )
 fi
+
+AS_IF([test x"$with_openslide_module" = x"yes"],
+  [AC_DEFINE([OPENSLIDE_MODULE], [1], [define to build OpenSlide as a dynamically loadable module.])])
+AM_CONDITIONAL(OPENSLIDE_MODULE, [test x"$with_openslide_module" = x"yes"])
 
 # matio
 AC_ARG_WITH([matio], 
@@ -1279,9 +1290,14 @@ if test x"$LIB_FUZZING_ENGINE" = x; then
 fi
 
 # Gather all up for VIPS_CFLAGS, VIPS_INCLUDES, VIPS_LIBS
-VIPS_CFLAGS="$VIPS_CFLAGS $GTHREAD_CFLAGS $GIO_CFLAGS $REQUIRED_CFLAGS $EXPAT_CFLAGS $ZLIB_CFLAGS $PANGOFT2_CFLAGS $GSF_CFLAGS $FFTW_CFLAGS $MAGICK_CFLAGS $JPEG_CFLAGS $SPNG_CFLAGS $PNG_CFLAGS $IMAGEQUANT_CFLAGS $EXIF_CFLAGS $MATIO_CFLAGS $CFITSIO_CFLAGS $LIBWEBP_CFLAGS $LIBWEBPMUX_CFLAGS $GIFLIB_INCLUDES $RSVG_CFLAGS $PDFIUM_CFLAGS $POPPLER_CFLAGS $OPENEXR_CFLAGS $OPENSLIDE_CFLAGS $ORC_CFLAGS $TIFF_CFLAGS $LCMS_CFLAGS $HEIF_CFLAGS" VIPS_CFLAGS="$VIPS_DEBUG_FLAGS $VIPS_CFLAGS"
+VIPS_CFLAGS="$VIPS_CFLAGS $GTHREAD_CFLAGS $REQUIRED_CFLAGS $EXPAT_CFLAGS $ZLIB_CFLAGS $PANGOFT2_CFLAGS $GSF_CFLAGS $FFTW_CFLAGS $MAGICK_CFLAGS $JPEG_CFLAGS $SPNG_CFLAGS $PNG_CFLAGS $IMAGEQUANT_CFLAGS $EXIF_CFLAGS $MATIO_CFLAGS $CFITSIO_CFLAGS $LIBWEBP_CFLAGS $LIBWEBPMUX_CFLAGS $GIFLIB_INCLUDES $RSVG_CFLAGS $PDFIUM_CFLAGS $POPPLER_CFLAGS $OPENEXR_CFLAGS $ORC_CFLAGS $TIFF_CFLAGS $LCMS_CFLAGS $HEIF_CFLAGS" VIPS_CFLAGS="$VIPS_DEBUG_FLAGS $VIPS_CFLAGS"
 VIPS_INCLUDES="$ZLIB_INCLUDES $PNG_INCLUDES $TIFF_INCLUDES $JPEG_INCLUDES $NIFTI_INCLUDES" 
-VIPS_LIBS="$ZLIB_LIBS $HEIF_LIBS $MAGICK_LIBS $SPNG_LIBS $PNG_LIBS $IMAGEQUANT_LIBS $TIFF_LIBS $JPEG_LIBS $GTHREAD_LIBS $GIO_LIBS $REQUIRED_LIBS $EXPAT_LIBS $PANGOFT2_LIBS $GSF_LIBS $FFTW_LIBS $ORC_LIBS $LCMS_LIBS $GIFLIB_LIBS $RSVG_LIBS $NIFTI_LIBS $PDFIUM_LIBS $POPPLER_LIBS $OPENEXR_LIBS $OPENSLIDE_LIBS $CFITSIO_LIBS $LIBWEBP_LIBS $LIBWEBPMUX_LIBS $MATIO_LIBS $EXIF_LIBS -lm"
+VIPS_LIBS="$ZLIB_LIBS $HEIF_LIBS $MAGICK_LIBS $SPNG_LIBS $PNG_LIBS $IMAGEQUANT_LIBS $TIFF_LIBS $JPEG_LIBS $GTHREAD_LIBS $REQUIRED_LIBS $EXPAT_LIBS $PANGOFT2_LIBS $GSF_LIBS $FFTW_LIBS $ORC_LIBS $LCMS_LIBS $GIFLIB_LIBS $RSVG_LIBS $NIFTI_LIBS $PDFIUM_LIBS $POPPLER_LIBS $OPENEXR_LIBS $CFITSIO_LIBS $LIBWEBP_LIBS $LIBWEBPMUX_LIBS $MATIO_LIBS $EXIF_LIBS -lm"
+
+if test x"$with_openslide_module" = x"no"; then
+  VIPS_CFLAGS="$VIPS_CFLAGS $OPENSLIDE_CFLAGS"
+  VIPS_LIBS="$VIPS_LIBS $OPENSLIDE_LIBS"
+fi
 
 # autoconf hates multi-line AC_SUBST so we have to have another copy of this
 # thing
@@ -1398,6 +1414,9 @@ file import/export with libjpeg:	$with_jpeg
 image pyramid export:			$with_gsf
   (requires libgsf-1 1.14.26 or later)
 use libexif to load/save JPEG metadata: $with_libexif
+
+* dynamically loadable modules
+OpenSlide:	                        $with_openslide_module
 ])
 
 if test x"$vips_os_win32" = x"yes"; then

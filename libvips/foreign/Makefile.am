@@ -54,8 +54,6 @@ libforeign_la_SOURCES = \
 	tiff2vips.c \
 	tiffload.c \
 	tiffsave.c \
-	openslide2vips.c \
-	openslideload.c \
 	webpload.c \
 	webpsave.c \
 	webp2vips.c \
@@ -65,6 +63,10 @@ libforeign_la_SOURCES = \
 	jpeg.h \
 	jpegload.c \
 	jpegsave.c 
+
+if !OPENSLIDE_MODULE
+libforeign_la_SOURCES += openslide2vips.c openslideload.c
+endif # !OPENSLIDE_MODULE
 
 EXTRA_DIST = 
 
