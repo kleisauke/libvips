@@ -429,8 +429,8 @@ AC_CHECK_LIB(m,hypot,[AC_DEFINE(HAVE_HYPOT,1,[have hypot() in libm.])])
 AC_CHECK_LIB(m,atan2,[AC_DEFINE(HAVE_ATAN2,1,[have atan2() in libm.])])
 
 # have to have these parts of glib ... we need glib 2.15 for gio
-PKG_CHECK_MODULES(REQUIRED, glib-2.0 >= 2.15 gmodule-2.0 gobject-2.0 gio-2.0)
-PACKAGES_USED="$PACKAGES_USED glib-2.0 gmodule-2.0 gobject-2.0 gio-2.0"
+PKG_CHECK_MODULES(REQUIRED, glib-2.0 >= 2.15 gmodule-no-export-2.0 gobject-2.0 gio-2.0)
+PACKAGES_USED="$PACKAGES_USED glib-2.0 gmodule-no-export-2.0 gobject-2.0 gio-2.0"
 
 # from 2.28 we have a monotonic timer
 PKG_CHECK_MODULES(MONOTONIC_TIME, glib-2.0 >= 2.28,
@@ -516,6 +516,31 @@ PKG_CHECK_MODULES(HAVE_CHECKED_MUL, glib-2.0 >= 2.48,
   [:
   ]
 )
+
+AC_MSG_CHECKING([whether to build gmodulized libvips])
+
+AC_ARG_ENABLE([modules], 
+  AS_HELP_STRING([--disable-modules], 
+		 [disable dynamic module loading (default: enabled)]))
+
+gmodule_supported_bool=false
+gmodule_supported_flag=no
+gmodule_with_flag=yes
+
+if test x"$enable_modules" = x"no"; then
+  AC_MSG_RESULT(no)
+else
+  AC_MSG_RESULT(yes)
+  AC_MSG_CHECKING(whether dynamic modules work)
+  gmodule_supported_bool=`$PKG_CONFIG gmodule-no-export-2.0 --variable gmodule_supported`
+  if $gmodule_supported_bool; then
+    gmodule_supported_flag=yes
+    gmodule_with_flag='module'
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+  fi
+fi
 
 # check for gtk-doc
 GTK_DOC_CHECK([1.14],[--flavour no-tmpl])
@@ -971,11 +996,11 @@ AC_ARG_WITH([openslide],
   AS_HELP_STRING([--without-openslide], 
     [build without OpenSlide (default: test)]),
   [with_openslide=$withval],
-  [with_openslide='module'])
+  [with_openslide=$gmodule_with_flag])
 
 # OpenSlide as a dynamically loadable module
 AS_IF([test x"$with_openslide" = x"module"],
-  [with_openslide_module=yes],
+  [with_openslide_module=$gmodule_supported_flag],
   [with_openslide_module=no])
 
 if test x"$with_openslide" != x"no"; then
@@ -1370,6 +1395,7 @@ native OS X:				$vips_os_darwin
 open files in binary mode: 		$vips_binary_open
 enable debug:				$enable_debug
 enable deprecated library components:	$enable_deprecated
+enable modules:				$gmodule_supported_flag
 enable docs with gtkdoc:		$enable_gtk_doc
 gobject introspection: 			$found_introspection
 enable radiance support: 		$with_radiance
@@ -1414,10 +1440,14 @@ file import/export with libjpeg:	$with_jpeg
 image pyramid export:			$with_gsf
   (requires libgsf-1 1.14.26 or later)
 use libexif to load/save JPEG metadata: $with_libexif
-
-* dynamically loadable modules
-OpenSlide:	                        $with_openslide_module
 ])
+
+if $gmodule_supported_bool; then
+  AC_MSG_RESULT([* enabled modules])
+  if test x"$with_openslide_module" = x"yes"; then
+    AC_MSG_RESULT([OpenSlide])
+  fi
+fi
 
 if test x"$vips_os_win32" = x"yes"; then
   if test x"$have_g_win32_get_command_line" != x"yes"; then
