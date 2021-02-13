@@ -72,6 +72,9 @@ install-exec-hook:
 
 module_LTLIBRARIES = 
 
+# All modules within the $VIPSHOME/lib/vips-plugins-MAJOR.MINOR
+# directory are automatically loaded on vips_init.
+
 moduledir = @VIPS_LIBDIR@/vips-plugins-@VIPS_MAJOR_VERSION@.@VIPS_MINOR_VERSION@
 
 if OPENSLIDE_MODULE
@@ -92,10 +95,11 @@ MODULE_LIBADD = \
 	libvips.la \
 	$(REQUIRED_LIBS)
 
-vips_openslide_la_SOURCES = \
-	module/openslide.c \
-	foreign/openslide2vips.c \
-	foreign/openslideload.c
+# Note that only the GObject part should be included in a
+# dynamically loadable module. The C definitions are always
+# included in the main library.
+
+vips_openslide_la_SOURCES = module/openslide.c foreign/openslide2vips.c
 vips_openslide_la_CPPFLAGS = $(MODULE_CPPFLAGS) $(OPENSLIDE_CFLAGS)
 vips_openslide_la_LDFLAGS = $(MODULE_LDFLAGS)
 vips_openslide_la_LIBADD = $(MODULE_LIBADD) $(OPENSLIDE_LIBS)

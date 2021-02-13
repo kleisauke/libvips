@@ -54,6 +54,7 @@ libforeign_la_SOURCES = \
 	tiff2vips.c \
 	tiffload.c \
 	tiffsave.c \
+	openslideload.c \
 	webpload.c \
 	webpsave.c \
 	webp2vips.c \
@@ -64,8 +65,11 @@ libforeign_la_SOURCES = \
 	jpegload.c \
 	jpegsave.c 
 
+# We still need to include the GObject part of a loader/saver
+# if it is not built as a dynamically loadable module.
+
 if !OPENSLIDE_MODULE
-libforeign_la_SOURCES += openslide2vips.c openslideload.c
+libforeign_la_SOURCES += openslide2vips.c
 endif # !OPENSLIDE_MODULE
 
 EXTRA_DIST = 
