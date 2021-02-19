@@ -84,6 +84,10 @@ typedef struct _VipsReduceh {
 	int *matrixi[VIPS_TRANSFORM_SCALE + 1];
 	double *matrixf[VIPS_TRANSFORM_SCALE + 1];
 
+	/* And another set for SIMD.
+	 */
+	short *matrixs[VIPS_TRANSFORM_SCALE + 1];
+	
 	/* Deprecated.
 	 */
 	gboolean centre;
@@ -179,7 +183,7 @@ reduceh_unsigned_int_tab( VipsReduceh *reduceh,
 
 	for( int z = 0; z < bands; z++ ) {
 		int sum;
-	       
+
 		sum = reduce_sum<T, int>( in + z, bands, cx, n );
 		sum = unsigned_fixed_round( sum ); 
 		sum = VIPS_CLIP( 0, sum, max_value ); 
@@ -260,8 +264,7 @@ reduceh_signed_int32_tab( VipsReduceh *reduceh,
 		double sum;
 
 		sum = reduce_sum<T, double>( in + z, bands, cx, n );
-		sum = VIPS_CLIP( min_value, sum, max_value ); 
-		out[z] = sum;
+		out[z] = VIPS_CLIP( min_value, sum, max_value );
 	}
 }
 
@@ -288,10 +291,6 @@ reduceh_notab( VipsReduceh *reduceh,
 		out[z] = VIPS_ROUND_UINT( sum );
 	}
 }
-
-/* Tried a vector path (see reducev) but it was slower. The vectors for
- * horizontal reduce are just too small to get a useful speedup.
- */
 
 static int
 vips_reduceh_gen( VipsRegion *out_region, void *seq, 
@@ -353,15 +352,22 @@ vips_reduceh_gen( VipsRegion *out_region, void *seq,
 			const int sx = X * VIPS_TRANSFORM_SCALE * 2;
 			const int six = sx & (VIPS_TRANSFORM_SCALE * 2 - 1);
 			const int tx = (six + 1) >> 1;
+			const short *cxs = reduceh->matrixs[tx];
 			const int *cxi = reduceh->matrixi[tx];
 			const double *cxf = reduceh->matrixf[tx];
 
 			switch( in->BandFmt ) {
 			case VIPS_FORMAT_UCHAR:
+#if defined(__AVX2__) || defined(__SSE4_2__)
+				vips_reduce_uchar_simd(
+					q, p,
+					reduceh->n_point, bands, ps, cxs );
+#else
 				reduceh_unsigned_int_tab
 					<unsigned char, UCHAR_MAX>(
 					reduceh,
 					q, p, bands, cxi );
+#endif
 				break;
 
 			case VIPS_FORMAT_CHAR:
@@ -438,7 +444,8 @@ vips_reduceh_build( VipsObject *object )
 		vips_object_local_array( object, 2 );
 
 	VipsImage *in;
-	double width, extra_pixels;
+	int width;
+	double extra_pixels;
 
 	if( VIPS_OBJECT_CLASS( vips_reduceh_parent_class )->build( object ) )
 		return( -1 );
@@ -447,7 +454,7 @@ vips_reduceh_build( VipsObject *object )
 
 	if( reduceh->hshrink < 1 ) { 
 		vips_error( object_class->nickname, 
-			"%s", _( "reduce factors should be >= 1" ) );
+			"%s", _( "reduce factor should be >= 1" ) );
 		return( -1 );
 	}
 
@@ -489,17 +496,22 @@ vips_reduceh_build( VipsObject *object )
 			VIPS_ARRAY( object, reduceh->n_point, double ); 
 		reduceh->matrixi[x] = 
 			VIPS_ARRAY( object, reduceh->n_point, int ); 
+		reduceh->matrixs[x] =
+			VIPS_ARRAY( object, reduceh->n_point, short );
 		if( !reduceh->matrixf[x] ||
-			!reduceh->matrixi[x] )
+			!reduceh->matrixi[x] ||
+			!reduceh->matrixs[x] )
 			return( -1 ); 
 
 		vips_reduce_make_mask( reduceh->matrixf[x], 
 			reduceh->kernel, reduceh->hshrink, 
 			(float) x / VIPS_TRANSFORM_SCALE );
 
-		for( int i = 0; i < reduceh->n_point; i++ )
+		for( int i = 0; i < reduceh->n_point; i++ ) {
 			reduceh->matrixi[x][i] = reduceh->matrixf[x][i] * 
 				VIPS_INTERPOLATE_SCALE;
+			reduceh->matrixs[x][i] = (short) reduceh->matrixi[x][i];
+		}
 
 #ifdef DEBUG
 		printf( "vips_reduceh_build: mask %d\n    ", x );
