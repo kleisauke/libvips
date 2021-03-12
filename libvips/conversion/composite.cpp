@@ -55,7 +55,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#if _MSC_VER
+#ifdef _MSC_VER
 #include <cstdlib>
 #else
 #include <stdlib.h>
@@ -81,10 +81,18 @@
 #ifdef HAVE_VECTOR_ARITH
 /* A vector of four floats.
  */
-typedef float v4f __attribute__((vector_size(4 * sizeof(float))));
+typedef float v4f __attribute__((vector_size(4 * sizeof(float)),aligned(16)));
 #endif /*HAVE_VECTOR_ARITH*/
 
 typedef struct _VipsCompositeBase {
+#ifdef HAVE_VECTOR_ARITH
+	/* max_band as a vector, for the RGBA case. This must be
+	 * defined first to ensure that the vector is aligned
+	 * on a 16-byte boundary.
+	 */
+	v4f max_band_vec;
+#endif /*HAVE_VECTOR_ARITH*/
+
 	VipsConversion parent_instance;
 
 	/* The input images.
@@ -129,12 +137,6 @@ typedef struct _VipsCompositeBase {
 	 * the whole stack for every pixel request.
 	 */
 	gboolean skippable;
-
-#ifdef HAVE_VECTOR_ARITH
-	/* max_band as a vector, for the RGBA case.
-	 */
-	v4f max_band_vec;
-#endif /*HAVE_VECTOR_ARITH*/
 
 } VipsCompositeBase;
 
@@ -1390,8 +1392,12 @@ vips_composite_base_build( VipsObject *object )
 	/* We need a float version for the vector path.
 	 */
 	if( composite->bands == 3 ) 
-		for( int b = 0; b <= 3; b++ )
-			composite->max_band_vec[b] = composite->max_band[b];
+		composite->max_band_vec = (v4f){
+			(float) composite->max_band[0],
+			(float) composite->max_band[1],
+			(float) composite->max_band[2],
+			(float) composite->max_band[3]
+		};
 #endif /*HAVE_VECTOR_ARITH*/
 
 	/* Transform the input images to match in format. We may have
