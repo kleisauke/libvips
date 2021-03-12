@@ -221,7 +221,10 @@ vips_composite_stop( void *vseq, void *a, void *b )
 	VIPS_FREE( seq->p );
 
 #ifdef HAVE_VECTOR_ARITH
-	VIPS_FREE( seq->mem );
+	/* Must use g_free here, otherwise we end up writing to a
+	 * pointer that we just freed.
+	 */
+	g_free( seq->mem );
 #else /*!defined(HAVE_VECTOR_ARITH)*/
 	VIPS_FREE( seq );
 #endif /*HAVE_VECTOR_ARITH*/
