@@ -69,6 +69,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#if defined(HAVE__ALIGNED_MALLOC) || defined(HAVE_MEMALIGN)
+#include <malloc.h>
+#endif
 
 #include <vips/vips.h>
 #include <vips/thread.h>
@@ -220,18 +223,19 @@ vips_strdup( VipsObject *object, const char *str )
  * vips_tracked_free:
  * @s: (transfer full): memory to free
  *
- * Only use it to free
- * memory that was previously allocated with vips_tracked_malloc() with a 
- * %NULL first argument.
+ * Only use it to free memory that was
+ * previously allocated with vips_tracked_malloc()
+ * with a %NULL first argument.
  *
  * See also: vips_tracked_malloc().
  */
 void
 vips_tracked_free( void *s )
 {
-	/* Keep the size of the alloc below the aligned buffer.
+	/* Keep the size of the alloc in the previous 16 bytes. Ensures
+	 * alignment rules are kept.
 	 */
-	void *start = ((void **) s)[-1];
+	void *start = (void *) ((char *) s - 16);
 	size_t size = *((size_t *) start);
 
 	g_mutex_lock( vips_tracked_mutex );
@@ -255,6 +259,47 @@ vips_tracked_free( void *s )
 	VIPS_GATE_FREE( size ); 
 }
 
+/**
+ * vips_tracked_aligned_free:
+ * @s: (transfer full): memory to free
+ *
+ * Only use it to free memory that was
+ * previously allocated with vips_tracked_aligned_alloc() 
+ * with a %NULL first argument.
+ *
+ * See also: vips_tracked_aligned_alloc().
+ */
+void
+vips_tracked_aligned_free( void *s )
+{
+	void *start = (size_t *)s - 1;
+	size_t size = *((size_t *) start);
+
+	g_mutex_lock( vips_tracked_mutex );
+
+#ifdef DEBUG_VERBOSE
+	printf( "vips_tracked_aligned_free: %p, %zd bytes\n", s, size ); 
+#endif /*DEBUG_VERBOSE*/
+
+	if( vips_tracked_allocs <= 0 ) 
+		g_warning( "%s", _( "vips_free: too many frees" ) );
+	if( vips_tracked_mem < size )
+		g_warning( "%s", _( "vips_free: too much free" ) );
+
+	vips_tracked_mem -= size;
+	vips_tracked_allocs -= 1;
+
+	g_mutex_unlock( vips_tracked_mutex );
+
+#ifdef HAVE__ALIGNED_MALLOC
+	_aligned_free( start );
+#else /*defined(HAVE_POSIX_MEMALIGN) || defined(HAVE_MEMALIGN)*/
+	free( start );
+#endif
+
+	VIPS_GATE_FREE( size ); 
+}
+
 static void *
 vips_tracked_init_mutex( void *data )
 {
@@ -273,43 +318,33 @@ vips_tracked_init( void )
 }
 
 /**
- * vips_tracked_aligned_alloc:
+ * vips_tracked_malloc:
  * @size: number of bytes to allocate
- * @align: specifies the alignment
  *
- * Allocate an area of memory aligned on a boundary specified
- * by @align that will be tracked by vips_tracked_get_mem()
+ * Allocate an area of memory that will be tracked by vips_tracked_get_mem()
  * and friends. 
  *
- * If allocation fails, vips_malloc() returns %NULL and 
+ * If allocation fails, vips_tracked_malloc() returns %NULL and 
  * sets an error message.
  *
  * You must only free the memory returned with vips_tracked_free().
  *
- * See also: vips_tracked_malloc(), vips_tracked_free(), vips_malloc().
+ * See also: vips_tracked_free(), vips_malloc().
  *
  * Returns: (transfer full): a pointer to the allocated memory, or %NULL on error.
  */
 void *
-vips_tracked_aligned_alloc( size_t size, size_t align )
+vips_tracked_malloc( size_t size )
 {
-	void *ptr, *buf;
+	void *buf;
 
 	vips_tracked_init(); 
 
 	/* Need an extra sizeof(size_t) bytes to track 
-	 * size of this block.
+	 * size of this block. Ask for an extra 16 to make sure we don't break
+	 * alignment rules.
 	 */
-	size += sizeof(size_t);
-
-	/* Ensure that the buffer is aligned.
-	 */
-	size += align - 1;
-
-	/* And we need extra space for storing a pointer to
-	 * the 'real' buffer below the aligned buffer.
-	 */
-	size += sizeof(void *);
+	size += 16;
 
         if( !(buf = g_try_malloc0( size )) ) {
 #ifdef DEBUG
@@ -328,9 +363,7 @@ vips_tracked_aligned_alloc( size_t size, size_t align )
 	g_mutex_lock( vips_tracked_mutex );
 
 	*((size_t *)buf) = size;
-	ptr = (void *) (((guintptr) buf + sizeof(size_t) +
-		align - 1 + sizeof(void *)) & ~(guintptr) (align - 1));
-	((void**)ptr)[-1] = buf;
+	buf = (void *) ((char *)buf + 16);
 
 	vips_tracked_mem += size;
 	if( vips_tracked_mem > vips_tracked_mem_highwater ) 
@@ -345,29 +378,83 @@ vips_tracked_aligned_alloc( size_t size, size_t align )
 
 	VIPS_GATE_MALLOC( size ); 
 
-	return( ptr );
+	return( buf );
 }
 
 /**
- * vips_tracked_malloc:
+ * vips_tracked_aligned_alloc:
  * @size: number of bytes to allocate
+ * @align: specifies the alignment
  *
- * Allocate an area of memory that will be tracked by vips_tracked_get_mem()
+ * Allocate an area of memory aligned on a boundary specified
+ * by @align that will be tracked by vips_tracked_get_mem()
  * and friends. 
  *
- * If allocation fails, vips_malloc() returns %NULL and 
- * sets an error message.
+ * If allocation fails, vips_tracked_aligned_alloc() returns %NULL
+ * and sets an error message.
  *
- * You must only free the memory returned with vips_tracked_free().
+ * You must only free the memory returned with vips_tracked_aligned_free().
  *
- * See also: vips_tracked_free(), vips_malloc().
+ * See also: vips_tracked_malloc(), vips_tracked_aligned_free(), vips_malloc().
  *
  * Returns: (transfer full): a pointer to the allocated memory, or %NULL on error.
  */
 void *
-vips_tracked_malloc( size_t size )
+vips_tracked_aligned_alloc( size_t size, size_t align )
 {
-	return( vips_tracked_aligned_alloc( size, 16 ) );
+	void *buf;
+
+	vips_tracked_init(); 
+
+	g_assert( !(align & (align - 1)) );
+
+	/* Need an extra sizeof(size_t) bytes to track 
+	 * size of this block.
+	 */
+	size += sizeof(size_t);
+
+#ifdef HAVE__ALIGNED_MALLOC
+	if( !(buf = _aligned_malloc( size, align )) ) {
+#elif defined(HAVE_POSIX_MEMALIGN)
+	if( posix_memalign( &buf, align, size ) ) {
+#elif defined(HAVE_MEMALIGN)
+	if( !(buf = memalign( align, size )) ) {
+#else
+#error Missing aligned alloc implementation
+#endif
+#ifdef DEBUG
+		g_assert_not_reached();
+#endif /*DEBUG*/
+
+		vips_error( "vips_tracked", 
+			_( "out of memory --- size == %dMB" ), 
+			(int) (size / (1024.0 * 1024.0))  );
+		g_warning( _( "out of memory --- size == %dMB" ), 
+			(int) (size / (1024.0 * 1024.0))  );
+
+		return( NULL );
+	}
+
+	memset( buf, 0, size );
+
+	g_mutex_lock( vips_tracked_mutex );
+
+	*((size_t *)buf) = size;
+
+	vips_tracked_mem += size;
+	if( vips_tracked_mem > vips_tracked_mem_highwater ) 
+		vips_tracked_mem_highwater = vips_tracked_mem;
+	vips_tracked_allocs += 1;
+
+#ifdef DEBUG_VERBOSE
+	printf( "vips_tracked_aligned_alloc: %p, %zd bytes\n", buf, size ); 
+#endif /*DEBUG_VERBOSE*/
+
+	g_mutex_unlock( vips_tracked_mutex );
+
+	VIPS_GATE_MALLOC( size ); 
+
+	return( (void *) ((size_t *)buf + 1) );
 }
 
 /**
