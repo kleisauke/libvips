@@ -54,10 +54,12 @@
 #include <math.h>
 
 #include <vips/vips.h>
+#include <vips/simd.h>
 #include <vips/debug.h>
 #include <vips/internal.h>
 
 #include "presample.h"
+#include "presample_simd.h"
 #include "templates.h"
 
 typedef struct _VipsReduceh {
@@ -358,8 +360,12 @@ vips_reduceh_gen( VipsRegion *out_region, void *seq,
 
 			switch( in->BandFmt ) {
 			case VIPS_FORMAT_UCHAR:
-#if defined(__AVX2__) || defined(__SSE4_2__)
-				vips_reduce_uchar_simd(
+#ifdef USE_AVX2
+				vips_reduce_uchar_avx2(
+					q, p,
+					reduceh->n_point, bands, ps, cxs );
+#elif defined(USE_SSE41)
+				vips_reduce_uchar_sse41(
 					q, p,
 					reduceh->n_point, bands, ps, cxs );
 #else
