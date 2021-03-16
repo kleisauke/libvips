@@ -395,6 +395,58 @@ if test x"$have_vector_arith" = x"yes"; then
   fi
 fi
 
+# TEST_AND_ADD_CFLAGS(var, flag)
+# Checks whether $CC supports 'flag' and adds it to 'var'
+# on success.
+AC_DEFUN([TEST_AND_ADD_CFLAGS],
+         [SAVED_CFLAGS="$CFLAGS"
+          CFLAGS="-Werror $2"
+          AC_MSG_CHECKING([whether $CC supports $2])
+          # Note: AC_LANG_PROGRAM([]) uses an old-style main definition.
+          AC_COMPILE_IFELSE([AC_LANG_SOURCE([int main(void) { return 0; }])],
+                            [AC_MSG_RESULT([yes])]
+                            # Simply append the variable avoiding a
+                            # compatibility ifdef for AS_VAR_APPEND as this
+                            # variable shouldn't grow all that large.
+                            [$1="${$1} $2"],
+                            [AC_MSG_RESULT([no])])
+          CFLAGS="$SAVED_CFLAGS"])
+
+# Check for machine specific flags
+AC_ARG_ENABLE([sse4.1],
+              AS_HELP_STRING([--disable-sse4.1],
+                             [Disable detection of SSE4.1 support
+                              @<:@default=auto@:>@]))
+
+AS_IF([test "x$enable_sse4_1" != "xno"], [
+  TEST_AND_ADD_CFLAGS([SSE41_FLAGS], [-msse4.1])
+  AS_IF([test -n "$SSE41_FLAGS"], [
+    SAVED_CFLAGS=$CFLAGS
+    CFLAGS="$CFLAGS $SSE41_FLAGS"
+    AC_CHECK_HEADER([smmintrin.h],
+                    [AC_DEFINE(HAVE_SSE41, [1],
+                     [Set to 1 if SSE4.1 is supported])],
+                    [SSE41_FLAGS=""])
+    CFLAGS=$SAVED_CFLAGS])
+  AC_SUBST([SSE41_FLAGS])])
+
+AC_ARG_ENABLE([avx2],
+              AS_HELP_STRING([--disable-avx2],
+                             [Disable detection of AVX2 support
+                              @<:@default=auto@:>@]))
+
+AS_IF([test "x$enable_avx2" != "xno" -a "x$enable_sse4_1" != "xno"], [
+  TEST_AND_ADD_CFLAGS([AVX2_FLAGS], [-mavx2])
+  AS_IF([test -n "$AVX2_FLAGS"], [
+    SAVED_CFLAGS=$CFLAGS
+    CFLAGS="$CFLAGS $AVX2_FLAGS"
+    AC_CHECK_HEADER([immintrin.h],
+                    [AC_DEFINE(HAVE_AVX2, [1],
+                     [Set to 1 if AVX2 is supported])],
+                    [AVX2_FLAGS=""])
+    CFLAGS=$SAVED_CFLAGS])
+  AC_SUBST([AVX2_FLAGS])])
+
 # Checks for library functions.
 AC_FUNC_MEMCMP
 AC_FUNC_MMAP

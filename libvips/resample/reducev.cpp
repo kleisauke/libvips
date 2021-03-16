@@ -66,10 +66,12 @@
 #include <math.h>
 
 #include <vips/vips.h>
+#include <vips/simd.h>
 #include <vips/debug.h>
 #include <vips/internal.h>
 
 #include "presample.h"
+#include "presample_simd.h"
 #include "templates.h"
 
 typedef struct _VipsReducev {
@@ -287,23 +289,16 @@ vips_reducev_gen( VipsRegion *out_region, void *seq,
 		const int sy = Y * VIPS_TRANSFORM_SCALE * 2;
 		const int siy = sy & (VIPS_TRANSFORM_SCALE * 2 - 1);
 		const int ty = (siy + 1) >> 1;
-		const short *cys = reducev->matrixs[ty];
 		const int *cyi = reducev->matrixi[ty];
 		const double *cyf = reducev->matrixf[ty];
 		const int lskip = VIPS_REGION_LSKIP( ir );
 
 		switch( in->BandFmt ) {
 		case VIPS_FORMAT_UCHAR:
-#if defined(__AVX2__) || defined(__SSE4_2__)
-			vips_reduce_uchar_simd(
-				q, p,
-				reducev->n_point, ne, lskip, cys );
-#else
 			reducev_unsigned_int_tab
 				<unsigned char, UCHAR_MAX>(
 				reducev,
 				q, p, ne, lskip, cyi );
-#endif
 			break;
 
 		case VIPS_FORMAT_CHAR:
@@ -368,6 +363,120 @@ vips_reducev_gen( VipsRegion *out_region, void *seq,
 	return( 0 );
 }
 
+#ifdef HAVE_SSE41
+static int
+vips_reducev_sse41_gen( VipsRegion *out_region, void *seq, 
+	void *a, void *b, gboolean *stop )
+{
+	VipsImage *in = (VipsImage *) a;
+	VipsReducev *reducev = (VipsReducev *) b;
+	VipsRegion *ir = (VipsRegion *) seq;
+	VipsRect *r = &out_region->valid;
+	const int bands = in->Bands;
+	int ne = r->width * bands;
+
+	VipsRect s;
+
+#ifdef DEBUG
+	printf( "vips_reducev_sse41_gen: generating %d x %d at %d x %d\n",
+		r->width, r->height, r->left, r->top ); 
+#endif /*DEBUG*/
+
+	s.left = r->left;
+	s.top = r->top * reducev->vshrink - reducev->voffset;
+	s.width = r->width;
+	s.height = r->height * reducev->vshrink + reducev->n_point;
+	if( vips_region_prepare( ir, &s ) )
+		return( -1 );
+
+	VIPS_GATE_START( "vips_reducev_sse41_gen: work" ); 
+
+	double Y = (r->top + 0.5) * reducev->vshrink - 0.5 - 
+		reducev->voffset;
+
+	for( int y = 0; y < r->height; y++ ) { 
+		VipsPel *q = 
+			VIPS_REGION_ADDR( out_region, r->left, r->top + y );
+		const int py = (int) Y;
+		VipsPel *p = VIPS_REGION_ADDR( ir, r->left, py );
+		const int sy = Y * VIPS_TRANSFORM_SCALE * 2;
+		const int siy = sy & (VIPS_TRANSFORM_SCALE * 2 - 1);
+		const int ty = (siy + 1) >> 1;
+		const short *cys = reducev->matrixs[ty];
+		const int lskip = VIPS_REGION_LSKIP( ir );
+
+		vips_reduce_uchar_sse41(
+			q, p,
+			reducev->n_point, ne, lskip, cys );
+
+		Y += reducev->vshrink;
+	}
+
+	VIPS_GATE_STOP( "vips_reducev_sse41_gen: work" ); 
+
+	VIPS_COUNT_PIXELS( out_region, "vips_reducev_sse41_gen" ); 
+
+	return( 0 );
+}
+#endif
+
+#ifdef HAVE_AVX2
+static int
+vips_reducev_avx2_gen( VipsRegion *out_region, void *seq, 
+	void *a, void *b, gboolean *stop )
+{
+	VipsImage *in = (VipsImage *) a;
+	VipsReducev *reducev = (VipsReducev *) b;
+	VipsRegion *ir = (VipsRegion *) seq;
+	VipsRect *r = &out_region->valid;
+	const int bands = in->Bands;
+	int ne = r->width * bands;
+
+	VipsRect s;
+
+#ifdef DEBUG
+	printf( "vips_reducev_avx2_gen: generating %d x %d at %d x %d\n",
+		r->width, r->height, r->left, r->top ); 
+#endif /*DEBUG*/
+
+	s.left = r->left;
+	s.top = r->top * reducev->vshrink - reducev->voffset;
+	s.width = r->width;
+	s.height = r->height * reducev->vshrink + reducev->n_point;
+	if( vips_region_prepare( ir, &s ) )
+		return( -1 );
+
+	VIPS_GATE_START( "vips_reducev_avx2_gen: work" ); 
+
+	double Y = (r->top + 0.5) * reducev->vshrink - 0.5 - 
+		reducev->voffset;
+
+	for( int y = 0; y < r->height; y++ ) { 
+		VipsPel *q = 
+			VIPS_REGION_ADDR( out_region, r->left, r->top + y );
+		const int py = (int) Y;
+		VipsPel *p = VIPS_REGION_ADDR( ir, r->left, py );
+		const int sy = Y * VIPS_TRANSFORM_SCALE * 2;
+		const int siy = sy & (VIPS_TRANSFORM_SCALE * 2 - 1);
+		const int ty = (siy + 1) >> 1;
+		const short *cys = reducev->matrixs[ty];
+		const int lskip = VIPS_REGION_LSKIP( ir );
+
+		vips_reduce_uchar_avx2(
+			q, p,
+			reducev->n_point, ne, lskip, cys );
+
+		Y += reducev->vshrink;
+	}
+
+	VIPS_GATE_STOP( "vips_reducev_avx2_gen: work" ); 
+
+	VIPS_COUNT_PIXELS( out_region, "vips_reducev_avx2_gen" ); 
+
+	return( 0 );
+}
+#endif
+
 static int
 vips_reducev_build( VipsObject *object )
 {
@@ -378,6 +487,7 @@ vips_reducev_build( VipsObject *object )
 		vips_object_local_array( object, 5 );
 
 	VipsImage *in;
+	VipsGenerateFn generate;
 	int height;
 	int int_vshrink;
 	double extra_pixels;
@@ -497,6 +607,22 @@ vips_reducev_build( VipsObject *object )
 		return( -1 );
 	in = t[2];
 
+	/* Default to the C path.
+	 */
+	generate = vips_reducev_gen;
+
+	/* For uchar input, try to make a SIMD path.
+	 */
+	if( in->BandFmt == VIPS_FORMAT_UCHAR ) {
+#ifdef HAVE_AVX2
+		generate = vips_reducev_avx2_gen;
+		g_info( "reducev: using AVX2 SIMD path" );
+#elif defined(HAVE_SSE41)
+		generate = vips_reducev_sse41_gen;
+		g_info( "reducev: using SSE4.1 SIMD path" );
+#endif
+	}
+
 	t[3] = vips_image_new();
 	if( vips_image_pipelinev( t[3], 
 		VIPS_DEMAND_STYLE_THINSTRIP, in, (void *) NULL ) )
@@ -523,7 +649,7 @@ vips_reducev_build( VipsObject *object )
 #endif /*DEBUG*/
 
 	if( vips_image_generate( t[3],
-		vips_start_one, vips_reducev_gen, vips_stop_one, 
+		vips_start_one, generate, vips_stop_one, 
 		in, reducev ) )
 		return( -1 );
 

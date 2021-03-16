@@ -22,6 +22,7 @@ resample_sources = files(
 
 resample_headers = files(
     'presample.h',
+    'presample_simd.h',
     'templates.h',
 )
 

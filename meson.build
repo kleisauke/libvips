@@ -29,6 +29,7 @@ gnome = import('gnome')
 pymod = import('python')
 pkg = import('pkgconfig')
 i18n = import('i18n')
+simd = import('unstable-simd')
 
 add_project_arguments('-Drestrict=__restrict', language: 'cpp')
 
@@ -122,11 +123,40 @@ h( v4f B )
 }
 '''
 
-if cpp.compiles(vector_arithmetic_check, name: 'Has vector arithmetic', dependencies: m_dep)
-    if cpp.compiles(signed_constants_check, name: 'Has signed constants in vector templates', dependencies: m_dep)
-        cfg_var.set('HAVE_VECTOR_ARITH', '1')
+if cpp.compiles(vector_arithmetic_check, name: 'Has vector arithmetic', dependencies: m_dep) and \
+    cpp.compiles(signed_constants_check, name: 'Has signed constants in vector templates', dependencies: m_dep)
+    cfg_var.set('HAVE_VECTOR_ARITH', '1')
+endif
+
+simd_args = {
+    'dependencies': libvips_deps,
+    'include_directories': include_directories('libvips/include'),
+    'implicit_include_directories': false,
+    'compiler': cc
+}
+
+if get_option('sse41')
+    simd_args += {'sse41': files(
+        'libvips/resample/reduce_sse41.c',
+    )}
+
+    if get_option('avx2')
+        simd_args += {'avx2': files(
+            'libvips/resample/reduce_avx2.c',
+        )}
     endif
 endif
+
+libvips_simd = simd.check('vips-simd',
+    kwargs: simd_args)
+libvips_simd_lib = libvips_simd[0]
+cfg_var.merge_from(libvips_simd[1])
+
+libvips_simd_dep = declare_dependency(
+    link_with: libvips_simd_lib,
+)
+
+libvips_deps += libvips_simd_dep
 
 func_names = [ 'vsnprintf', '_aligned_malloc', 'posix_memalign', 'memalign', 'cbrt', 'hypot', 'atan2', 'asinh' ]
 foreach func_name : func_names
