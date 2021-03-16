@@ -4,6 +4,8 @@
  * 	- initial implementation
  * 01/02/21 kleisauke
  * 	- uint -> uchar
+ * 16/03/21 kleisauke
+ *	- split to avx2 and sse41 files
  */
 
 /*
@@ -36,40 +38,28 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif /*HAVE_CONFIG_H*/
-#include <glib/gi18n-lib.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-/* Microsoft compiler doesn't limit intrinsics for an architecture.
- * This macro is set only on x86 and means SSE2 and above including AVX2. 
- */
-#if defined(_M_X64) || _M_IX86_FP == 2
-#define __SSE4_1__
-#endif
-
-#if defined(__AVX2__) || defined(__SSE4_1__)
-#include <immintrin.h>
-#endif
-
 #include <vips/vips.h>
+#include <vips/simd.h>
 #include <vips/debug.h>
-#include <vips/internal.h>
 
-#include "presample.h"
+#include "presample_simd.h"
 
 #ifdef __SSE4_1__
+#include <smmintrin.h>
+
 static inline __m128i
 mm_cvtepu8_epi32( const void *ptr )
 {
 	return _mm_cvtepu8_epi32( _mm_cvtsi32_si128( *(int *) ptr ) );
 }
-#endif
 
-#if defined(__AVX2__) || defined(__SSE4_1__)
 void
-vips_reduce_uchar_simd( VipsPel *pout, VipsPel *pin,
+vips_reduce_uchar_sse41( VipsPel *pout, VipsPel *pin,
 	int n, int ne, int lskip, const short *restrict k )
 {
 	VipsPel * restrict p = (VipsPel *) pin;
@@ -79,73 +69,6 @@ vips_reduce_uchar_simd( VipsPel *pout, VipsPel *pin,
 	int x, xx;
 
 	__m128i initial = _mm_set1_epi32( 1 << (VIPS_INTERPOLATE_SHIFT - 1) );
-
-#ifdef __AVX2__
-
-	__m256i initial_256 = _mm256_set1_epi32( 1 << (VIPS_INTERPOLATE_SHIFT - 1) );
-
-	for( xx = 0; xx < ne - 7; xx += 8 ) {
-		__m256i sss0 = initial_256;
-		__m256i sss1 = initial_256;
-		__m256i sss2 = initial_256;
-		__m256i sss3 = initial_256;
-		for( x = 0; x < n - 1; x += 2 ) {
-			__m256i source, source1, source2;
-			__m256i pix, mmk;
-
-			/* Load two coefficients at once
-			 */
-			mmk = _mm256_set1_epi32( *(int *) &k[x] );
-
-			source1 = _mm256_loadu_si256(  /* top line */
-				(__m256i *) &p[x * l1] );
-			source2 = _mm256_loadu_si256(  /* bottom line */
-				(__m256i *) &p[(x + 1) * l1] );
-
-			source = _mm256_unpacklo_epi8( source1, source2 );
-			pix = _mm256_unpacklo_epi8( source, _mm256_setzero_si256() );
-			sss0 = _mm256_add_epi32( sss0, _mm256_madd_epi16( pix, mmk ) );
-			pix = _mm256_unpackhi_epi8( source, _mm256_setzero_si256() );
-			sss1 = _mm256_add_epi32( sss1, _mm256_madd_epi16( pix, mmk ) );
-
-			source = _mm256_unpackhi_epi8( source1, source2 );
-			pix = _mm256_unpacklo_epi8( source, _mm256_setzero_si256() );
-			sss2 = _mm256_add_epi32( sss2, _mm256_madd_epi16( pix, mmk ) );
-			pix = _mm256_unpackhi_epi8( source, _mm256_setzero_si256() );
-			sss3 = _mm256_add_epi32( sss3, _mm256_madd_epi16( pix, mmk ) );
-		}
-		for( ; x < n; x++ ) {
-			__m256i source, source1, pix, mmk;
-			mmk = _mm256_set1_epi32( k[x] );
-
-			source1 = _mm256_loadu_si256(  /* top line */
-				(__m256i *) &p[x * l1] );
-
-			source = _mm256_unpacklo_epi8( source1, _mm256_setzero_si256() );
-			pix = _mm256_unpacklo_epi8( source, _mm256_setzero_si256() );
-			sss0 = _mm256_add_epi32( sss0, _mm256_madd_epi16( pix, mmk ) );
-			pix = _mm256_unpackhi_epi8( source, _mm256_setzero_si256() );
-			sss1 = _mm256_add_epi32( sss1, _mm256_madd_epi16( pix, mmk ) );
-
-			source = _mm256_unpackhi_epi8( source1, _mm256_setzero_si256() );
-			pix = _mm256_unpacklo_epi8( source, _mm256_setzero_si256() );
-			sss2 = _mm256_add_epi32( sss2, _mm256_madd_epi16( pix, mmk ) );
-			pix = _mm256_unpackhi_epi8( source, _mm256_setzero_si256() );
-			sss3 = _mm256_add_epi32( sss3, _mm256_madd_epi16( pix, mmk ) );
-		}
-		sss0 = _mm256_srai_epi32( sss0, VIPS_INTERPOLATE_SHIFT );
-		sss1 = _mm256_srai_epi32( sss1, VIPS_INTERPOLATE_SHIFT );
-		sss2 = _mm256_srai_epi32( sss2, VIPS_INTERPOLATE_SHIFT );
-		sss3 = _mm256_srai_epi32( sss3, VIPS_INTERPOLATE_SHIFT );
-
-		sss0 = _mm256_packs_epi32( sss0, sss1 );
-		sss2 = _mm256_packs_epi32( sss2, sss3 );
-		sss0 = _mm256_packus_epi16( sss0, sss2 );
-		_mm256_storeu_si256( (__m256i *) &q[xx], sss0 );
-		p += 8;
-	}
-
-#else
 
 	for( xx = 0; xx < ne - 7; xx += 8 ) {
 		__m128i sss0 = initial;
@@ -252,8 +175,6 @@ vips_reduce_uchar_simd( VipsPel *pout, VipsPel *pin,
 		p += 8;
 	}
 
-#endif
-
 	for( ; xx < ne - 1; xx += 2 ) {
 		__m128i sss0 = initial;  /* left row */
 		__m128i sss1 = initial;  /* right row */
@@ -328,4 +249,4 @@ vips_reduce_uchar_simd( VipsPel *pout, VipsPel *pin,
 		p += 1;
 	}
 }
-#endif /*defined(__AVX2__) || defined(__SSE4_1__)*/
+#endif /*defined(__SSE4_1__)*/

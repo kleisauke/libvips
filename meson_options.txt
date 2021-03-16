@@ -240,3 +240,15 @@ option('radiance',
   type: 'boolean', 
   value: true, 
   description: 'Build with radiance')
+
+# Compiler extensions
+
+option('sse41', 
+  type: 'boolean', 
+  value: 'true', 
+  description: 'SSE4.1 support')
+
+option('avx2', 
+  type: 'boolean', 
+  value: 'true', 
+  description: 'AVX2 support - depends on SSE4.1')

@@ -63,12 +63,16 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif /*HAVE_CONFIG_H*/
+#ifdef HAVE_SIMD_CONFIG_H
+#include <simd_config.h>
+#endif /*HAVE_SIMD_CONFIG_H*/
 #include <glib/gi18n-lib.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <vips/vips.h>
+#include <vips/simd.h>
 #include <vips/internal.h>
 #include <vips/thread.h>
 
@@ -482,9 +486,9 @@ buffer_move( VipsBuffer *buffer, VipsRect *area )
 		area->width * area->height;
 
 	/* Need to pad buffer size to be aligned-up to
-	 * 32 bytes for SIMD reduce.
+	 * 32 bytes for the vips_reduce{h,v} SIMD path.
 	 */
-#if defined(__AVX2__) || defined(__SSE4_2__)
+#if defined(HAVE_SSE41) || defined(HAVE_AVX2)
 	if( im->BandFmt == VIPS_FORMAT_UCHAR ) {
 		new_bsize += 32 - 1;
 		align = 32;

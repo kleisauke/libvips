@@ -29,6 +29,7 @@ gnome = import('gnome')
 pymod = import('python')
 pkg = import('pkgconfig')
 i18n = import('i18n')
+simd = import('unstable-simd')
 
 add_project_arguments('-Drestrict=__restrict', language: 'cpp')
 
@@ -125,10 +126,9 @@ h( v4f B )
 }
 '''
 
-if cpp.compiles(vector_arithmetic_check, name: 'Has vector arithmetic', dependencies: m_dep)
-    if cpp.compiles(signed_constants_check, name: 'Has signed constants in vector templates', dependencies: m_dep)
-        cfg_var.set('HAVE_VECTOR_ARITH', '1')
-    endif
+if cpp.compiles(vector_arithmetic_check, name: 'Has vector arithmetic', dependencies: m_dep) and \
+    cpp.compiles(signed_constants_check, name: 'Has signed constants in vector templates', dependencies: m_dep)
+    cfg_var.set('HAVE_VECTOR_ARITH', '1')
 endif
 
 # HAVE_TARGET_CLONES

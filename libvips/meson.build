@@ -1,6 +1,46 @@
 libvips_sources = []
 libvips_components = []
 subdir('include/vips')
+
+simd_cdata = configuration_data()
+simd_args = {
+    'dependencies': libvips_deps,
+    'include_directories': libvips_includedir,
+    'implicit_include_directories': false,
+    'compiler': cc
+}
+
+if get_option('sse41')
+    simd_args += {'sse41': files(
+        'resample/reduce_sse41.c',
+    )}
+
+    if get_option('avx2')
+        simd_args += {'avx2': files(
+            'resample/reduce_avx2.c',
+        )}
+    endif
+endif
+
+libvips_simd = simd.check('vips-simd',
+    kwargs: simd_args)
+libvips_simd_lib = libvips_simd[0]
+simd_cdata.merge_from(libvips_simd[1])
+
+simd_config = configure_file(
+    configuration: simd_cdata,
+    output: 'simd_config.h'
+)
+
+libvips_simd_dep = declare_dependency(
+    sources: simd_config,
+    include_directories: include_directories('.'),
+    compile_args: '-DHAVE_SIMD_CONFIG_H=1',
+    link_with: libvips_simd_lib
+)
+
+libvips_deps += libvips_simd_dep
+
 subdir('foreign')
 if get_option('deprecated')
     subdir('deprecated')
