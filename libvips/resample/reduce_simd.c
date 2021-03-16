@@ -22,12 +22,7 @@
 #define __SSE4_2__
 #endif
 
-#ifdef __SSE4_2__
-#include <emmintrin.h>
-#include <smmintrin.h>
-#endif
-
-#ifdef __AVX2__
+#if defined(__AVX2__) || defined(__SSE4_2__)
 #include <immintrin.h>
 #endif
 

@@ -55,8 +55,7 @@
 
  */
 
-/* 
-#define DEBUG_OUT_OF_THREADS
+/*
 #define VIPS_DEBUG
 #define VIPS_DEBUG_RED
  */
@@ -78,9 +77,9 @@
 #include <vips/thread.h>
 #include <vips/debug.h>
 
-#ifdef OS_WIN32
+#ifdef G_OS_WIN32
 #include <windows.h>
-#endif /*OS_WIN32*/
+#endif /*G_OS_WIN32*/
 
 /**
  * SECTION: threadpool
@@ -141,12 +140,8 @@ vips_g_mutex_new( void )
 {
 	GMutex *mutex;
 
-#ifdef HAVE_MUTEX_INIT
 	mutex = g_new( GMutex, 1 );
 	g_mutex_init( mutex );
-#else
-	mutex = g_mutex_new();
-#endif
 
 	return( mutex );
 }
@@ -154,12 +149,8 @@ vips_g_mutex_new( void )
 void
 vips_g_mutex_free( GMutex *mutex )
 {
-#ifdef HAVE_MUTEX_INIT
 	g_mutex_clear( mutex );
 	g_free( mutex );
-#else
-	g_mutex_free( mutex );
-#endif
 }
 
 GCond *
@@ -167,12 +158,8 @@ vips_g_cond_new( void )
 {
 	GCond *cond;
 
-#ifdef HAVE_COND_INIT
 	cond = g_new( GCond, 1 );
 	g_cond_init( cond );
-#else
-	cond = g_cond_new();
-#endif
 
 	return( cond );
 }
@@ -180,12 +167,8 @@ vips_g_cond_new( void )
 void
 vips_g_cond_free( GCond *cond )
 {
-#ifdef HAVE_COND_INIT
 	g_cond_clear( cond );
 	g_free( cond );
-#else
-	g_cond_free( cond );
-#endif
 }
 
 /* TRUE if we are a vips worker thread. We sometimes manage resource allocation
@@ -279,7 +262,7 @@ get_num_processors( void )
 
 #endif /*G_OS_UNIX*/
 
-#ifdef OS_WIN32
+#ifdef G_OS_WIN32
 {
 	/* Count the CPUs currently available to this process.  
 	 */
@@ -306,7 +289,7 @@ get_num_processors( void )
 			nproc = af_count;
 	}
 }
-#endif /*OS_WIN32*/
+#endif /*G_OS_WIN32*/
 
 	return( nproc );
 #endif /*!GLIB_CHECK_VERSION( 2, 48, 1 )*/
@@ -700,23 +683,14 @@ vips_threadpool_push( const char *name, GFunc func, gpointer data )
 {
 	VipsThreadExec *exec;
 	GError *error = NULL;
-#if GLIB_CHECK_VERSION( 2, 32, 0 )
 	gboolean result;
-#else
-	gboolean result = TRUE;
-#endif
 
 	exec = g_new( VipsThreadExec, 1 );
 	exec->name = name;
 	exec->func = func;
 	exec->data = data;
 
-#if GLIB_CHECK_VERSION( 2, 32, 0 )
-	// Returns a success status since GLib 2.32.
 	result = g_thread_pool_push( vips__pool, exec, &error );
-#else
-	g_thread_pool_push( vips__pool, exec, &error );
-#endif
 	if( error ) {
 		vips_g_error( &error );
 		return( -1 );
@@ -895,16 +869,9 @@ vips_threadpool_run( VipsImage *im,
 void
 vips__threadpool_init( void )
 {
-	/* We need to work with the pre-2.32 threading API.
-	 */
-#ifdef HAVE_PRIVATE_INIT
 	static GPrivate private = { 0 }; 
 
 	is_worker_key = &private;
-#else
-	if( !is_worker_key ) 
-		is_worker_key = g_private_new( NULL ); 
-#endif
 
 	if( g_getenv( "VIPS_STALL" ) )
 		vips__stall = TRUE;

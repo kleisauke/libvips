@@ -199,7 +199,7 @@ vips_buffer_dump_all( void )
 static void
 vips_buffer_free( VipsBuffer *buffer )
 {
-	VIPS_FREEF( vips_tracked_free, buffer->buf );
+	VIPS_FREEF( vips_tracked_aligned_free, buffer->buf );
 	buffer->bsize = 0;
 	g_free( buffer );
 
@@ -484,7 +484,7 @@ buffer_move( VipsBuffer *buffer, VipsRect *area )
 	 */
 #if defined(__AVX2__) || defined(__SSE4_2__)
 	if( im->BandFmt == VIPS_FORMAT_UCHAR ) {
-		new_bsize = (new_bsize + 31) & ~0x1F;
+		new_bsize += 32 - 1;
 		align = 32;
 	}
 	else
@@ -494,7 +494,7 @@ buffer_move( VipsBuffer *buffer, VipsRect *area )
 	if( buffer->bsize < new_bsize ||
 		!buffer->buf ) {
 		buffer->bsize = new_bsize;
-		VIPS_FREEF( vips_tracked_free, buffer->buf );
+		VIPS_FREEF( vips_tracked_aligned_free, buffer->buf );
 		if( !(buffer->buf = vips_tracked_aligned_alloc( buffer->bsize, align )) ) 
 			return( -1 );
 	}
@@ -672,16 +672,10 @@ buffer_thread_destroy_notify( VipsBufferThread *buffer_thread )
 void
 vips__buffer_init( void )
 {
-#ifdef HAVE_PRIVATE_INIT
 	static GPrivate private = 
 		G_PRIVATE_INIT( (GDestroyNotify) buffer_thread_destroy_notify );
 
 	buffer_thread_key = &private;
-#else
-	if( !buffer_thread_key ) 
-		buffer_thread_key = g_private_new( 
-			(GDestroyNotify) buffer_thread_destroy_notify );
-#endif
 
 	if( buffer_cache_max_reserve < 1 )
 		printf( "vips__buffer_init: buffer reserve disabled\n" );

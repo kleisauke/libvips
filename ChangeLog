@@ -17,16 +17,22 @@
 - hist_find outputs a double histogram for large images [erdmann]
 - fix ref leaks in mosaicing package
 - run libvips leak test in CI 
-- add vips_fitsload_source()m vips_niftiload_source()
+- add vips_fitsload_source(), vips_niftiload_source()
+- png and gif load note background colour as metadata [781545872]
+- add vips_image_[set|get]_array_double()
 
 22/12/20 start 8.10.6
 - don't seek on bad file descriptors [kleisauke]
 - check for null memory sources [kleisauke]
-- revise ppmload, fixing a couple of small bugs
-- signal error on EOF in jpegload more reliably [bozaro]
-- better error detection in spngload [randy408]
+- improve ppmload, fixing a couple of small bugs
+- improve EOF detection in jpegload [bozaro]
+- improve error detection in spngload [randy408]
 - fix includes of glib headers in C++ [lovell]
 - fix build with more modern librsvg [lovell]
+- fix a possible segv with very wide images [f1ac]
+- fix issue thumbnailing RGBA images in linear mode [jjonesrs]
+- improve vipsthumbnail profile handling
+- fix tiff deflate predictor setting [Adios]
 
 18/12/20 started 8.10.5
 - fix potential /0 in animated webp load [lovell]
