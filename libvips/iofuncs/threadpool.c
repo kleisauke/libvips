@@ -345,9 +345,6 @@ vips__concurrency_get_default( void )
 void
 vips_concurrency_set( int concurrency )
 {
-	const char *str;
-	int x;
-
 	/* Tell the threads system how much concurrency we expect.
 	 */
 	if( concurrency < 1 )
