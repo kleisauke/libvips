@@ -472,11 +472,8 @@ vips_thumbnail_calculate_common_shrink( VipsThumbnail *thumbnail,
  */
 static int
 vips_thumbnail_find_jpegshrink( VipsThumbnail *thumbnail, 
-	int width, int height )
+	double shrink )
 {
-	double shrink = vips_thumbnail_calculate_common_shrink( thumbnail, 
-		width, height ); 
-
 	/* We can't use pre-shrunk images in linear mode. libjpeg shrinks in Y
 	 * (of YCbCR), not linear space.
 	 */
@@ -503,8 +500,7 @@ vips_thumbnail_find_jpegshrink( VipsThumbnail *thumbnail,
 /* Find the best pyramid (openslide, tiff, etc.) level.
  */
 static int
-vips_thumbnail_find_pyrlevel( VipsThumbnail *thumbnail, 
-	int width, int height )
+vips_thumbnail_find_pyrlevel( VipsThumbnail *thumbnail )
 {
 	int level;
 
@@ -526,16 +522,15 @@ vips_thumbnail_find_pyrlevel( VipsThumbnail *thumbnail,
  * we can ask VIPS to load a lower resolution version.
  */
 static VipsImage *
-vips_thumbnail_open( VipsThumbnail *thumbnail )
+vips_thumbnail_open( VipsThumbnail *thumbnail,
+	double shrink )
 {
 	VipsThumbnailClass *class = VIPS_THUMBNAIL_GET_CLASS( thumbnail );
 
 	VipsImage *im;
 	double factor;
 
-	if( class->get_info( thumbnail ) )
-		return( NULL );
-	g_info( "selected loader is %s", thumbnail->loader ); 
+	g_info( "selected loader is %s", thumbnail->loader );
 	g_info( "input size is %d x %d", 
 		thumbnail->input_width, thumbnail->input_height ); 
 
@@ -587,23 +582,18 @@ vips_thumbnail_open( VipsThumbnail *thumbnail )
 	factor = 1.0;
 
 	if( vips_isprefix( "VipsForeignLoadJpeg", thumbnail->loader ) ) 
-		factor = vips_thumbnail_find_jpegshrink( thumbnail, 
-			thumbnail->input_width, thumbnail->input_height );
+		factor = vips_thumbnail_find_jpegshrink( thumbnail, shrink );
 	else if( vips_isprefix( "VipsForeignLoadTiff", thumbnail->loader ) ||
 		vips_isprefix( "VipsForeignLoadJp2k", thumbnail->loader ) ||
 		vips_isprefix( "VipsForeignLoadOpenslide", 
 			thumbnail->loader ) ) {
 		if( thumbnail->level_count > 0 )
-			factor = vips_thumbnail_find_pyrlevel( thumbnail, 
-				thumbnail->input_width, 
-				thumbnail->input_height );
+			factor = vips_thumbnail_find_pyrlevel( thumbnail );
 	}
 	else if( vips_isprefix( "VipsForeignLoadPdf", thumbnail->loader ) ||
 		vips_isprefix( "VipsForeignLoadWebp", thumbnail->loader ) ||
 		vips_isprefix( "VipsForeignLoadSvg", thumbnail->loader ) ) 
-		factor = vips_thumbnail_calculate_common_shrink( thumbnail, 
-			thumbnail->input_width, 
-			thumbnail->page_height );
+		factor = shrink;
 	else if( vips_isprefix( "VipsForeignLoadHeif", thumbnail->loader ) ) {
 		/* 'factor' is a gboolean which enables thumbnail load instead
 		 * of image load.
@@ -636,12 +626,18 @@ static int
 vips_thumbnail_build( VipsObject *object )
 {
 	VipsThumbnail *thumbnail = VIPS_THUMBNAIL( object );
+	VipsThumbnailClass *class = VIPS_THUMBNAIL_GET_CLASS( thumbnail );
 	VipsImage **t = (VipsImage **) vips_object_local_array( object, 15 );
 
 	VipsImage *in;
 	int preshrunk_page_height;
 	double hshrink;
 	double vshrink;
+
+	/* The common part of the shrink: the bit by which both axes must be
+	 * shrunk.
+	 */
+	double shrink;
 
 	/* TRUE if we've done the import of an ICC transform and still need to
 	 * export.
@@ -678,15 +674,37 @@ vips_thumbnail_build( VipsObject *object )
 	if( !vips_object_argument_isset( object, "height" ) )
 		thumbnail->height = thumbnail->width;
 
+	if( class->get_info( thumbnail ) )
+		return( -1 );
+
+	/* Shrink to thumbnail->page_height, so we work for multi-page images.
+	 */
+	vips_thumbnail_calculate_shrink( thumbnail,
+		thumbnail->input_width, thumbnail->page_height, &hshrink, &vshrink );
+
+	shrink = VIPS_MIN( hshrink, vshrink );
+
+	/* We don't want to pre-shrink so much that we send an axis to 0.
+	 */
+	shrink = VIPS_MIN( shrink,
+		VIPS_MIN( thumbnail->input_width, thumbnail->page_height ) );
+
 	/* Open and do any pre-shrinking.
 	 */
-	if( !(t[0] = vips_thumbnail_open( thumbnail )) )
+	if( !(t[0] = vips_thumbnail_open( thumbnail, shrink )) )
 		return( -1 );
 	in = t[0];
 
 	/* After pre-shrink, but before the main shrink stage.
 	 */
 	preshrunk_page_height = vips_image_get_page_height( in );
+
+	/* Update shrink factors after pre-shrink.
+	 */
+	hshrink = (double) in->Xsize /
+		((double) thumbnail->input_width / hshrink);
+	vshrink = (double) preshrunk_page_height /
+		((double) thumbnail->page_height / vshrink);
 
 	/* RAD needs special unpacking.
 	 */
@@ -771,11 +789,6 @@ vips_thumbnail_build( VipsObject *object )
 			return( -1 ); 
 		in = t[2];
 	}
-
-	/* Shrink to preshrunk_page_height, so we work for multi-page images.
-	 */
-	vips_thumbnail_calculate_shrink( thumbnail, 
-		in->Xsize, preshrunk_page_height, &hshrink, &vshrink );
 
 	/* In toilet-roll mode, we must adjust vshrink so that we exactly hit
 	 * page_height or we'll have pixels straddling page boundaries.

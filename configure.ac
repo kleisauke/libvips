@@ -1436,11 +1436,11 @@ enable debug: $enable_debug, \
 enable deprecated library components: $enable_deprecated, \
 enable modules: $gmodule_supported_flag, \
 enable docs with gtkdoc: $enable_gtk_doc, \
-gobject introspection:  $found_introspection, \
+gobject introspection: $found_introspection, \
 RAD load/save: $with_radiance, \
 Analyze7 load/save: $with_analyze, \
 PPM load/save: $with_ppm, \
-GIF load:  $with_nsgif, \
+GIF load: $with_nsgif, \
 generate C++ docs: $with_doxygen, \
 use fftw3 for FFT: $with_fftw, \
 accelerate loops with orc: $with_orc, \
@@ -1459,7 +1459,7 @@ TIFF load/save with libtiff: $with_tiff, \
 image pyramid save: $with_gsf, \
 HEIC/AVIF load/save with libheif: $with_heif (dynamic module: $with_heif_module), \
 WebP load/save with libwebp: $with_libwebp, \
-PDF load with PDFium:  $with_pdfium, \
+PDF load with PDFium: $with_pdfium, \
 PDF load with poppler-glib: $with_poppler (dynamic module: $with_poppler_module), \
 SVG load with librsvg-2.0: $with_rsvg, \
 EXR load with OpenEXR: $with_OpenEXR, \
