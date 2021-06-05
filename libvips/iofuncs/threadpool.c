@@ -605,7 +605,7 @@ vips__threadpool_shutdown( void )
 		VIPS_DEBUG_MSG( "vips__threadpool_shutdown: (%p)\n", 
 			vips__pool );
 
-		g_thread_pool_free( vips__pool, TRUE, TRUE );
+		g_thread_pool_free( vips__pool, TRUE, FALSE );
 		vips__pool = NULL;
 	}
 }

@@ -185,11 +185,6 @@ static GSList *render_dirty_all = NULL;
  */
 static VipsSemaphore n_render_dirty_sem; 
 
-/* A semaphore where the main thread waits for when the bg render thread
- * is shutdown.
- */
-static VipsSemaphore render_finish;
-
 /* Set this to make the bg thread stop and reschedule.
  */
 static gboolean render_reschedule = FALSE;
@@ -471,8 +466,6 @@ vips__render_shutdown( void )
 
 			vips_semaphore_up( &n_render_dirty_sem ); 
 
-			vips_semaphore_down( &render_finish );
-
 			render_running = FALSE;
 		}
 		else
@@ -480,7 +473,6 @@ vips__render_shutdown( void )
 
 		VIPS_FREEF( vips_g_mutex_free, render_dirty_lock );
 		vips_semaphore_destroy( &n_render_dirty_sem );
-		vips_semaphore_destroy( &render_finish );
 	}
 }
 
@@ -1054,10 +1046,6 @@ render_thread_main( void *data, void *user_data )
 			render_unref( render );
 		}
 	}
-
-	/* We are exiting: tell the main thread.
-	 */
-	vips_semaphore_up( &render_finish );
 }
 
 static void *
@@ -1068,7 +1056,6 @@ vips__sink_screen_init( void *data )
 
 	render_dirty_lock = vips_g_mutex_new();
 	vips_semaphore_init( &n_render_dirty_sem, 0, "n_render_dirty" );
-	vips_semaphore_init( &render_finish, 0, "render_finish" );
 
 	if( vips__thread_execute( "sink_screen", render_thread_main,
 		NULL ) ) {
