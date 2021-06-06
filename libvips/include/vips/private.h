@@ -124,8 +124,6 @@ VipsBuffer *vips_buffer_unref_ref( VipsBuffer *buffer,
 	struct _VipsImage *im, VipsRect *area );
 void vips_buffer_print( VipsBuffer *buffer );
 
-void vips__render_shutdown( void );
-
 /* Sections of region.h that are private to VIPS.
  */
 

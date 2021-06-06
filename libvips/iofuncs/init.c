@@ -727,8 +727,6 @@ vips_shutdown( void )
 		vips__thread_gate_stop( "init: main" ); 
 }
 
-	vips__render_shutdown();
-
 	vips_thread_shutdown();
 
 	vips__thread_profile_stop();
