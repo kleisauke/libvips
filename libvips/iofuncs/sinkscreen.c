@@ -194,6 +194,10 @@ static VipsSemaphore render_finish;
  */
 static gboolean render_reschedule = FALSE;
 
+/* Set this GPrivate to avoid any deadlocks on thread cancellation.
+ */
+static GPrivate *render_thread_key = NULL;
+
 static void
 render_thread_state_class_init( RenderThreadStateClass *class )
 {
@@ -1024,6 +1028,8 @@ render_thread_main( void *data, void *user_data )
 {
 	Render *render;
 
+	g_private_set( render_thread_key, (void *) TRUE );
+
 	while( !render_kill ) {
 		VIPS_DEBUG_MSG_GREEN( "render_thread_main: "
 			"threadpool start\n" );
@@ -1058,11 +1064,32 @@ render_thread_main( void *data, void *user_data )
 	/* We are exiting: tell the main thread.
 	 */
 	vips_semaphore_up( &render_finish );
+
+	/* No need to run the GPrivate destructors anymore.
+	 */
+	g_private_set( render_thread_key, NULL );
+}
+
+static void
+render_thread_destroy_notify( void *data )
+{
+	/* We only come here when the bg render thread was cancelled or
+	 * terminated. Set render_running to false to avoid any deadlocks.
+	 *
+	 * GPrivate has stopped working by this point in destruction, be
+	 * careful not to touch that.
+	 */
+	render_running = FALSE;
 }
 
 static void *
 vips__sink_screen_init( void *data )
 {
+	static GPrivate private =
+		G_PRIVATE_INIT( render_thread_destroy_notify );
+
+	render_thread_key = &private;
+
 	g_assert( !render_running ); 
 	g_assert( !render_dirty_lock ); 
 
