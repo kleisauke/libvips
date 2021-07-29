@@ -699,21 +699,25 @@ vips_reduceh_build( VipsObject *object )
 		return( -1 );
 	in = t[2];
 
-	/* Default to the C path.
-	 */
-	generate = vips_reduceh_gen;
-
 	/* For uchar input, try to make a SIMD path.
 	 */
-	if( in->BandFmt == VIPS_FORMAT_UCHAR ) {
 #ifdef HAVE_AVX2
+	if( in->BandFmt == VIPS_FORMAT_UCHAR &&
+		vips__simd_have_avx2() ) {
 		generate = vips_reduceh_avx2_gen;
 		g_info( "reduceh: using AVX2 SIMD path" );
-#elif defined(HAVE_SSE41)
+	} else
+#endif
+#ifdef HAVE_SSE41
+	if( in->BandFmt == VIPS_FORMAT_UCHAR &&
+		vips__simd_have_sse41() ) {
 		generate = vips_reduceh_sse41_gen;
 		g_info( "reduceh: using SSE4.1 SIMD path" );
+	} else
 #endif
-	}
+		/* Default to the C path.
+		 */
+		generate = vips_reduceh_gen;
 
 	if( vips_image_pipelinev( resample->out, 
 		VIPS_DEMAND_STYLE_THINSTRIP, in, (void *) NULL ) )

@@ -489,7 +489,8 @@ buffer_move( VipsBuffer *buffer, VipsRect *area )
 	 * 32 bytes for the vips_reduce{h,v} SIMD path.
 	 */
 #if defined(HAVE_SSE41) || defined(HAVE_AVX2)
-	if( im->BandFmt == VIPS_FORMAT_UCHAR ) {
+	if( (vips__simd_have_sse41() || vips__simd_have_avx2()) &&
+		im->BandFmt == VIPS_FORMAT_UCHAR ) {
 		new_bsize += 32 - 1;
 		align = 32;
 	}

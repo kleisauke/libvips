@@ -27,6 +27,12 @@ libvips_simd = simd.check('vips-simd',
 libvips_simd_lib = libvips_simd[0]
 simd_cdata.merge_from(libvips_simd[1])
 
+# Check for runtime x86 instruction set detection
+if cc.has_function('__builtin_cpu_init', prefix: '#include <stdlib.h>') and \
+    cc.has_function('__builtin_cpu_supports', prefix: '#include <stdlib.h>')
+    simd_cdata.set('HAVE_X86_FEATURE_BUILTINS', '1')
+endif
+
 simd_config = configure_file(
     configuration: simd_cdata,
     output: 'simd_config.h'
