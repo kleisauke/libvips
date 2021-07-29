@@ -128,6 +128,12 @@ if cpp.compiles(vector_arithmetic_check, name: 'Has vector arithmetic', dependen
     cfg_var.set('HAVE_VECTOR_ARITH', '1')
 endif
 
+# Check for runtime x86 instruction set detection
+if cc.has_function('__builtin_cpu_init', prefix: '#include <stdlib.h>') and \
+    cc.has_function('__builtin_cpu_supports', prefix: '#include <stdlib.h>')
+    cfg_var.set('HAVE_X86_FEATURE_BUILTINS', '1')
+endif
+
 simd_args = {
     'dependencies': libvips_deps,
     'include_directories': include_directories('libvips/include'),

@@ -34,6 +34,30 @@
 #ifndef VIPS_SIMD_H
 #define VIPS_SIMD_H
 
-// TODO(kleisauke): CPU feature flags
+#ifdef __cplusplus
+extern "C" {
+#endif /*__cplusplus*/
+
+/* Feature flags
+ */
+typedef enum /*< flags >*/ {
+	VIPS_FEATURE_NONE = 0,		/* No features available */
+	VIPS_FEATURE_SSE41 = 1 << 0,	/*< nick=SSE41 >*/
+	VIPS_FEATURE_AVX2 = 1 << 1,	/*< nick=AVX2 >*/
+} VipsFeatureFlags;
+
+void vips__simd_init( void );
+
+gboolean vips__simd_have_sse41( void );
+gboolean vips__simd_have_avx2( void );
+
+VIPS_API
+VipsFeatureFlags vips_simd_get_builtin_features( void );
+VIPS_API
+VipsFeatureFlags vips_simd_get_supported_features( void );
+
+#ifdef __cplusplus
+}
+#endif /*__cplusplus*/
 
 #endif /*VIPS_SIMD_H*/

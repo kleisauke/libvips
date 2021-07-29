@@ -13,6 +13,7 @@ public_other_headers = files(
     'threadpool.h',
     'transform.h',
     'util.h',
+    'simd.h',
 )
 
 public_deprecated_headers = files(
@@ -66,6 +67,7 @@ enumtypes = gnome.mkenums(
         'arithmetic.h',
         'conversion.h',
         'util.h',
+        'simd.h',
         'image.h',
         'colour.h',
         'operation.h',

@@ -106,6 +106,7 @@
 
 #define VIPS_DISABLE_DEPRECATION_WARNINGS
 #include <vips/vips.h>
+#include <vips/simd.h>
 #include <vips/thread.h>
 #include <vips/internal.h>
 
@@ -637,6 +638,10 @@ vips_init( const char *argv0 )
 	}
 #endif /*ENABLE_DEPRECATED*/
 #endif /*ENABLE_MODULES*/
+
+	/* Detect SIMD features.
+	 */
+	vips__simd_init();
 
 #ifdef HAVE_GSF
 	/* Use this for structured file write.

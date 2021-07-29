@@ -39,6 +39,7 @@ libiofuncs_la_SOURCES = \
 	init.c \
 	buf.c \
 	window.c \
+	simd.c \
 	system.c \
 	buffer.c 
 
@@ -69,6 +70,7 @@ vips_scan_headers = \
 	${top_srcdir}/libvips/include/vips/conversion.h \
 	${top_srcdir}/libvips/include/vips/arithmetic.h \
 	${top_srcdir}/libvips/include/vips/util.h \
+	${top_srcdir}/libvips/include/vips/simd.h \
 	${top_srcdir}/libvips/include/vips/image.h \
 	${top_srcdir}/libvips/include/vips/colour.h \
 	${top_srcdir}/libvips/include/vips/operation.h \

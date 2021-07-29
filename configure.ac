@@ -412,13 +412,36 @@ AC_DEFUN([TEST_AND_ADD_CFLAGS],
                             [AC_MSG_RESULT([no])])
           CFLAGS="$SAVED_CFLAGS"])
 
+# Check for runtime $CC x86 instruction set detection.
+AC_MSG_CHECKING([for $CC __builtin_cpu_init function])
+AC_LINK_IFELSE(
+  [AC_LANG_PROGRAM([#include <stdlib.h>],
+                   [__builtin_cpu_init ();])],
+  [AC_MSG_RESULT([yes])
+   x86_cpu_init=yes],
+  [AC_MSG_RESULT([no])
+   x86_cpu_init=no])
+
+AC_MSG_CHECKING([for $CC __builtin_cpu_supports function])
+AC_LINK_IFELSE(
+  [AC_LANG_PROGRAM([#include <stdlib.h>],
+                [__builtin_cpu_supports ("sse4.1");])],
+  [AC_MSG_RESULT([yes])
+   x86_cpu_supports=yes],
+  [AC_MSG_RESULT([no])
+   x86_cpu_supports=no])
+
+AS_IF([test x"$x86_cpu_init" != x"no" -a x"$x86_cpu_supports" != x"no"], [
+  AC_DEFINE([HAVE_X86_FEATURE_BUILTINS], [1], [Define if $CC x86 feature builtins work])
+])
+
 # Check for machine specific flags
 AC_ARG_ENABLE([sse4.1],
               AS_HELP_STRING([--disable-sse4.1],
                              [Disable detection of SSE4.1 support
                               @<:@default=auto@:>@]))
 
-AS_IF([test "x$enable_sse4_1" != "xno"], [
+AS_IF([test x"$enable_sse4_1" != x"no"], [
   TEST_AND_ADD_CFLAGS([SSE41_FLAGS], [-msse4.1])
   AS_IF([test -n "$SSE41_FLAGS"], [
     SAVED_CFLAGS=$CFLAGS
@@ -435,7 +458,7 @@ AC_ARG_ENABLE([avx2],
                              [Disable detection of AVX2 support
                               @<:@default=auto@:>@]))
 
-AS_IF([test "x$enable_avx2" != "xno" -a "x$enable_sse4_1" != "xno"], [
+AS_IF([test x"$enable_avx2" != x"no" -a x"$enable_sse4_1" != x"no"], [
   TEST_AND_ADD_CFLAGS([AVX2_FLAGS], [-mavx2])
   AS_IF([test -n "$AVX2_FLAGS"], [
     SAVED_CFLAGS=$CFLAGS

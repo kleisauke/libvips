@@ -43,6 +43,7 @@ pkginclude_HEADERS = \
 	thread.h \
 	transform.h \
 	util.h \
+	simd.h \
 	vips7compat.h \
 	vips.h
 
@@ -68,6 +69,7 @@ vips_scan_headers = \
 	${top_srcdir}/libvips/include/vips/arithmetic.h \
 	${top_srcdir}/libvips/include/vips/conversion.h \
 	${top_srcdir}/libvips/include/vips/util.h \
+	${top_srcdir}/libvips/include/vips/simd.h \
 	${top_srcdir}/libvips/include/vips/image.h \
 	${top_srcdir}/libvips/include/vips/colour.h \
 	${top_srcdir}/libvips/include/vips/operation.h \

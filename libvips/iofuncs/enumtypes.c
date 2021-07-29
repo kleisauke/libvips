@@ -7,6 +7,7 @@
 #include <config.h>
 #endif /*HAVE_CONFIG_H*/
 #include <vips/vips.h>
+#include <vips/simd.h>
 /* enumerations from "arithmetic.h" */
 GType
 vips_operation_math_get_type( void )
@@ -1142,6 +1143,27 @@ vips_size_get_type( void )
 
 		GType new_type = 
 			g_enum_register_static( g_intern_static_string( "VipsSize" ), values );
+		g_once_init_leave( &gtype_id, new_type );
+	}
+
+	return( (GType) gtype_id );
+}
+/* enumerations from "simd.h" */
+GType
+vips_feature_flags_get_type( void )
+{
+	static gsize gtype_id = 0;
+
+	if( g_once_init_enter( &gtype_id ) ) {
+		static const GFlagsValue values[] = {
+			{VIPS_FEATURE_NONE, "VIPS_FEATURE_NONE", "none"},
+			{VIPS_FEATURE_SSE41, "VIPS_FEATURE_SSE41", "SSE41"},
+			{VIPS_FEATURE_AVX2, "VIPS_FEATURE_AVX2", "AVX2"},
+			{0, NULL, NULL}
+		};
+
+		GType new_type = 
+			g_flags_register_static( g_intern_static_string( "VipsFeatureFlags" ), values );
 		g_once_init_leave( &gtype_id, new_type );
 	}
 

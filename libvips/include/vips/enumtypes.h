@@ -162,6 +162,10 @@ GType vips_kernel_get_type (void) G_GNUC_CONST;
 VIPS_API
 GType vips_size_get_type (void) G_GNUC_CONST;
 #define VIPS_TYPE_SIZE (vips_size_get_type())
+/* enumerations from "simd.h" */
+VIPS_API
+GType vips_feature_flags_get_type (void) G_GNUC_CONST;
+#define VIPS_TYPE_FEATURE_FLAGS (vips_feature_flags_get_type())
 /* enumerations from "util.h" */
 VIPS_API
 GType vips_token_get_type (void) G_GNUC_CONST;
