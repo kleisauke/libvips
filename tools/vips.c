@@ -45,6 +45,8 @@
  * 18/6/20 kleisauke
  * 	- avoid using vips7 symbols
  * 	- remove deprecated vips7 C++ generator
+ * 5/8/21 kleisauke
+ * 	- add --features
  * 1/11/22
  * 	- add "-c" flag
  */
@@ -98,6 +100,7 @@
 
 #define VIPS_DISABLE_DEPRECATION_WARNINGS
 #include <vips/vips.h>
+#include <vips/simd.h>
 #include <vips/internal.h>
 
 #if ENABLE_DEPRECATED
@@ -105,6 +108,7 @@
 #endif
 
 static char *main_option_plugin = NULL;
+static gboolean main_option_features;
 static gboolean main_option_version;
 
 static void *
@@ -294,6 +298,8 @@ parse_main_option_completion( const gchar *option_name, const gchar *value,
 }
 
 static GOptionEntry main_option[] = {
+	{ "features", 'f', 0, G_OPTION_ARG_NONE, &main_option_features, 
+		N_( "print SIMD features" ), NULL },
 	{ "list", 'l', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, 
 		(GOptionArgFunc) parse_main_option_list, 
 		N_( "list objects" ), 
@@ -629,6 +635,60 @@ add_operation_group( GOptionContext *context, VipsOperation *user_data )
 	return( group );
 }
 
+static void
+print_simd_features( void )
+{
+	char vips_features_txt[256];
+	VipsBuf vips_features = VIPS_BUF_STATIC( vips_features_txt );
+	GFlagsClass *flags_class = g_type_class_ref( VIPS_TYPE_FEATURE_FLAGS );
+
+	GFlagsValue *v;
+	VipsFeatureFlags builtin_features;
+	VipsFeatureFlags supported_features;
+	gboolean saw_feature;
+
+	builtin_features = vips_simd_get_builtin_features();
+	supported_features = vips_simd_get_supported_features();
+
+	saw_feature = FALSE;
+	vips_buf_appendf( &vips_features, "builtin features: " );
+
+	while( builtin_features &&
+		(v = g_flags_get_first_value( flags_class, builtin_features )) ) {
+		if( saw_feature )
+			vips_buf_appendf( &vips_features, ", " );
+
+		vips_buf_appendf( &vips_features, "%s", v->value_nick );
+
+		builtin_features &= ~v->value;
+		saw_feature = TRUE;
+	}
+
+	if( !saw_feature )
+		vips_buf_appendf( &vips_features, "none" );
+
+	vips_buf_appendf( &vips_features, "\n" );
+
+	saw_feature = FALSE;
+	vips_buf_appendf( &vips_features, "supported features: " );
+
+	while( supported_features &&
+		(v = g_flags_get_first_value( flags_class, supported_features )) ) {
+		if( saw_feature )
+			vips_buf_appendf( &vips_features, ", " );
+
+		vips_buf_appendf( &vips_features, "%s", v->value_nick );
+
+		supported_features &= ~v->value;
+		saw_feature = TRUE;
+	}
+
+	if( !saw_feature )
+		vips_buf_appendf( &vips_features, "none" );
+
+	printf( "%s\n", vips_buf_all( &vips_features ) );
+}
+
 /* VIPS universal main program. 
  */
 int
@@ -756,6 +816,9 @@ main( int argc, char **argv )
 			"libvips built without modules support" ) );
 #endif /*ENABLE_MODULES*/
 	}
+
+	if( main_option_features )
+		print_simd_features();
 
 	if( main_option_version ) 
 		printf( "vips-%s\n", vips_version_string() );
