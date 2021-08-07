@@ -555,8 +555,8 @@ vips_morph_init( VipsMorph *morph )
  * vips_eorimage() 
  * for analogues of the usual set difference and set union operations.
  *
- * Operations are performed using the processor's vector unit,
- * if possible. Disable this with --vips-novector or VIPS_NOVECTOR.
+ * Operations are performed using SIMD, if possible. Disable this
+ * with `--vips-nosimd`, `VIPS_SIMD` or vips_simd_set_features().
  *
  * Returns: 0 on success, -1 on error
  */

@@ -534,10 +534,9 @@ vips_convi_init( VipsConvi *convi )
  *
  * The output image always has the same #VipsBandFormat as the input image. 
  *
- * For #VIPS_FORMAT_UCHAR images, vips_convi() uses a fast vector path based on
- * half-float arithmetic. This can produce slightly different results. 
- * Disable the vector path with `--vips-novector` or `VIPS_NOVECTOR` or
- * vips_vector_set_enabled().
+ * For #VIPS_FORMAT_UCHAR images, vips_convi() uses a fast SIMD path based on
+ * half-float arithmetic. This can produce slightly different results.
+ * Disable this with `--vips-nosimd`, `VIPS_SIMD` or vips_simd_set_features().
  *
  * See also: vips_conv().
  *
@@ -555,4 +554,3 @@ vips_convi( VipsImage *in, VipsImage **out, VipsImage *mask, ... )
 
 	return( result );
 }
-

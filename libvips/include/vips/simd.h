@@ -56,6 +56,9 @@ VipsFeatureFlags vips_simd_get_builtin_features( void );
 VIPS_API
 VipsFeatureFlags vips_simd_get_supported_features( void );
 
+VIPS_API
+void vips_simd_set_features( VipsFeatureFlags features );
+
 #ifdef __cplusplus
 }
 #endif /*__cplusplus*/

@@ -197,10 +197,9 @@ vips_conv_init( VipsConv *conv )
  * always has the same #VipsBandFormat as the input image. 
  *
  * For #VIPS_FORMAT_UCHAR images and #VIPS_PRECISION_INTEGER @precision, 
- * vips_conv() uses a fast vector path based on
+ * vips_conv() uses a fast SIMD path based on
  * fixed-point arithmetic. This can produce slightly different results. 
- * Disable the vector path with `--vips-novector` or `VIPS_NOVECTOR` or
- * vips_vector_set_enabled().
+ * Disable this with `--vips-nosimd`, `VIPS_SIMD` or vips_simd_set_features().
  *
  * If @precision is #VIPS_PRECISION_APPROXIMATE then, like
  * #VIPS_PRECISION_INTEGER, @mask is converted to int before convolution, and 

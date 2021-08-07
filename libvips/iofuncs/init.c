@@ -818,6 +818,15 @@ vips_set_fatal_cb( const gchar *option_name, const gchar *value,
 }
 
 static gboolean
+vips_disable_simd_cb( const gchar *option_name, const gchar *value, 
+	gpointer data, GError **error )
+{
+	vips_simd_set_features( VIPS_FEATURE_NONE );
+
+	return( TRUE );
+}
+
+static gboolean
 vips_lib_version_cb( const gchar *option_name, const gchar *value, 
 	gpointer data, GError **error )
 {
@@ -896,6 +905,9 @@ static GOptionEntry option_entries[] = {
 	{ "vips-disc-threshold", 0, 0, 
 		G_OPTION_ARG_STRING, &vips__disc_threshold, 
 		N_( "images larger than N are decompressed to disc" ), "N" },
+	{ "vips-nosimd", 0, G_OPTION_FLAG_NO_ARG, 
+		G_OPTION_ARG_CALLBACK, (gpointer) &vips_disable_simd_cb,
+		N_( "disable SIMD versions of operations" ), NULL },
 	{ "vips-cache-max", 0, 0, 
 		G_OPTION_ARG_CALLBACK, (gpointer) &vips_cache_max_cb,
 		N_( "cache at most N operations" ), "N" },
