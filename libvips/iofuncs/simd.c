@@ -45,12 +45,22 @@
 #include <vips/debug.h>
 #include <vips/internal.h>
 
+/* Can be disabled by the `--vips-nosimd` command-line switch and overridden
+ * by the `VIPS_SIMD` env var or vips_simd_set_features() function.
+ */
 static gboolean have_sse41;
 static gboolean have_avx2;
 
 void
 vips__simd_init( void )
 {
+	/* Check whether any features are being overridden by the environment.
+	 */
+	const char *env;
+	if( (env = g_getenv( "VIPS_SIMD" )) )
+		return vips_simd_set_features(
+			(unsigned int) strtoul( env, NULL, 0 ) );
+
 #ifdef __EMSCRIPTEN__
 	/* WebAssembly doesn't have a runtime feature detection mechanism (yet), so
 	 * use compile flags as an indicator of SIMD support. This can be disabled
@@ -125,4 +135,25 @@ vips_simd_get_supported_features( void )
 {
 	return (have_sse41 ? VIPS_FEATURE_SSE41 : 0)
 		| (have_avx2 ? VIPS_FEATURE_AVX2 : 0);
+}
+
+/**
+ * vips_simd_set_features:
+ * @features: A set of flags representing features
+ *
+ * Takes a set of flags to override platform-specific features on the runtime
+ * platform. Handy for testing and benchmarking purposes.
+ *
+ * This can also be set using the `VIPS_SIMD` environment variable.
+ */
+void
+vips_simd_set_features( VipsFeatureFlags features )
+{
+#ifdef HAVE_SSE41
+	have_sse41 = features & VIPS_FEATURE_SSE41;
+#endif
+
+#ifdef HAVE_AVX2
+	have_avx2 = features & VIPS_FEATURE_AVX2;
+#endif
 }

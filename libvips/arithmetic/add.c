@@ -260,8 +260,8 @@ vips_add_init( VipsAdd *add )
  * In other words, the output type is just large enough to hold the whole
  * range of possible values.
  *
- * Operations on integer images are performed using the processor's vector unit,
- * if possible. Disable this with --vips-novector or VIPS_NOVECTOR.
+ * Operations on integer images are performed using SIMD, if possible.
+ * Disable this with `--vips-nosimd`, `VIPS_SIMD` or vips_simd_set_features().
  *
  * See also: vips_subtract(), vips_linear().
  *
