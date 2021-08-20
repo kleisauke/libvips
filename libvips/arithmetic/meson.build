@@ -45,6 +45,7 @@ arithmetic_headers = files(
     'parithmetic.h',
     'binary.h',
     'unary.h',
+    'unary_simd.h',
     'nary.h',
     'unaryconst.h'
 )

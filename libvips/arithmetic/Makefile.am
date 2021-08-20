@@ -1,5 +1,3 @@
-noinst_LTLIBRARIES = libarithmetic.la
-
 libarithmetic_la_SOURCES = \
 	find_trim.c \
 	sum.c \
@@ -35,6 +33,7 @@ libarithmetic_la_SOURCES = \
 	binary.h \
 	unary.c \
 	unary.h \
+	unary_simd.h \
 	nary.c \
 	nary.h \
 	unaryconst.c \
@@ -47,6 +46,14 @@ libarithmetic_la_SOURCES = \
 	math2.c \
 	round.c 
 
+noinst_LTLIBRARIES = libarithmetic.la libarithmetic_ssse3.la
+
 AM_CPPFLAGS = -I${top_srcdir}/libvips/include @VIPS_CFLAGS@ @VIPS_INCLUDES@ 
+
+libarithmetic_ssse3_la_SOURCES = abs_ssse3.c
+libarithmetic_ssse3_la_CPPFLAGS = $(AM_CPPFLAGS)
+libarithmetic_ssse3_la_CFLAGS = $(AM_CFLAGS) $(SSSE3_FLAGS)
+
+libarithmetic_la_LIBADD = libarithmetic_ssse3.la
 
 EXTRA_DIST = meson.build

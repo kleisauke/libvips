@@ -436,12 +436,30 @@ AS_IF([test x"$x86_cpu_init" != x"no" -a x"$x86_cpu_supports" != x"no"], [
 ])
 
 # Check for machine specific flags
+AC_ARG_ENABLE([ssse3],
+              AS_HELP_STRING([--disable-ssse3],
+                             [Disable detection of SSSE3 support
+                              @<:@default=auto@:>@]))
+
+AS_IF([test x"$enable_ssse3" != x"no"], [
+  SSSE3_FLAGS="$INTRINSICS_CFLAGS $SSSE3_FLAGS"
+  TEST_AND_ADD_CFLAGS([SSSE3_FLAGS], [-mssse3])
+  AS_IF([test -n "$SSSE3_FLAGS"], [
+    SAVED_CFLAGS=$CFLAGS
+    CFLAGS="$CFLAGS $SSSE3_FLAGS"
+    AC_CHECK_HEADER([tmmintrin.h],
+                    [AC_DEFINE(HAVE_SSSE3, [1],
+                     [Set to 1 if SSSE3 is supported])],
+                    [SSSE3_FLAGS=""])
+    CFLAGS=$SAVED_CFLAGS])
+  AC_SUBST([SSSE3_FLAGS])])
+
 AC_ARG_ENABLE([sse4.1],
               AS_HELP_STRING([--disable-sse4.1],
                              [Disable detection of SSE4.1 support
                               @<:@default=auto@:>@]))
 
-AS_IF([test x"$enable_sse4_1" != x"no"], [
+AS_IF([test x"$enable_sse4_1" != x"no" -a x"$enable_ssse3" != x"no"], [
   TEST_AND_ADD_CFLAGS([SSE41_FLAGS], [-msse4.1])
   AS_IF([test -n "$SSE41_FLAGS"], [
     SAVED_CFLAGS=$CFLAGS
@@ -458,7 +476,7 @@ AC_ARG_ENABLE([avx2],
                              [Disable detection of AVX2 support
                               @<:@default=auto@:>@]))
 
-AS_IF([test x"$enable_avx2" != x"no" -a x"$enable_sse4_1" != x"no"], [
+AS_IF([test x"$enable_avx2" != x"no" -a x"$enable_sse4_1" != x"no" -a x"$enable_ssse3" != x"no"], [
   TEST_AND_ADD_CFLAGS([AVX2_FLAGS], [-mavx2])
   AS_IF([test -n "$AVX2_FLAGS"], [
     SAVED_CFLAGS=$CFLAGS

@@ -72,8 +72,10 @@
 #include <math.h>
 
 #include <vips/vips.h>
+#include <vips/simd.h>
 
 #include "unary.h"
+#include "unary_simd.h"
 
 typedef VipsUnary VipsAbs;
 typedef VipsUnaryClass VipsAbsClass;
@@ -172,9 +174,30 @@ vips_abs_buffer( VipsArithmetic *arithmetic,
 	int sz = width * bands;
 
 	switch( vips_image_get_format( im ) ) {
-	case VIPS_FORMAT_CHAR: 		ABS_INT( signed char ); break; 
-	case VIPS_FORMAT_SHORT: 	ABS_INT( signed short ); break; 
-	case VIPS_FORMAT_INT: 		ABS_INT( signed int ); break; 
+	case VIPS_FORMAT_CHAR:
+#ifdef HAVE_SSSE3
+		if( vips__simd_have_ssse3() )
+			vips_abs_char_ssse3( out, in[0], sz );
+		else
+#endif
+			ABS_INT( signed char );
+		break;
+	case VIPS_FORMAT_SHORT:
+#ifdef HAVE_SSSE3
+		if( vips__simd_have_ssse3() )
+			vips_abs_short_ssse3( out, in[0], sz );
+		else
+#endif
+			ABS_INT( signed short );
+		break;
+	case VIPS_FORMAT_INT:
+#ifdef HAVE_SSSE3
+		if( vips__simd_have_ssse3() )
+			vips_abs_int_ssse3( out, in[0], sz );
+		else
+#endif
+			ABS_INT( signed int );
+		break;
 	case VIPS_FORMAT_FLOAT: 	ABS_FLOAT( float ); break; 
 	case VIPS_FORMAT_DOUBLE:	ABS_FLOAT( double ); break; 
 	case VIPS_FORMAT_COMPLEX:	ABS_COMPLEX( float ); break;
