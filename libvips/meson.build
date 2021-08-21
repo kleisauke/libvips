@@ -10,21 +10,15 @@ simd_args = {
     'compiler': cc
 }
 
-if get_option('ssse3')
-    simd_args += {'ssse3': files(
-        'arithmetic/abs_ssse3.c',
+if get_option('sse41')
+    simd_args += {'sse41': files(
+        'resample/reduce_sse41.c',
     )}
 
-    if get_option('sse41')
-        simd_args += {'sse41': files(
-            'resample/reduce_sse41.c',
+    if get_option('avx2')
+        simd_args += {'avx2': files(
+            'resample/reduce_avx2.c',
         )}
-
-        if get_option('avx2')
-            simd_args += {'avx2': files(
-                'resample/reduce_avx2.c',
-            )}
-        endif
     endif
 endif
 

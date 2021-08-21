@@ -51,7 +51,6 @@
 /* Can be disabled by the `--vips-nosimd` command-line switch and overridden
  * by the `VIPS_SIMD` env var or vips_simd_set_features() function.
  */
-static gboolean have_ssse3;
 static gboolean have_sse41;
 static gboolean have_avx2;
 
@@ -68,24 +67,16 @@ vips__simd_init( void )
 #ifdef __EMSCRIPTEN__
 	/* WebAssembly doesn't have a runtime feature detection mechanism (yet), so
 	 * use compile flags as an indicator of SIMD support. This can be disabled
-	 * by passing -Dsse41=false or -Dssse3=false during configuration.
+	 * by passing -Dsse41=false during configuration.
 	 *
 	 * Note that we don't check for AVX2 intrinsics, since 256-bit wide AVX
 	 * instructions are not supported by WebAssembly SIMD.
 	 */
-#ifdef HAVE_SSSE3
-	have_ssse3 = TRUE;
-#endif
 #ifdef HAVE_SSE41
 	have_sse41 = TRUE;
 #endif
 #elif defined(HAVE_X86_FEATURE_BUILTINS)
 	__builtin_cpu_init();
-
-#ifdef HAVE_SSSE3
-	if( __builtin_cpu_supports( "ssse3" ) )
-		have_ssse3 = TRUE;
-#endif
 
 #ifdef HAVE_SSE41
 	if( __builtin_cpu_supports( "sse4.1" ) )
@@ -97,12 +88,6 @@ vips__simd_init( void )
 		have_avx2 = TRUE;
 #endif
 #endif
-}
-
-gboolean
-vips__simd_have_ssse3( void )
-{
-	return have_ssse3;
 }
 
 gboolean
@@ -129,10 +114,6 @@ vips_simd_get_builtin_features( void )
 {
 	VipsFeatureFlags features = VIPS_FEATURE_NONE;
 
-#ifdef HAVE_SSSE3
-	features |= VIPS_FEATURE_SSSE3;
-#endif
-
 #ifdef HAVE_SSE41
 	features |= VIPS_FEATURE_SSE41;
 #endif
@@ -155,8 +136,7 @@ vips_simd_get_builtin_features( void )
 VipsFeatureFlags
 vips_simd_get_supported_features( void )
 {
-	return (have_ssse3 ? VIPS_FEATURE_SSSE3 : 0)
-		| (have_sse41 ? VIPS_FEATURE_SSE41 : 0)
+	return (have_sse41 ? VIPS_FEATURE_SSE41 : 0)
 		| (have_avx2 ? VIPS_FEATURE_AVX2 : 0);
 }
 
@@ -172,10 +152,6 @@ vips_simd_get_supported_features( void )
 void
 vips_simd_set_features( VipsFeatureFlags features )
 {
-#ifdef HAVE_SSSE3
-	have_ssse3 = features & VIPS_FEATURE_SSSE3;
-#endif
-
 #ifdef HAVE_SSE41
 	have_sse41 = features & VIPS_FEATURE_SSE41;
 #endif
