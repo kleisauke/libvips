@@ -42,14 +42,12 @@ extern "C" {
  */
 typedef enum /*< flags >*/ {
 	VIPS_FEATURE_NONE = 0,		/* No features available */
-	VIPS_FEATURE_SSSE3 = 1 << 0,	/*< nick=SSSE3 >*/
-	VIPS_FEATURE_SSE41 = 1 << 1,	/*< nick=SSE41 >*/
-	VIPS_FEATURE_AVX2 = 1 << 2,	/*< nick=AVX2 >*/
+	VIPS_FEATURE_SSE41 = 1 << 0,	/*< nick=SSE41 >*/
+	VIPS_FEATURE_AVX2 = 1 << 1,	/*< nick=AVX2 >*/
 } VipsFeatureFlags;
 
 void vips__simd_init( void );
 
-gboolean vips__simd_have_ssse3( void );
 gboolean vips__simd_have_sse41( void );
 gboolean vips__simd_have_avx2( void );
 

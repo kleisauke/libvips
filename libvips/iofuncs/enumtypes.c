@@ -1157,7 +1157,6 @@ vips_feature_flags_get_type( void )
 	if( g_once_init_enter( &gtype_id ) ) {
 		static const GFlagsValue values[] = {
 			{VIPS_FEATURE_NONE, "VIPS_FEATURE_NONE", "none"},
-			{VIPS_FEATURE_SSSE3, "VIPS_FEATURE_SSSE3", "SSSE3"},
 			{VIPS_FEATURE_SSE41, "VIPS_FEATURE_SSE41", "SSE41"},
 			{VIPS_FEATURE_AVX2, "VIPS_FEATURE_AVX2", "AVX2"},
 			{0, NULL, NULL}

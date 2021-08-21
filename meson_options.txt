@@ -233,15 +233,10 @@ option('radiance',
 
 # Compiler extensions
 
-option('ssse3', 
-  type: 'boolean', 
-  value: 'true', 
-  description: 'SSSE3 support')
-
 option('sse41', 
   type: 'boolean', 
   value: 'true', 
-  description: 'SSE4.1 support - depends on SSSE3')
+  description: 'SSE4.1 support')
 
 option('avx2', 
   type: 'boolean', 
