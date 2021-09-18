@@ -144,6 +144,7 @@ simd_args = {
 if get_option('sse41')
     simd_args += {'sse41': files(
         'libvips/resample/reduce_sse41.c',
+        'libvips/convolution/convf_sse41.c',
     )}
 
     if get_option('avx2')

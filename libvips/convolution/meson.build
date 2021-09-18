@@ -18,11 +18,11 @@ convolution_sources = files(
 
 convolution_headers = files(
     'pconvolution.h',
+    'pconvolution_simd.h',
     'correlation.h',
 )
 
 libvips_sources += convolution_sources
-
 
 convolution_lib = static_library('convolution',
     convolution_sources,
