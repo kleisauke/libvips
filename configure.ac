@@ -1371,7 +1371,7 @@ AC_ARG_WITH([imagequant],
   AS_HELP_STRING([--without-imagequant], [build without imagequant (default: test)]))
 
 if test x"$with_imagequant" != x"no"; then
-  PKG_CHECK_MODULES(IMAGEQUANT, imagequant,
+  PKG_CHECK_MODULES(IMAGEQUANT, imagequant >= 2.8.0,
     [AC_DEFINE(HAVE_IMAGEQUANT,1,[define if you have imagequant installed.])
      with_imagequant=yes
      quantisation_package=imagequant
@@ -1392,7 +1392,7 @@ AC_ARG_WITH([quantizr],
 # only if libimagequant not found
 if test x"$quantisation_package" == x""; then
   if test x"$with_quantizr" != x"no"; then
-    PKG_CHECK_MODULES(QUANTIZR, quantizr,
+    PKG_CHECK_MODULES(QUANTIZR, quantizr >= 1.1.0,
       [AC_DEFINE(HAVE_QUANTIZR,1,[define if you have quantizr installed.])
        with_quantizr=yes
        quantisation_package=quantizr

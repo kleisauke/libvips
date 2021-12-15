@@ -41,6 +41,7 @@ extern "C" {
 #include <libimagequant.h>
 
 #define VipsQuantiseAttr liq_attr
+#define VipsQuantiseHistogram liq_histogram
 #define VipsQuantiseImage liq_image
 #define VipsQuantiseResult liq_result
 #define VipsQuantisePalette liq_palette
@@ -52,6 +53,7 @@ extern "C" {
 #include <quantizr.h>
 
 #define VipsQuantiseAttr QuantizrOptions
+#define VipsQuantiseHistogram QuantizrHistogram
 #define VipsQuantiseImage QuantizrImage
 #define VipsQuantiseResult QuantizrResult
 #define VipsQuantisePalette QuantizrPalette
@@ -60,6 +62,7 @@ extern "C" {
 
 #ifdef HAVE_QUANTIZATION
 VipsQuantiseAttr *vips__quantise_attr_create();
+VipsQuantiseHistogram *vips__quantise_histogram_create( const VipsQuantiseAttr *attr );
 VipsQuantiseError vips__quantise_set_max_colors( VipsQuantiseAttr *attr,
 	int colors );
 VipsQuantiseError vips__quantise_set_quality( VipsQuantiseAttr *attr,
@@ -67,6 +70,10 @@ VipsQuantiseError vips__quantise_set_quality( VipsQuantiseAttr *attr,
 VipsQuantiseError vips__quantise_set_speed( VipsQuantiseAttr *attr, int speed );
 VipsQuantiseImage *vips__quantise_image_create_rgba( const VipsQuantiseAttr *attr,
 	const void *bitmap, int width, int height, double gamma );
+VipsQuantiseError vips__quantise_histogram_add_image( VipsQuantiseHistogram *hist,
+	const VipsQuantiseAttr *attr, VipsQuantiseImage *image );
+VipsQuantiseError vips__quantise_histogram_quantize( VipsQuantiseHistogram *hist,
+	VipsQuantiseAttr *attr, VipsQuantiseResult **result_output );
 VipsQuantiseError vips__quantise_image_quantize( VipsQuantiseImage *input_image,
 	VipsQuantiseAttr *options, VipsQuantiseResult **result_output );
 VipsQuantiseError vips__quantise_set_dithering_level( VipsQuantiseResult *res,
@@ -75,6 +82,7 @@ const VipsQuantisePalette *vips__quantise_get_palette( VipsQuantiseResult *resul
 VipsQuantiseError vips__quantise_write_remapped_image( VipsQuantiseResult *result,
 	VipsQuantiseImage *input_image, void *buffer, size_t buffer_size );
 void vips__quantise_result_destroy( VipsQuantiseResult *result );
+void vips__quantise_histogram_destroy( VipsQuantiseHistogram* hist );
 void vips__quantise_image_destroy( VipsQuantiseImage *img );
 void vips__quantise_attr_destroy( VipsQuantiseAttr *attr );
 #endif /*HAVE_QUANTIZATION*/

@@ -227,7 +227,7 @@ endif
 # quant package we use
 quantisation_package = disabler()
 
-imagequant_dep = dependency('imagequant', required: get_option('imagequant'))
+imagequant_dep = dependency('imagequant', version: '>=2.8.0', required: get_option('imagequant'))
 if imagequant_dep.found()
     libvips_deps += imagequant_dep
     cfg_var.set('HAVE_IMAGEQUANT', '1')
@@ -237,7 +237,7 @@ endif
 # only if libimagequant not found
 quantizr_dep = disabler()
 if not quantisation_package.found()
-    quantizr_dep = dependency('quantizr', required: get_option('quantizr'))
+    quantizr_dep = dependency('quantizr', version: '>=1.1.0', required: get_option('quantizr'))
     if quantizr_dep.found()
         libvips_deps += quantizr_dep
         cfg_var.set('HAVE_QUANTIZR', '1')

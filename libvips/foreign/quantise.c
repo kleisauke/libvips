@@ -55,6 +55,12 @@ vips__quantise_attr_create()
 	return liq_attr_create();
 }
 
+VipsQuantiseHistogram *
+vips__quantise_histogram_create( const VipsQuantiseAttr *attr )
+{
+	return liq_histogram_create( attr );
+}
+
 VipsQuantiseError
 vips__quantise_set_max_colors( VipsQuantiseAttr *attr, int colors )
 {
@@ -78,6 +84,20 @@ vips__quantise_image_create_rgba( const VipsQuantiseAttr *attr,
 	const void *bitmap, int width, int height, double gamma )
 {
 	return liq_image_create_rgba( attr, bitmap, width, height, gamma );
+}
+
+VipsQuantiseError
+vips__quantise_histogram_add_image( VipsQuantiseHistogram *hist,
+	const VipsQuantiseAttr *attr, VipsQuantiseImage *image )
+{
+	return liq_histogram_add_image( hist, attr, image );
+}
+
+VipsQuantiseError
+vips__quantise_histogram_quantize( VipsQuantiseHistogram *const input_hist,
+	VipsQuantiseAttr *const options, VipsQuantiseResult **result_output )
+{
+	return liq_histogram_quantize( input_hist, options, result_output );
 }
 
 VipsQuantiseError
@@ -115,6 +135,12 @@ vips__quantise_result_destroy( VipsQuantiseResult *result )
 }
 
 void
+vips__quantise_histogram_destroy( VipsQuantiseHistogram* hist )
+{
+	liq_histogram_destroy( hist );
+}
+
+void
 vips__quantise_image_destroy( VipsQuantiseImage *img )
 {
 	liq_image_destroy( img );
@@ -132,6 +158,14 @@ VipsQuantiseAttr *
 vips__quantise_attr_create()
 {
 	return quantizr_new_options();
+}
+
+VipsQuantiseHistogram *
+vips__quantise_histogram_create( const VipsQuantiseAttr *attr )
+{
+	/* attr ununused by quantizr
+	 */
+	return quantizr_create_histogram();
 }
 
 VipsQuantiseError
@@ -167,6 +201,23 @@ vips__quantise_image_create_rgba( const VipsQuantiseAttr *attr,
 }
 
 VipsQuantiseError
+vips__quantise_histogram_add_image( VipsQuantiseHistogram *hist,
+	const VipsQuantiseAttr *attr, VipsQuantiseImage *image )
+{
+	/* attr ununused by quantizr
+	 */
+	return quantizr_histogram_add_image( hist, image );
+}
+
+VipsQuantiseError
+vips__quantise_histogram_quantize( VipsQuantiseHistogram *const input_hist,
+	VipsQuantiseAttr *const options, VipsQuantiseResult **result_output )
+{
+	*result_output = quantizr_quantize_histogram( input_hist, options );
+	return 0;
+}
+
+VipsQuantiseError
 vips__quantise_image_quantize( VipsQuantiseImage *const input_image,
 	VipsQuantiseAttr *const options, VipsQuantiseResult **result_output )
 {
@@ -198,6 +249,12 @@ void
 vips__quantise_result_destroy( VipsQuantiseResult *result )
 {
 	quantizr_free_result( result );
+}
+
+void
+vips__quantise_histogram_destroy( VipsQuantiseHistogram *hist )
+{
+	quantizr_free_histogram( hist );
 }
 
 void
