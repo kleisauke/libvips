@@ -84,6 +84,15 @@ extern "C" {
 #define VIPS_FMIN( A, B ) VIPS_MIN( A, B )
 #endif
 
+/* Clang's -fsanitize=alignment (included in -fsanitize=undefined) will flag
+ * for unaligned access. Use this attribute when unaligned access is required.
+ */
+#ifdef __clang__
+#define VIPS_NO_SANITIZE_ALIGNMENT __attribute__((no_sanitize("alignment")))
+#else
+#define VIPS_NO_SANITIZE_ALIGNMENT
+#endif
+
 /* Testing status before the function call saves a lot of time.
  */
 #define VIPS_ONCE( ONCE, FUNC, CLIENT ) \
