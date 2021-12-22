@@ -52,12 +52,14 @@
 #ifdef __AVX2__
 #include <immintrin.h>
 
+VIPS_NO_SANITIZE_ALIGNMENT
 static inline __m128i
 mm_cvtepu8_epi32( const void *ptr )
 {
 	return _mm_cvtepu8_epi32( _mm_cvtsi32_si128( *(int *) ptr ) );
 }
 
+VIPS_NO_SANITIZE_ALIGNMENT
 void
 vips_reduce_uchar_avx2( VipsPel *pout, VipsPel *pin,
 	int n, int ne, int lskip, const short *restrict k )
