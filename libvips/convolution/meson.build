@@ -18,7 +18,6 @@ convolution_sources = files(
 
 convolution_headers = files(
     'pconvolution.h',
-    'pconvolution_simd.h',
     'correlation.h',
 )
 
