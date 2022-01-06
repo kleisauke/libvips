@@ -76,5 +76,3 @@ GType vips_convolution_get_type( void );
 #endif /*__cplusplus*/
 
 #endif /*VIPS_PCONVOLUTION_H*/
-
-
