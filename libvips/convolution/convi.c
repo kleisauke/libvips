@@ -109,6 +109,7 @@
 
 /* 
 #define DEBUG
+#define DEBUG_COMPILE
  */
 
 #ifdef HAVE_CONFIG_H
@@ -121,17 +122,31 @@
 #include <limits.h>
 
 #include <vips/vips.h>
+#include <vips/internal.h>
+#include <vips/simd.h>
 
 #include "pconvolution.h"
+#include "pconvolution_simd.h"
 
 typedef struct {
 	VipsConvolution parent_instance;
+
+	int n_point;		/* w * h for our matrix */
 
 	/* We make a smaller version of the mask with the zeros squeezed out.
 	 */
 	int nnz;		/* Number of non-zero mask elements */
 	int *coeff;		/* Array of non-zero mask coefficients */
 	int *coeff_pos;		/* Index of each nnz element in mask->coeff */
+
+	/* And a half float version for the SIMD path. mant has the signed
+	 * 8-bit mantissas in [-1, +1), sexp has the exponent shift after the
+	 * mul and before the add, and exp has the final exponent shift before
+	 * write-back.
+	 */
+	int *mant;
+	int sexp;
+	int exp;
 } VipsConvi;
 
 typedef VipsConvolutionClass VipsConviClass;
@@ -176,16 +191,61 @@ vips_convi_start( VipsImage *out, void *a, void *b )
 
 	seq->convi = convi;
 	seq->ir = NULL;
+	seq->offsets = NULL;
 	seq->last_bpl = -1;
 
 	seq->ir = vips_region_new( in );
-	if( !(seq->offsets = VIPS_ARRAY( NULL, convi->nnz, int )) ) { 
-		vips_convi_stop( seq, in, convi );
-		return( NULL );
+
+	/* C mode.
+	 */
+	if( convi->nnz ) {
+		if( !(seq->offsets = VIPS_ARRAY( NULL, convi->nnz, int )) ) { 
+			vips_convi_stop( seq, in, convi );
+			return( NULL );
+		}
 	}
 
 	return( (void *) seq );
 }
+
+#ifdef HAVE_SSE41
+static int
+vips_convi_gen_simd( VipsRegion *or, 
+	void *vseq, void *a, void *b, gboolean *stop )
+{
+	VipsConviSequence *seq = (VipsConviSequence *) vseq;
+	VipsConvi *convi = (VipsConvi *) b;
+	VipsConvolution *convolution = (VipsConvolution *) convi;
+	VipsImage *M = convolution->M;
+	int offset = VIPS_RINT( vips_image_get_offset( M ) ); 
+	VipsImage *in = (VipsImage *) a;
+	VipsRegion *ir = seq->ir;
+	VipsRect *r = &or->valid;
+
+	VipsRect s;
+
+	/* Prepare the section of the input image we need. A little larger
+	 * than the section of the output image we are producing.
+	 */
+	s = *r;
+	s.width += M->Xsize - 1;
+	s.height += M->Ysize - 1;
+	if( vips_region_prepare( ir, &s ) )
+		return( -1 );
+
+	VIPS_GATE_START( "vips_convi_gen_simd: work" ); 
+
+	vips_convi_uchar_sse41( or, ir, r,
+		convi->n_point, M->Xsize, in->Bands, offset,
+		convi->mant, convi->sexp, convi->exp );
+
+	VIPS_GATE_STOP( "vips_convi_gen_simd: work" ); 
+
+	VIPS_COUNT_PIXELS( or, "vips_convi_gen_simd" ); 
+
+	return( 0 );
+}
+#endif
 
 /* INT inner loops.
  */
@@ -275,7 +335,7 @@ vips_convi_gen( VipsRegion *or,
 	if( vips_region_prepare( ir, &s ) )
 		return( -1 );
 
-        /* Fill offset array. Only do this if the bpl has changed since the 
+	/* Fill offset array. Only do this if the bpl has changed since the 
 	 * previous vips_region_prepare().
 	 */
 	if( seq->last_bpl != VIPS_REGION_LSKIP( ir ) ) {
@@ -414,6 +474,148 @@ vips__image_intize( VipsImage *in, VipsImage **out )
 	return( 0 );
 }
 
+/* Make an int version of a mask. Each element is 8.8 float, with the same
+ * exponent for each element (so just 8 bits in @out).
+ *
+ * @out is a w x h int array.
+ */
+static int
+vips_convi_intize( VipsConvi *convi, VipsImage *M )
+{
+	VipsImage *t;
+	double scale;
+	double *scaled;
+	double mx;
+	double mn;
+	int shift;
+	int i;
+
+	if( vips_check_matrix( "vips2imask", M, &t ) )
+		return( -1 ); 
+
+	/* Bake the scale into the mask to make a double version.
+	 */
+	scale = vips_image_get_scale( t );
+	if( !(scaled = VIPS_ARRAY( convi, convi->n_point, double )) ) {
+		g_object_unref( t ); 
+		return( -1 );
+	}
+	for( i = 0; i < convi->n_point; i++ ) 
+		scaled[i] = VIPS_MATRIX( t, 0, 0 )[i] / scale;
+	g_object_unref( t );
+
+#ifdef DEBUG_COMPILE
+{
+	int x, y;
+
+	printf( "vips_convi_intize: double version\n" );
+	for( y = 0; y < t->Ysize; y++ ) {
+		printf( "\t" );
+		for( x = 0; x < t->Xsize; x++ ) 
+			printf( "%g ", scaled[y * t->Xsize + x] );
+		printf( "\n" );
+	}
+}
+#endif /*DEBUG_COMPILE*/
+
+	mx = scaled[0];
+	mn = scaled[0];
+	for( i = 1; i < convi->n_point; i++ ) {
+		if( scaled[i] > mx )
+			mx = scaled[i];
+		if( scaled[i] < mn )
+			mn = scaled[i];
+	}
+
+	/* The mask max rounded up to the next power of two gives the exponent
+	 * all elements share. Values are eg. -3 for 1/8, 3 for 8.
+	 *
+	 * Add one so we round up stuff exactly on x.0. We multiply by 128
+	 * later, so 1.0 (for example) would become 128, which is outside
+	 * signed 8 bit. 
+	 */
+	shift = ceil( log2( mx ) + 1 );
+
+	/* We need to sum n_points, so we have to shift right before adding a
+	 * new value to make sure we have enough range. 
+	 */
+	convi->sexp = ceil( log2( convi->n_point ) );
+	if( convi->sexp > 10 ) {
+		g_info( "vips_convi_intize: mask too large" ); 
+		return( -1 ); 
+	}
+
+	/* With that already done, the final shift must be ...
+	 */
+	convi->exp = 7 - shift - convi->sexp;
+
+	if( !(convi->mant = VIPS_ARRAY( convi, convi->n_point, int )) )
+		return( -1 );
+	for( i = 0; i < convi->n_point; i++ ) {
+		/* 128 since this is signed. 
+		 */
+		convi->mant[i] = VIPS_RINT( 128 * scaled[i] * pow(2, -shift) );
+
+		if( convi->mant[i] < -128 ||
+			convi->mant[i] > 127 ) {
+			g_info( "vips_convi_intize: mask range too large" ); 
+			return( -1 );
+		}
+	}
+
+#ifdef DEBUG_COMPILE
+{
+	int x, y;
+
+	printf( "vips_convi_intize:\n" );
+	printf( "sexp = %d\n", convi->sexp );
+	printf( "exp = %d\n", convi->exp );
+	for( y = 0; y < t->Ysize; y++ ) {
+		printf( "\t" );
+		for( x = 0; x < t->Xsize; x++ )
+			printf( "%4d ", convi->mant[y * t->Xsize + x] );
+		printf( "\n" );
+	}
+}
+#endif /*DEBUG_COMPILE*/
+
+	/* Verify accuracy.
+	 */
+{
+	double true_sum;
+	int int_sum;
+	int true_value;
+	int int_value;
+
+	true_sum = 0.0;
+	int_sum = 0;
+	for( i = 0; i < convi->n_point; i++ ) {
+		int value;
+
+		true_sum += 128 * scaled[i];
+		value = 128 * convi->mant[i];
+		value = (value + (1 << (convi->sexp - 1))) >> convi->sexp;
+		int_sum += value;
+		int_sum = VIPS_CLIP( SHRT_MIN, int_sum, SHRT_MAX ); 
+	}
+
+	true_value = VIPS_CLIP( 0, true_sum, 255 ); 
+
+	if( convi->exp > 0 )
+		int_value = (int_sum + (1 << (convi->exp - 1))) >> convi->exp;
+	else
+		int_value = VIPS_LSHIFT_INT( int_sum, convi->exp );
+	int_value = VIPS_CLIP( 0, int_value, 255 ); 
+
+	if( VIPS_ABS( true_value - int_value ) > 2 ) {
+		g_info( "vips_convi_intize: too inaccurate" );
+		return( -1 ); 
+	}
+}
+
+	return( 0 );
+}
+
 static int
 vips_convi_build( VipsObject *object )
 {
@@ -423,47 +625,16 @@ vips_convi_build( VipsObject *object )
 
 	VipsImage *in;
 	VipsImage *M;
+	VipsGenerateFn generate;
 	double *coeff;
-	int ne;
 	int i;
 
 	if( VIPS_OBJECT_CLASS( vips_convi_parent_class )->build( object ) )
 		return( -1 );
 
-	M = convolution->M;
-	ne = M->Xsize * M->Ysize;
-
-	/* Make an int version of our mask.
-	 */
-	if( vips__image_intize( M, &t[1] ) )
-		return( -1 );
-	M = t[1];
-
-	coeff = VIPS_MATRIX( M, 0, 0 );
-	if( !(convi->coeff = VIPS_ARRAY( object, ne, int )) ||
-		!(convi->coeff_pos = VIPS_ARRAY( object, ne, int )) )
-	return( -1 );
-
-	/* Squeeze out zero mask elements. 
-	 */
-	convi->nnz = 0;
-	for( i = 0; i < ne; i++ )
-		if( coeff[i] ) {
-			convi->coeff[convi->nnz] = coeff[i];
-			convi->coeff_pos[convi->nnz] = i;
-			convi->nnz += 1;
-		}
-
-	/* Was the whole mask zero? We must have at least 1 element 
-	 * in there: set it to zero.
-	 */
-	if( convi->nnz == 0 ) {
-		convi->coeff[0] = 0;
-		convi->coeff_pos[0] = 0;
-		convi->nnz = 1;
-	}
-
 	in = convolution->in;
+	M = convolution->M;
+	convi->n_point = M->Xsize * M->Ysize;
 
 	if( vips_embed( in, &t[0], 
 		M->Xsize / 2, M->Ysize / 2, 
@@ -472,6 +643,58 @@ vips_convi_build( VipsObject *object )
 		NULL ) )
 		return( -1 );
 	in = t[0]; 
+
+	/* Default to the C path.
+	 */
+	generate = vips_convi_gen;
+
+	/* For uchar input, try to make a SIMD path.
+	 */
+#ifdef HAVE_SSE41
+	if( vips__simd_have_sse41() &&
+		in->BandFmt == VIPS_FORMAT_UCHAR &&
+		!vips_convi_intize( convi, M ) ) {
+		generate = vips_convi_gen_simd;
+		g_info( "convi: using SIMD path" );
+	}
+#endif
+
+	/* Make the data for the C path.
+	 */
+	if( generate == vips_convi_gen ) { 
+		g_info( "convi: using C path" );
+
+		/* Make an int version of our mask.
+		 */
+		if( vips__image_intize( M, &t[1] ) )
+			return( -1 );
+		M = t[1];
+
+		coeff = VIPS_MATRIX( M, 0, 0 );
+		if( !(convi->coeff = VIPS_ARRAY( object, convi->n_point, int )) ||
+			!(convi->coeff_pos = 
+				VIPS_ARRAY( object, convi->n_point, int )) )
+			return( -1 );
+
+		/* Squeeze out zero mask elements. 
+		 */
+		convi->nnz = 0;
+		for( i = 0; i < convi->n_point; i++ )
+			if( coeff[i] ) {
+				convi->coeff[convi->nnz] = coeff[i];
+				convi->coeff_pos[convi->nnz] = i;
+				convi->nnz += 1;
+			}
+
+		/* Was the whole mask zero? We must have at least 1 element 
+		 * in there: set it to zero.
+		 */
+		if( convi->nnz == 0 ) {
+			convi->coeff[0] = 0;
+			convi->coeff_pos[0] = 0;
+			convi->nnz = 1;
+		}
+	}
 
 	g_object_set( convi, "out", vips_image_new(), NULL ); 
 	if( vips_image_pipelinev( convolution->out, 
@@ -488,7 +711,7 @@ vips_convi_build( VipsObject *object )
 	convolution->out->Ysize -= M->Ysize - 1;
 
 	if( vips_image_generate( convolution->out, 
-		vips_convi_start, vips_convi_gen, vips_convi_stop, in, convi ) )
+		vips_convi_start, generate, vips_convi_stop, in, convi ) )
 		return( -1 );
 
 	convolution->out->Xoffset = -M->Xsize / 2;
@@ -510,9 +733,9 @@ vips_convi_class_init( VipsConviClass *class )
 static void
 vips_convi_init( VipsConvi *convi )
 {
-        convi->nnz = 0;
-        convi->coeff = NULL;
-        convi->coeff_pos = NULL;
+		convi->nnz = 0;
+		convi->coeff = NULL;
+		convi->coeff_pos = NULL;
 }
 
 /**
