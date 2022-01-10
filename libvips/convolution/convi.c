@@ -144,7 +144,7 @@ typedef struct {
 	 * mul and before the add, and exp has the final exponent shift before
 	 * write-back.
 	 */
-	int *mant;
+	short *mant;
 	int sexp;
 	int exp;
 } VipsConvi;
@@ -191,18 +191,13 @@ vips_convi_start( VipsImage *out, void *a, void *b )
 
 	seq->convi = convi;
 	seq->ir = NULL;
-	seq->offsets = NULL;
 	seq->last_bpl = -1;
 
 	seq->ir = vips_region_new( in );
 
-	/* C mode.
-	 */
-	if( convi->nnz ) {
-		if( !(seq->offsets = VIPS_ARRAY( NULL, convi->nnz, int )) ) { 
-			vips_convi_stop( seq, in, convi );
-			return( NULL );
-		}
+	if( !(seq->offsets = VIPS_ARRAY( NULL, convi->nnz, int )) ) { 
+		vips_convi_stop( seq, in, convi );
+		return( NULL );
 	}
 
 	return( (void *) seq );
@@ -220,9 +215,12 @@ vips_convi_gen_simd( VipsRegion *or,
 	int offset = VIPS_RINT( vips_image_get_offset( M ) ); 
 	VipsImage *in = (VipsImage *) a;
 	VipsRegion *ir = seq->ir;
+	const int nnz = convi->nnz;
 	VipsRect *r = &or->valid;
+	int ne = r->width * in->Bands;
 
 	VipsRect s;
+	int x, y, z, i;
 
 	/* Prepare the section of the input image we need. A little larger
 	 * than the section of the output image we are producing.
@@ -233,10 +231,28 @@ vips_convi_gen_simd( VipsRegion *or,
 	if( vips_region_prepare( ir, &s ) )
 		return( -1 );
 
+	/* Fill offset array. Only do this if the bpl has changed since the 
+	 * previous vips_region_prepare().
+	 */
+	if( seq->last_bpl != VIPS_REGION_LSKIP( ir ) ) {
+		seq->last_bpl = VIPS_REGION_LSKIP( ir );
+
+		for( i = 0; i < nnz; i++ ) {
+			z = convi->coeff_pos[i];
+			x = z % M->Xsize;
+			y = z / M->Xsize;
+
+			seq->offsets[i] = 
+				(VIPS_REGION_ADDR( ir, x + r->left, y + r->top ) -
+				 VIPS_REGION_ADDR( ir, r->left, r->top )) / 
+					VIPS_IMAGE_SIZEOF_ELEMENT( ir->im ); 
+		}
+	}
+
 	VIPS_GATE_START( "vips_convi_gen_simd: work" ); 
 
 	vips_convi_uchar_sse41( or, ir, r,
-		convi->n_point, M->Xsize, in->Bands, offset,
+		ne, nnz, (short) offset, seq->offsets,
 		convi->mant, convi->sexp, convi->exp );
 
 	VIPS_GATE_STOP( "vips_convi_gen_simd: work" ); 
@@ -549,8 +565,12 @@ vips_convi_intize( VipsConvi *convi, VipsImage *M )
 	 */
 	convi->exp = 7 - shift - convi->sexp;
 
-	if( !(convi->mant = VIPS_ARRAY( convi, convi->n_point, int )) )
+	if( !(convi->mant = VIPS_ARRAY( convi, convi->n_point, short )) ||
+		!(convi->coeff_pos =
+			VIPS_ARRAY( convi, convi->n_point, int )) )
 		return( -1 );
+
+	convi->nnz = 0;
 	for( i = 0; i < convi->n_point; i++ ) {
 		/* 128 since this is signed. 
 		 */
@@ -561,6 +581,23 @@ vips_convi_intize( VipsConvi *convi, VipsImage *M )
 			g_info( "vips_convi_intize: mask range too large" ); 
 			return( -1 );
 		}
+
+		/* Squeeze out zero mask elements. 
+ 		*/
+		if( convi->mant[i] ) {
+			convi->mant[convi->nnz] = convi->mant[i];
+			convi->coeff_pos[convi->nnz] = i;
+			convi->nnz += 1;
+		}
+	}
+
+	/* Was the whole mask zero? We must have at least 1 element 
+	 * in there: set it to zero.
+	 */
+	if( convi->nnz == 0 ) {
+		convi->mant[0] = 0;
+		convi->coeff_pos[0] = 0;
+		convi->nnz = 1;
 	}
 
 #ifdef DEBUG_COMPILE
@@ -589,10 +626,10 @@ vips_convi_intize( VipsConvi *convi, VipsImage *M )
 
 	true_sum = 0.0;
 	int_sum = 0;
-	for( i = 0; i < convi->n_point; i++ ) {
+	for( i = 0; i < convi->nnz; i++ ) {
 		int value;
 
-		true_sum += 128 * scaled[i];
+		true_sum += 128 * scaled[convi->coeff_pos[i]];
 		value = 128 * convi->mant[i];
 		value = (value + (1 << (convi->sexp - 1))) >> convi->sexp;
 		int_sum += value;
@@ -736,6 +773,7 @@ vips_convi_init( VipsConvi *convi )
 		convi->nnz = 0;
 		convi->coeff = NULL;
 		convi->coeff_pos = NULL;
+		convi->mant = NULL;
 }
 
 /**
