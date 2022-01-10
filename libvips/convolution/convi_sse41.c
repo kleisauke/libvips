@@ -46,60 +46,58 @@
 #ifdef __SSE4_1__
 #include <smmintrin.h>
 
+VIPS_NO_SANITIZE_ALIGNMENT
+static inline __m128i
+mm_cvtepu8_epi32( const void *ptr )
+{
+	return _mm_cvtepu8_epi32( _mm_cvtsi32_si128( *(int *) ptr ) );
+}
+
 void
 vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
-	int n_point, int xsize, int bands, int offset,
-	int *mant, int sexp, int exp )
+	int ne, int nnz, int offset, const int *restrict offsets,
+	const short *restrict mant, int sexp, int exp )
 {
 	int y, x, i;
-	int ne = r->width * bands;
-	int lskip = VIPS_REGION_LSKIP( ir );
+	int bo = VIPS_RECT_BOTTOM( r );
 
 	__m128i mm_sexp = _mm_set1_epi32( 1 << (sexp - 1) );
 	__m128i mm_exp = _mm_set1_epi32( 1 << (exp - 1) );
 	__m128i mm_offset = _mm_set1_epi32( offset );
 	__m128i zero = _mm_setzero_si128();
 
-	for( y = 0; y < r->height; y++ ) {
-		VipsPel *p = VIPS_REGION_ADDR( ir, r->left, r->top + y );
-		VipsPel *q = VIPS_REGION_ADDR( or, r->left, r->top + y );
+	for( y = r->top; y < bo; y++ ) {
+		VipsPel * restrict p = VIPS_REGION_ADDR( ir, r->left, y );
+		VipsPel * restrict q = VIPS_REGION_ADDR( or, r->left, y );
 
 		for( x = 0; x < ne; x++ ) {
-			__m128i sum = zero;
-			__m128i source, sss;
-
-			for( i = 0; i < n_point; i++ ) {
-				int xoffset = i % xsize;
-				int yoffset = i / xsize;
-
-				/* Exclude zero elements.
-				 */
-				if( !mant[i] )
-					continue;
+			__m128i sss = zero;
+			for( i = 0; i < nnz; i++ ) {
+				__m128i pix, mmk, ss;
 
 				/* Load with an offset.
 				 */
-				source = _mm_loadu_si128( (__m128i *) &p[yoffset * lskip + xoffset * bands] );
-				source = _mm_cvtepu8_epi16( source );
+				pix = mm_cvtepu8_epi32( &p[offsets[i]] );
+				mmk = _mm_set1_epi32( mant[i] );
 
 				/* We need a signed multiply, so the image pixel needs to
 				 * become a signed 16-bit value. We know only the bottom 8 bits
 				 * of the image and coefficient are interesting, so we can take
 				 * the bottom half of a 16x16->32 multiply.
 				 */
-				sss = _mm_mullo_epi16( source, _mm_set1_epi32( mant[i] ) );
+				ss = _mm_mullo_epi16( pix, mmk );
 
 				/* Shift right before add to prevent overflow on large masks.
 				 */
-				sss = _mm_add_epi32( sss, mm_sexp );
-				sss = _mm_srai_epi32( sss, sexp );
+				ss = _mm_add_epi32( ss, mm_sexp );
+				ss = _mm_srai_epi32( ss, sexp );
 
-				sum = _mm_add_epi32( sum, sss );
+				sss = _mm_add_epi32( sss, ss );
 			}
 
 			/* The final 16->8 conversion.
 			 */
-			sss = _mm_add_epi32( sum, mm_exp );
+			sss = _mm_add_epi32( sss, mm_exp );
 			sss = _mm_srai_epi32( sss, exp );
 			sss = _mm_add_epi32( sss, mm_offset );
 			sss = _mm_packs_epi32( sss, sss );

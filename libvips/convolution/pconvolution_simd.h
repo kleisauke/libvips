@@ -39,8 +39,8 @@ extern "C" {
 #endif /*__cplusplus*/
 
 void vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
-	int n_point, int xsize, int bands, int offset,
-	int *mant, int sexp, int exp );
+	int ne, int nnz, int offset, const int *restrict offsets,
+	const short *restrict mant, int sexp, int exp );
 
 #ifdef __cplusplus
 }
