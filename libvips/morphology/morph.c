@@ -55,9 +55,16 @@
 
  */
 
+/*
+#define DEBUG_VERBOSE
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif /*HAVE_CONFIG_H*/
+#ifdef HAVE_SIMD_CONFIG_H
+#include <simd_config.h>
+#endif /*HAVE_SIMD_CONFIG_H*/
 #include <glib/gi18n-lib.h>
 
 #include <stdio.h>
@@ -65,10 +72,11 @@
 #include <limits.h>
 
 #include <vips/vips.h>
-#include <vips/debug.h>
 #include <vips/internal.h>
+#include <vips/simd.h>
 
 #include "pmorphology.h"
+#include "pmorphology_simd.h"
 
 /** 
  * VipsOperationMorphology:
@@ -163,6 +171,84 @@ vips_morph_start( VipsImage *out, void *a, void *b )
 	return( seq );
 }
 
+#ifdef HAVE_SSE41
+static int
+vips_morph_gen_simd( VipsRegion *or, 
+	void *vseq, void *a, void *b, gboolean *stop )
+{
+	VipsMorphSequence *seq = (VipsMorphSequence *) vseq;
+	VipsMorph *morph = (VipsMorph *) b;
+	VipsImage *M = morph->M;
+	VipsRegion *ir = seq->ir;
+
+	/* Offsets for each non-128 matrix element.
+	 */
+	int *soff = seq->soff;
+
+	/* Array of non-128 mask coefficients.
+	 */
+	int *coff = seq->coff;
+
+	VipsRect *r = &or->valid;
+	int sz = VIPS_REGION_N_ELEMENTS( or );
+
+	VipsRect s;
+	int x, y;
+	int *t;
+
+	/* Prepare the section of the input image we need. A little larger
+	 * than the section of the output image we are producing.
+	 */
+	s = *r;
+	s.width += M->Xsize - 1;
+	s.height += M->Ysize - 1;
+	if( vips_region_prepare( ir, &s ) )
+		return( -1 );
+
+#ifdef DEBUG_VERBOSE
+	printf( "vips_dilate_gen: preparing %dx%d@%dx%d pixels\n", 
+		s.width, s.height, s.left, s.top );
+#endif /*DEBUG_VERBOSE*/
+
+	/* Scan mask, building offsets we check when processing. Only do this
+	 * if the bpl has changed since the previous vips_region_prepare().
+	 */
+	if( seq->last_bpl != VIPS_REGION_LSKIP( ir ) ) {
+		seq->last_bpl = VIPS_REGION_LSKIP( ir );
+
+		/* Number of non-128 mask elements.
+		 */
+		seq->ss = 0;
+		for( t = morph->coeff, y = 0; y < M->Ysize; y++ )
+			for( x = 0; x < M->Xsize; x++, t++ ) {
+				/* Exclude don't-care elements.
+				 */
+				if( *t == 128 )
+					continue;
+
+				soff[seq->ss] = 
+					VIPS_REGION_ADDR( ir, 
+						x + r->left, y + r->top ) -
+					VIPS_REGION_ADDR( ir, r->left, r->top );
+				coff[seq->ss] = *t;
+				seq->ss++;
+			}
+	}
+
+	VIPS_GATE_START( "vips_morph_gen_simd: work" ); 
+
+	vips_morph_uchar_sse41( or, ir, r,
+		sz, seq->ss, soff, coff,
+		morph->morph == VIPS_OPERATION_MORPHOLOGY_DILATE );
+
+	VIPS_GATE_STOP( "vips_morph_gen_simd: work" ); 
+
+	VIPS_COUNT_PIXELS( or, "vips_morph_gen_simd" );
+
+	return( 0 );
+}
+#endif
+
 /* Dilate!
  */
 static int
@@ -235,6 +321,8 @@ vips_dilate_gen( VipsRegion *or,
 				}
 	}
 
+	VIPS_GATE_START( "vips_dilate_gen: work" );
+
 	/* Dilate!
 	 */
 	for( y = to; y < bo; y++ ) {
@@ -270,7 +358,11 @@ vips_dilate_gen( VipsRegion *or,
 			*q = result;
 		}
 	}
-	
+
+	VIPS_GATE_STOP( "vips_dilate_gen: work" );
+
+	VIPS_COUNT_PIXELS( or, "vips_dilate_gen" );
+
 	return( 0 );
 }
 
@@ -346,6 +438,8 @@ vips_erode_gen( VipsRegion *or,
 				}
 	}
 
+	VIPS_GATE_START( "vips_erode_gen: work" );
+
 	/* Erode!
 	 */
 	for( y = to; y < bo; y++ ) {
@@ -378,7 +472,11 @@ vips_erode_gen( VipsRegion *or,
 			*q = result;
 		}
 	}
-	
+
+	VIPS_GATE_STOP( "vips_erode_gen: work" );
+
+	VIPS_COUNT_PIXELS( or, "vips_erode_gen" );
+
 	return( 0 );
 }
 
@@ -453,6 +551,15 @@ vips_morph_build( VipsObject *object )
 	 */
 	generate = morph->morph == VIPS_OPERATION_MORPHOLOGY_DILATE
 		? vips_dilate_gen : vips_erode_gen;
+
+	/* Try to make a SIMD path.
+	 */
+#ifdef HAVE_SSE41
+	if( vips__simd_have_sse41() ) {
+		generate = vips_morph_gen_simd;
+		g_info( "morph: using SIMD path" );
+	}
+#endif
 
 	g_object_set( morph, "out", vips_image_new(), NULL ); 
 	if( vips_image_pipelinev( morph->out, 

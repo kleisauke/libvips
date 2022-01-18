@@ -13,6 +13,7 @@ simd_args = {
 if get_option('sse41')
     simd_args += {'sse41': files(
         'convolution/convi_sse41.c',
+        'morphology/morph_sse41.c',
         'resample/reduce_sse41.c',
     )}
 

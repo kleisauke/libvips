@@ -71,5 +71,3 @@ GType vips_morphology_get_type( void );
 #endif /*__cplusplus*/
 
 #endif /*VIPS_PMORPHOLOGY_H*/
-
-

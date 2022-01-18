@@ -9,6 +9,7 @@ morphology_sources = files(
 
 morphology_headers = files(
     'pmorphology.h',
+    'pmorphology_simd.h',
 )
 
 libvips_sources += morphology_sources
