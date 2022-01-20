@@ -41,6 +41,7 @@ libvips/include/vips/region.h
 libvips/include/vips/resample.h
 libvips/include/vips/sbuf.h
 libvips/include/vips/semaphore.h
+libvips/include/vips/simd.h
 libvips/include/vips/thread.h
 libvips/include/vips/threadpool.h
 libvips/include/vips/transform.h
@@ -176,7 +177,9 @@ libvips/convolution/conva.c
 libvips/convolution/convasep.c
 libvips/convolution/conv.c
 libvips/convolution/convf.c
+libvips/convolution/convi_avx2.c
 libvips/convolution/convi.c
+libvips/convolution/convi_sse41.c
 libvips/convolution/convolution.c
 libvips/convolution/convsep.c
 libvips/convolution/correlation.c
@@ -332,6 +335,7 @@ libvips/iofuncs/region.c
 libvips/iofuncs/reorder.c
 libvips/iofuncs/sbuf.c
 libvips/iofuncs/semaphore.c
+libvips/iofuncs/simd.c
 libvips/iofuncs/sink.c
 libvips/iofuncs/sinkdisc.c
 libvips/iofuncs/sinkmemory.c
@@ -357,6 +361,7 @@ libvips/morphology/countlines.c
 libvips/morphology/labelregions.c
 libvips/morphology/morph.c
 libvips/morphology/morphology.c
+libvips/morphology/morph_sse41.c
 libvips/morphology/nearest.c
 libvips/morphology/rank.c
 libvips/mosaicing/chkpair.c
@@ -385,8 +390,10 @@ libvips/resample/lbb.cpp
 libvips/resample/mapim.c
 libvips/resample/nohalo.cpp
 libvips/resample/quadratic.c
+libvips/resample/reduce_avx2.c
 libvips/resample/reduce.c
 libvips/resample/reduceh.cpp
+libvips/resample/reduce_sse41.c
 libvips/resample/reducev.cpp
 libvips/resample/resample.c
 libvips/resample/resize.c
