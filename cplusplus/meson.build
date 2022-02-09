@@ -59,6 +59,8 @@ if get_option('cpp-docs')
         output: 'html',
         command: [doxygen, doxyfile],
         install: true,
-        install_dir: get_option('prefix') / get_option('datadir') / 'doc' / 'vips-cpp'
+        install_dir: get_option('prefix') / get_option('datadir') / 'doc' / 'vips-cpp',
+        # FIXME: Not needed with Meson >= 0.64.0
+        install_tag: 'doc',
     )
 endif
