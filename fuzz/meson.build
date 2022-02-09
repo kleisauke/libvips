@@ -84,7 +84,7 @@ endif
 if cgif_dep.found()
     fuzz_save_buffer_progs += {'gifsave': '.gif'}
 endif
-if magick_found and 'save' in get_option('magick-features')
+if magick_dep.found() and 'save' in get_option('magick-features')
     fuzz_save_buffer_progs += {'magicksave': '.bmp'}
 endif
 
