@@ -1,6 +1,6 @@
 project('vips', 'c', 'cpp',
     version: '8.19.0',
-    meson_version: '>=0.55',
+    meson_version: '>=0.59',
     default_options: [
         # this is what glib uses (one of our required deps), so we use it too
         'c_std=gnu99',
@@ -105,12 +105,13 @@ lib_dir = prefix_dir / get_option('libdir')
 project_source_root = meson.current_source_dir()
 project_build_root = meson.current_build_dir()
 
-if gmodule_dep.found() and gmodule_dep.get_variable(pkgconfig: 'gmodule_supported') == 'true'
-    # Disable modules by default when building static libraries
-    modules_enabled = get_option('modules').enabled() or get_option('default_library') == 'shared'
-elif get_option('modules').enabled()
-    error('GModule is not supported on your system, please reconfigure with -Dmodules=disabled')
-else
+modules_enabled = get_option('modules').require(
+    gmodule_dep.found() and gmodule_dep.get_variable(pkgconfig: 'gmodule_supported') == 'true',
+    error_message: 'GModule is not supported on your system, please reconfigure with -Dmodules=disabled'
+).allowed()
+
+# Disable modules by default when building static libraries
+if get_option('modules').auto() and get_option('default_library') != 'shared'
     modules_enabled = false
 endif
 
@@ -224,10 +225,10 @@ if not magick_dep.found()
     # very old versions called it "ImageMagick"
     magick_dep = dependency('ImageMagick', required: get_option('magick'))
 endif
-magick_found = not get_option('magick').disabled() and magick_dep.found()
+magick_found = get_option('magick').allowed() and magick_dep.found()
 magick_module = false
 if magick_found
-    magick_module = modules_enabled and not get_option('magick-module').disabled()
+    magick_module = modules_enabled and get_option('magick-module').allowed()
     if magick_module
         cfg_var.set('MAGICK_MODULE', true)
         module_deps += magick_dep
@@ -362,7 +363,7 @@ if not png_package.found()
     if not spng_dep.found()
         spng_dep = dependency('libspng', version: '>=0.7', required: get_option('spng'))
     endif
-    if not get_option('spng').disabled() and spng_dep.found()
+    if get_option('spng').allowed() and spng_dep.found()
         external_deps += spng_dep
         cfg_var.set('HAVE_SPNG', true)
         png_package = spng_dep
@@ -423,7 +424,7 @@ endif
 openslide_dep = dependency('openslide', version: '>=3.4.0', required: get_option('openslide'))
 openslide_module = false
 if openslide_dep.found()
-    openslide_module = modules_enabled and not get_option('openslide-module').disabled()
+    openslide_module = modules_enabled and get_option('openslide-module').allowed()
     if openslide_module
         cfg_var.set('OPENSLIDE_MODULE', true)
         module_deps += openslide_dep
@@ -524,7 +525,7 @@ endif
 libheif_dep = dependency('libheif', version: '>=1.7.0', required: get_option('heif'))
 libheif_module = false
 if libheif_dep.found()
-    libheif_module = modules_enabled and not get_option('heif-module').disabled()
+    libheif_module = modules_enabled and get_option('heif-module').allowed()
     if libheif_module
         cfg_var.set('HEIF_MODULE', true)
         module_deps += libheif_dep
@@ -553,7 +554,7 @@ libjxl_threads_dep = dependency('libjxl_threads', version: '>=0.7', required: ge
 libjxl_found = libjxl_dep.found() and libjxl_threads_dep.found()
 libjxl_module = false
 if libjxl_found
-    libjxl_module = modules_enabled and not get_option('jpeg-xl-module').disabled()
+    libjxl_module = modules_enabled and get_option('jpeg-xl-module').allowed()
     if libjxl_module
         cfg_var.set('LIBJXL_MODULE', true)
         module_deps += libjxl_dep
@@ -575,7 +576,7 @@ if not pdf_loader.found()
         cairo_dep = dependency('cairo', version: '>=1.2', required: get_option('poppler'))
     endif
     if libpoppler_dep.found() and cairo_dep.found()
-        libpoppler_module = modules_enabled and not get_option('poppler-module').disabled()
+        libpoppler_module = modules_enabled and get_option('poppler-module').allowed()
         if libpoppler_module
             cfg_var.set('POPPLER_MODULE', true)
             module_deps += libpoppler_dep
@@ -624,7 +625,7 @@ if nifti_prefix_dir != '' and not libnifti_dep.found()
     znz_lib = cc.find_library('znz', has_headers: ['znzlib.h'], header_include_directories: nifti_inc, required: get_option('nifti'))
     libnifti_dep = declare_dependency(dependencies: [nifti_lib, znz_lib], include_directories: nifti_inc)
 endif
-libnifti_found = not get_option('nifti').disabled() and libnifti_dep.found()
+libnifti_found = get_option('nifti').allowed() and libnifti_dep.found()
 if libnifti_found
     external_deps += libnifti_dep
     cfg_var.set('HAVE_NIFTI', true)
@@ -645,18 +646,13 @@ gettext_domain = 'vips@0@.@1@'.format(version_major, version_minor)
 cfg_var.set_quoted('GETTEXT_PACKAGE', gettext_domain)
 cfg_var.set_quoted('VIPS_PREFIX', prefix_dir)
 cfg_var.set_quoted('VIPS_LIBDIR', lib_dir)
-if cc.has_function('ngettext')
+
+libintl_dep = dependency('intl', required: false)
+have_bind_textdomain_codeset = false
+if libintl_dep.found()
+    other_deps += libintl_dep
     cfg_var.set('ENABLE_NLS', true)
-    have_bind_textdomain_codeset = cc.has_function('bind_textdomain_codeset')
-else
-    libintl_dep = cc.find_library('intl', required: false)
-    if libintl_dep.found()
-        other_deps += libintl_dep
-        cfg_var.set('ENABLE_NLS', true)
-        have_bind_textdomain_codeset = cc.has_function('bind_textdomain_codeset', prefix: '#include <libintl.h>', dependencies: libintl_dep)
-    else
-        have_bind_textdomain_codeset = false
-    endif
+    have_bind_textdomain_codeset = cc.has_function('bind_textdomain_codeset', prefix: '#include <libintl.h>', dependencies: libintl_dep)
 endif
 cfg_var.set('HAVE_BIND_TEXTDOMAIN_CODESET', have_bind_textdomain_codeset)
 

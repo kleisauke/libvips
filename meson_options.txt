@@ -47,7 +47,7 @@ option('docs',
 
 option('modules',
   type: 'feature',
-  value: 'enabled',
+  value: 'auto',
   description: 'Build dynamic modules')
 
 option('introspection',
