@@ -1378,7 +1378,7 @@ class TestForeign:
     @skip_if_no("gifsave")
     def test_gifsave(self):
         # Animated GIF round trip
-        x1 = pyvips.Image.new_from_file(GIF_ANIM_FILE, n=-1)
+        x1 = pyvips.Image.new_from_file(GIF_ANIM_FILE, access="sequential", n=-1)
         b1 = x1.gifsave_buffer()
         x2 = pyvips.Image.new_from_buffer(b1, "", n=-1)
         assert x1.width == x2.width
@@ -1407,7 +1407,7 @@ class TestForeign:
 
         if have("webpload"):
             # Animated WebP to GIF
-            x1 = pyvips.Image.new_from_file(WEBP_ANIMATED_FILE, n=-1)
+            x1 = pyvips.Image.new_from_file(WEBP_ANIMATED_FILE, access="sequential", n=-1)
             b1 = x1.gifsave_buffer()
             x2 = pyvips.Image.new_from_buffer(b1, "", n=-1)
             assert x1.width == x2.width
