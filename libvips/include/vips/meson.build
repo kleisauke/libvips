@@ -22,6 +22,7 @@ public_deprecated_headers = files(
     'dispatch.h',
     'intl.h',
     'mask.h',
+    'vector.h',
     'video.h',
     'vips7compat.h',
 )

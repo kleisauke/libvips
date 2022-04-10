@@ -886,6 +886,11 @@ static GOptionEntry option_entries[] = {
 	{ "vips-fatal", 0, G_OPTION_FLAG_HIDDEN | G_OPTION_FLAG_NO_ARG, 
 		G_OPTION_ARG_CALLBACK, (gpointer) &vips_set_fatal_cb, 
 		N_( "abort on first error or warning" ), NULL },
+#if ENABLE_DEPRECATED
+	{ "vips-novector", 0, G_OPTION_FLAG_HIDDEN | G_OPTION_FLAG_NO_ARG,
+		G_OPTION_ARG_CALLBACK, (gpointer) &vips_disable_simd_cb,
+		N_( "alias of --vips-nosimd" ), NULL },
+#endif
 	{ "vips-concurrency", 0, 0, 
 		G_OPTION_ARG_INT, &vips__concurrency, 
 		N_( "evaluate with N concurrent threads" ), "N" },

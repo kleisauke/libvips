@@ -44,6 +44,7 @@ pkginclude_HEADERS = \
 	transform.h \
 	util.h \
 	simd.h \
+	vector.h \
 	vips7compat.h \
 	vips.h
 

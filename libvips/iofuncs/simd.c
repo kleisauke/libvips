@@ -44,6 +44,9 @@
 #include <vips/simd.h>
 #include <vips/debug.h>
 #include <vips/internal.h>
+#if ENABLE_DEPRECATED
+#include <vips/vector.h>
+#endif
 
 /* Can be disabled by the `--vips-nosimd` command-line switch and overridden
  * by the `VIPS_SIMD` env var or vips_simd_set_features() function.
@@ -60,6 +63,14 @@ vips__simd_init( void )
 	if( (env = g_getenv( "VIPS_SIMD" )) )
 		return vips_simd_set_features(
 			(unsigned int) strtoul( env, NULL, 0 ) );
+
+	/* Look for the deprecated VIPS_NOVECTOR environment variable as well.
+	 */
+#if ENABLE_DEPRECATED
+	if( g_getenv( "VIPS_NOVECTOR" ) ||
+		g_getenv( "IM_NOVECTOR" ) )
+		return vips_simd_set_features( VIPS_FEATURE_NONE );
+#endif
 
 #ifdef __EMSCRIPTEN__
 	/* WebAssembly doesn't have a runtime feature detection mechanism (yet), so
@@ -157,3 +168,22 @@ vips_simd_set_features( VipsFeatureFlags features )
 	have_avx2 = features & VIPS_FEATURE_AVX2;
 #endif
 }
+
+/* old vector API
+ */
+#if ENABLE_DEPRECATED
+gboolean
+vips_vector_isenabled( void )
+{
+	return( vips_simd_get_supported_features() != VIPS_FEATURE_NONE );
+}
+
+void
+vips_vector_set_enabled( gboolean enabled )
+{
+	if( enabled )
+		vips__simd_init();
+	else
+		vips_simd_set_features( VIPS_FEATURE_NONE );
+}
+#endif
