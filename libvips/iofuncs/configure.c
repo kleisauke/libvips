@@ -78,7 +78,7 @@ typedef struct _VipsConfigure {
 
 	/* Max size of pipe.
 	 */
-	gint64 pipe_read_limit;
+	guint64 pipe_read_limit;
 
 	/* Trace libvips operation cache actions.
 	 */
@@ -90,7 +90,7 @@ typedef struct _VipsConfigure {
 
 	/* Maximum memory to use for operation caching.
 	 */
-	gint64 cache_max_mem;
+	guint64 cache_max_mem;
 
 	/* Maximum number of open files we allow in the cache.
 	 */
@@ -169,28 +169,28 @@ vips_configure_class_init( VipsConfigureClass *class )
 
 	VIPS_ARG_UINT64( class, "pipe_read_limit", 6, 
 		_( "Pipe read limit" ), 
-		_( "Maxiumum number of bytes to buffer for pipe read" ),
+		_( "Maximum number of bytes to buffer for pipe read" ),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
 		G_STRUCT_OFFSET( VipsConfigure, pipe_read_limit ),
 		0, 1024L * 1024L * 1024L * 1024L, 1024L * 1024L * 1024L ); 
 
 	VIPS_ARG_INT( class, "cache_max", 7, 
 		_( "Cache max size" ), 
-		_( "Maxium number of operations to cache" ),
+		_( "Maximum number of operations to cache" ),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
 		G_STRUCT_OFFSET( VipsConfigure, cache_max ),
 		0, 100000, 100 );
 
 	VIPS_ARG_UINT64( class, "cache_max_mem", 8, 
 		_( "Cache max memory size" ), 
-		_( "Maxium amount of memory for the operation cache" ),
+		_( "Maximum amount of memory for the operation cache" ),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
 		G_STRUCT_OFFSET( VipsConfigure, cache_max_mem ),
 		0, 1024L * 1024L * 1024L * 1024L, 100 * 1024L * 1024L );
 
 	VIPS_ARG_INT( class, "cache_max_files", 9, 
 		_( "Cache max open files" ), 
-		_( "Maxium number of open files in operation cache" ),
+		_( "Maximum number of open files in operation cache" ),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
 		G_STRUCT_OFFSET( VipsConfigure, cache_max_files ),
 		0, 100000, 100 );
@@ -200,7 +200,9 @@ vips_configure_class_init( VipsConfigureClass *class )
 static void
 vips_configure_init( VipsConfigure *configure )
 {
-	configure->concurrency = -1;
+	/* 0 means the number of threads available on the host machine.
+	 */
+	configure->concurrency = 0;
 	configure->pipe_read_limit = 1024L * 1024L * 1024L;
 	configure->cache_max = 100;
 	configure->cache_max_mem = 100 * 1024L * 1024L;
