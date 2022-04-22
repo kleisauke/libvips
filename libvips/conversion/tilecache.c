@@ -106,9 +106,13 @@ typedef struct _VipsTile {
 	VipsRegion *region;		/* Region with private mem for data */
 
 	/* We count how many threads are relying on this tile. This tile can't
-	 * be flushed if ref_count > 0.
+	 * be flushed if ref_count > 1.
 	 */
-	int ref_count; 
+#if GLIB_CHECK_VERSION( 2, 58, 0 )
+	gatomicrefcount ref_count;
+#else
+	int ref_count;
+#endif
 
 	/* Tile position. Just use left/top to calculate a hash. This is the
 	 * key for the hash table. Don't use region->valid in case the region
@@ -205,7 +209,11 @@ vips_tile_new( VipsBlockCache *cache, int x, int y )
 
 	tile->cache = cache;
 	tile->state = VIPS_TILE_STATE_PEND;
-	tile->ref_count = 0;
+#if GLIB_CHECK_VERSION( 2, 58, 0 )
+	g_atomic_ref_count_init( &tile->ref_count );
+#else
+	tile->ref_count = 1;
+#endif
 	tile->region = NULL;
 	tile->pos.left = x;
 	tile->pos.top = y;
@@ -336,8 +344,11 @@ static gboolean
 vips_tile_unlocked( gpointer key, gpointer value, gpointer user_data )
 {
 	VipsTile *tile = (VipsTile *) value;
-
-	return( !tile->ref_count );
+#if GLIB_CHECK_VERSION( 2, 58, 0 )
+	return( g_atomic_ref_count_compare( &tile->ref_count, 1 ) );
+#else
+	return( tile->ref_count == 1 );
+#endif
 }
 
 static void
@@ -457,13 +468,20 @@ static void
 vips_tile_destroy( VipsTile *tile )
 {
 	VipsBlockCache *cache = tile->cache;
+	gboolean destroy G_GNUC_UNUSED;
 
 	VIPS_DEBUG_MSG_RED( "vips_tile_destroy: tile %d, %d (%p)\n", 
 		tile->pos.left, tile->pos.top, tile ); 
 
-	/* 0 ref tiles should be on the recycle list.
+	/* 1 ref tiles should be on the recycle list.
 	 */
+#if GLIB_CHECK_VERSION( 2, 58, 0 )
+	destroy = g_atomic_ref_count_dec( &tile->ref_count );
+	g_assert( destroy );
+#else
+	tile->ref_count -= 1;
 	g_assert( tile->ref_count == 0 );
+#endif
 	g_assert( g_queue_find( tile->cache->recycle, tile ) );
 	g_queue_remove( cache->recycle, tile );
 
@@ -509,11 +527,15 @@ G_DEFINE_TYPE( VipsTileCache, vips_tile_cache, VIPS_TYPE_BLOCK_CACHE );
 static void
 vips_tile_unref( VipsTile *tile )
 {
-	g_assert( tile->ref_count > 0 );
-
+	gboolean recycle;
+#if GLIB_CHECK_VERSION( 2, 58, 0 )
+	g_atomic_ref_count_dec( &tile->ref_count );
+	recycle = g_atomic_ref_count_compare( &tile->ref_count, 1 );
+#else
 	tile->ref_count -= 1;
-
-	if( tile->ref_count == 0 ) {
+	recycle = tile->ref_count == 1;
+#endif
+	if( recycle ) {
 		/* Place at the end of the recycle queue. We pop from the
 		 * front when selecting an unused tile for reuse.
 		 */
@@ -526,11 +548,15 @@ vips_tile_unref( VipsTile *tile )
 static void
 vips_tile_ref( VipsTile *tile )
 {
+	gboolean was_recycled;
+#if GLIB_CHECK_VERSION( 2, 58, 0 )
+	was_recycled = g_atomic_ref_count_compare( &tile->ref_count, 1 );
+	g_atomic_ref_count_inc( &tile->ref_count );
+#else
+	was_recycled = tile->ref_count == 1;
 	tile->ref_count += 1;
-
-	g_assert( tile->ref_count > 0 );
-
-	if( tile->ref_count == 1 ) {
+#endif
+	if( was_recycled ) {
 		g_assert( g_queue_find( tile->cache->recycle, tile ) );
 
 		g_queue_remove( tile->cache->recycle, tile );

@@ -286,7 +286,7 @@ render_ref( Render *render )
 static int
 render_unref( Render *render )
 {
-	int kill;
+	gboolean kill;
 
 #if GLIB_CHECK_VERSION( 2, 58, 0 )
 	g_assert( !g_atomic_ref_count_compare( &render->ref_count, 0 ) );
