@@ -40,7 +40,7 @@ extern "C" {
 
 void vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
 	int ne, int nnz, int offset, const int *restrict offsets,
-	const short *restrict mant, int sexp, int exp );
+	const short *restrict mant, int exp );
 
 #ifdef __cplusplus
 }

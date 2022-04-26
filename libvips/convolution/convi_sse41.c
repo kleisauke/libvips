@@ -56,48 +56,209 @@ mm_cvtepu8_epi32( const void *ptr )
 void
 vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
 	int ne, int nnz, int offset, const int *restrict offsets,
-	const short *restrict mant, int sexp, int exp )
+	const short *restrict mant, int exp )
 {
 	int y, x, i;
 	int bo = VIPS_RECT_BOTTOM( r );
 
-	__m128i mm_sexp = _mm_set1_epi32( 1 << (sexp - 1) );
 	__m128i mm_exp = _mm_set1_epi32( 1 << (exp - 1) );
 	__m128i mm_offset = _mm_set1_epi32( offset );
-	__m128i zero = _mm_setzero_si128();
 
 	for( y = r->top; y < bo; y++ ) {
 		VipsPel * restrict p = VIPS_REGION_ADDR( ir, r->left, y );
 		VipsPel * restrict q = VIPS_REGION_ADDR( or, r->left, y );
 
-		for( x = 0; x < ne; x++ ) {
-			__m128i sss = zero;
-			for( i = 0; i < nnz; i++ ) {
-				__m128i pix, mmk, ss;
+		for( x = 0; x < ne - 7; x += 8 ) {
+			__m128i sss0 = mm_exp;
+			__m128i sss1 = mm_exp;
+			__m128i sss2 = mm_exp;
+			__m128i sss3 = mm_exp;
+			__m128i sss4 = mm_exp;
+			__m128i sss5 = mm_exp;
+			__m128i sss6 = mm_exp;
+			__m128i sss7 = mm_exp;
+			for( i = 0; i < nnz - 1; i += 2 ) {
+				__m128i source, source1, source2;
+				__m128i pix, mmk;
 
-				/* Load with an offset.
+				/* Load two coefficients at once
 				 */
-				pix = mm_cvtepu8_epi32( &p[offsets[i]] );
+				mmk = _mm_set1_epi32( *(int *) &mant[i] );
+
+				source1 = _mm_loadu_si128(  /* top line */
+					(__m128i *) &p[offsets[i]] );
+				source2 = _mm_loadu_si128(  /* bottom line */
+					(__m128i *) &p[offsets[i + 1]] );
+
+				source = _mm_unpacklo_epi8( source1, source2 );
+				pix = _mm_unpacklo_epi8( source, _mm_setzero_si128() );
+				sss0 = _mm_add_epi32( sss0, _mm_madd_epi16( pix, mmk ) );
+				pix = _mm_unpackhi_epi8( source, _mm_setzero_si128() );
+				sss1 = _mm_add_epi32( sss1, _mm_madd_epi16( pix, mmk ) );
+
+				source = _mm_unpackhi_epi8( source1, source2 );
+				pix = _mm_unpacklo_epi8( source, _mm_setzero_si128() );
+				sss2 = _mm_add_epi32( sss2, _mm_madd_epi16( pix, mmk ) );
+				pix = _mm_unpackhi_epi8( source, _mm_setzero_si128() );
+				sss3 = _mm_add_epi32( sss3, _mm_madd_epi16( pix, mmk ) );
+
+				source1 = _mm_loadu_si128(  /* top line */
+					(__m128i *) &p[offsets[i] + 4] );
+				source2 = _mm_loadu_si128(  /* bottom line */
+					(__m128i *) &p[offsets[i + 1] + 4] );
+
+				source = _mm_unpacklo_epi8( source1, source2 );
+				pix = _mm_unpacklo_epi8( source, _mm_setzero_si128() );
+				sss4 = _mm_add_epi32( sss4, _mm_madd_epi16( pix, mmk ) );
+				pix = _mm_unpackhi_epi8( source, _mm_setzero_si128() );
+				sss5 = _mm_add_epi32( sss5, _mm_madd_epi16( pix, mmk ) );
+
+				source = _mm_unpackhi_epi8( source1, source2 );
+				pix = _mm_unpacklo_epi8( source, _mm_setzero_si128() );
+				sss6 = _mm_add_epi32( sss6, _mm_madd_epi16( pix, mmk ) );
+				pix = _mm_unpackhi_epi8( source, _mm_setzero_si128() );
+				sss7 = _mm_add_epi32( sss7, _mm_madd_epi16( pix, mmk ) );
+			}
+			for( ; i < nnz; i++ ) {
+				__m128i source, source1, pix, mmk;
 				mmk = _mm_set1_epi32( mant[i] );
 
-				/* We need a signed multiply, so the image pixel needs to
-				 * become a signed 16-bit value. We know only the bottom 8 bits
-				 * of the image and coefficient are interesting, so we can take
-				 * the bottom half of a 16x16->32 multiply.
-				 */
-				ss = _mm_mullo_epi16( pix, mmk );
+				source1 = _mm_loadu_si128(  /* top line */
+					(__m128i *) &p[offsets[i]] );
 
-				/* Shift right before add to prevent overflow on large masks.
-				 */
-				ss = _mm_add_epi32( ss, mm_sexp );
-				ss = _mm_srai_epi32( ss, sexp );
+				source = _mm_unpacklo_epi8( source1, _mm_setzero_si128() );
+				pix = _mm_unpacklo_epi8( source, _mm_setzero_si128() );
+				sss0 = _mm_add_epi32( sss0, _mm_madd_epi16( pix, mmk ) );
+				pix = _mm_unpackhi_epi8( source, _mm_setzero_si128() );
+				sss1 = _mm_add_epi32( sss1, _mm_madd_epi16( pix, mmk ) );
 
-				sss = _mm_add_epi32( sss, ss );
+				source = _mm_unpackhi_epi8( source1, _mm_setzero_si128() );
+				pix = _mm_unpacklo_epi8( source, _mm_setzero_si128() );
+				sss2 = _mm_add_epi32( sss2, _mm_madd_epi16( pix, mmk ) );
+				pix = _mm_unpackhi_epi8( source, _mm_setzero_si128() );
+				sss3 = _mm_add_epi32( sss3, _mm_madd_epi16( pix, mmk ) );
+
+				source1 = _mm_loadu_si128(  /* top line */
+					(__m128i *) &p[offsets[i] + 4] );
+
+				source = _mm_unpacklo_epi8( source1, _mm_setzero_si128() );
+				pix = _mm_unpacklo_epi8( source, _mm_setzero_si128() );
+				sss4 = _mm_add_epi32( sss4, _mm_madd_epi16( pix, mmk ) );
+				pix = _mm_unpackhi_epi8( source, _mm_setzero_si128() );
+				sss5 = _mm_add_epi32( sss5, _mm_madd_epi16( pix, mmk ) );
+
+				source = _mm_unpackhi_epi8( source1, _mm_setzero_si128() );
+				pix = _mm_unpacklo_epi8( source, _mm_setzero_si128() );
+				sss6 = _mm_add_epi32( sss6, _mm_madd_epi16( pix, mmk ) );
+				pix = _mm_unpackhi_epi8( source, _mm_setzero_si128() );
+				sss7 = _mm_add_epi32( sss7, _mm_madd_epi16( pix, mmk ) );
+			}
+			sss0 = _mm_srai_epi32( sss0, exp );
+			sss1 = _mm_srai_epi32( sss1, exp );
+			sss2 = _mm_srai_epi32( sss2, exp );
+			sss3 = _mm_srai_epi32( sss3, exp );
+			sss4 = _mm_srai_epi32( sss4, exp );
+			sss5 = _mm_srai_epi32( sss5, exp );
+			sss6 = _mm_srai_epi32( sss6, exp );
+			sss7 = _mm_srai_epi32( sss7, exp );
+
+			sss0 = _mm_add_epi32( sss0, mm_offset );
+			sss1 = _mm_add_epi32( sss1, mm_offset );
+			sss2 = _mm_add_epi32( sss2, mm_offset );
+			sss3 = _mm_add_epi32( sss3, mm_offset );
+			sss4 = _mm_add_epi32( sss4, mm_offset );
+			sss5 = _mm_add_epi32( sss5, mm_offset );
+			sss6 = _mm_add_epi32( sss6, mm_offset );
+			sss7 = _mm_add_epi32( sss7, mm_offset );
+
+			sss0 = _mm_packs_epi32( sss0, sss1 );
+			sss2 = _mm_packs_epi32( sss2, sss3 );
+			sss0 = _mm_packus_epi16( sss0, sss2 );
+			_mm_storeu_si128( (__m128i *) &q[x], sss0 );
+			sss4 = _mm_packs_epi32( sss4, sss5 );
+			sss6 = _mm_packs_epi32( sss6, sss7 );
+			sss4 = _mm_packus_epi16( sss4, sss6 );
+			_mm_storeu_si128( (__m128i *) &q[x + 4], sss4 );
+			p += 8;
+		}
+
+		for( ; x < ne - 1; x += 2 ) {
+			__m128i sss0 = mm_exp;  /* left row */
+			__m128i sss1 = mm_exp;  /* right row */
+			for( i = 0; i < nnz - 1; i += 2 ) {
+				__m128i source, source1, source2;
+				__m128i pix, mmk;
+
+				/* Load two coefficients at once
+				 */
+				mmk = _mm_set1_epi32( *(int *) &mant[i] );
+
+				source1 = _mm_loadl_epi64(  /* top line */
+					(__m128i *) &p[offsets[i]] );
+				source2 = _mm_loadl_epi64(  /* bottom line */
+					(__m128i *) &p[offsets[i + 1]] );
+
+				source = _mm_unpacklo_epi8( source1, source2 );
+				pix = _mm_unpacklo_epi8( source, _mm_setzero_si128() );
+				sss0 = _mm_add_epi32( sss0, _mm_madd_epi16( pix, mmk ) );
+				pix = _mm_unpackhi_epi8( source, _mm_setzero_si128() );
+				sss1 = _mm_add_epi32( sss1, _mm_madd_epi16( pix, mmk ) );
+			}
+			for( ; i < nnz; i++ ) {
+				__m128i source, source1, pix, mmk;
+				mmk = _mm_set1_epi32( mant[i] );
+
+				source1 = _mm_loadl_epi64(  /* top line */
+					(__m128i *) &p[offsets[i]] );
+
+				source = _mm_unpacklo_epi8( source1, _mm_setzero_si128() );
+				pix = _mm_unpacklo_epi8( source, _mm_setzero_si128() );
+				sss0 = _mm_add_epi32( sss0, _mm_madd_epi16( pix, mmk ) );
+				pix = _mm_unpackhi_epi8( source, _mm_setzero_si128() );
+				sss1 = _mm_add_epi32( sss1,  _mm_madd_epi16( pix, mmk ) );
+			}
+			sss0 = _mm_srai_epi32( sss0, exp );
+			sss1 = _mm_srai_epi32( sss1, exp );
+
+			sss0 = _mm_add_epi32( sss0, mm_offset );
+			sss1 = _mm_add_epi32( sss1, mm_offset );
+
+			sss0 = _mm_packs_epi32( sss0, sss1 );
+			sss0 = _mm_packus_epi16( sss0, sss0 );
+			_mm_storel_epi64( (__m128i *) &q[x], sss0 );
+			p += 2;
+		}
+
+		for( ; x < ne; x++ ) {
+			__m128i sss = mm_exp;
+			for( i = 0; i < nnz - 1; i += 2 ) {
+				__m128i source, source1, source2;
+				__m128i pix, mmk;
+
+				/* Load two coefficients at once
+				 */
+				mmk = _mm_set1_epi32( *(int *) &mant[i] );
+
+				source1 = _mm_cvtsi32_si128(  /* top line */
+					*(int *) &p[offsets[i]] );
+				source2 = _mm_cvtsi32_si128(  /* bottom line */
+					*(int *) &p[offsets[i + 1]] );
+
+				source = _mm_unpacklo_epi8( source1, source2 );
+				pix = _mm_unpacklo_epi8( source, _mm_setzero_si128() );
+				sss = _mm_add_epi32( sss, _mm_madd_epi16( pix, mmk ) );
+			}
+			for( ; i < nnz; i++ ) {
+				/* Load with an offset.
+				 */
+				__m128i pix = mm_cvtepu8_epi32( &p[offsets[i]] );
+				__m128i mmk = _mm_set1_epi32( mant[i] );
+
+				sss = _mm_add_epi32( sss, _mm_madd_epi16( pix, mmk ) );
 			}
 
 			/* The final 16->8 conversion.
 			 */
-			sss = _mm_add_epi32( sss, mm_exp );
 			sss = _mm_srai_epi32( sss, exp );
 			sss = _mm_add_epi32( sss, mm_offset );
 			sss = _mm_packs_epi32( sss, sss );

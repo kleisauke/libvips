@@ -143,12 +143,10 @@ typedef struct {
 	int *coeff_pos;		/* Index of each nnz element in mask->coeff */
 
 	/* And a half float version for the SIMD path. mant has the signed
-	 * 8-bit mantissas in [-1, +1), sexp has the exponent shift after the
-	 * mul and before the add, and exp has the final exponent shift before
+	 * 8-bit mantissas in [-1, +1), exp has the final exponent shift before
 	 * write-back.
 	 */
 	short *mant;
-	int sexp;
 	int exp;
 } VipsConvi;
 
@@ -256,7 +254,7 @@ vips_convi_gen_simd( VipsRegion *or,
 
 	vips_convi_uchar_sse41( or, ir, r,
 		ne, nnz, offset, seq->offsets,
-		convi->mant, convi->sexp, convi->exp );
+		convi->mant, convi->exp );
 
 	VIPS_GATE_STOP( "vips_convi_gen_simd: work" ); 
 
@@ -555,18 +553,16 @@ vips_convi_intize( VipsConvi *convi, VipsImage *M )
 	 */
 	shift = ceil( log2( mx ) + 1 );
 
-	/* We need to sum n_points, so we have to shift right before adding a
-	 * new value to make sure we have enough range. 
+	/* Make sure we have enough range.
 	 */
-	convi->sexp = ceil( log2( convi->n_point ) );
-	if( convi->sexp > 10 ) {
+	if( ceil( log2( convi->n_point ) ) > 10 ) {
 		g_info( "vips_convi_intize: mask too large" ); 
 		return( -1 ); 
 	}
 
-	/* With that already done, the final shift must be ...
+	/* Calculate the final shift.
 	 */
-	convi->exp = 7 - shift - convi->sexp;
+	convi->exp = 7 - shift;
 
 	if( !(convi->mant = VIPS_ARRAY( convi, convi->n_point, short )) ||
 		!(convi->coeff_pos =
@@ -608,7 +604,6 @@ vips_convi_intize( VipsConvi *convi, VipsImage *M )
 	int x, y;
 
 	printf( "vips_convi_intize:\n" );
-	printf( "sexp = %d\n", convi->sexp );
 	printf( "exp = %d\n", convi->exp );
 	for( y = 0; y < t->Ysize; y++ ) {
 		printf( "\t" );
@@ -630,13 +625,8 @@ vips_convi_intize( VipsConvi *convi, VipsImage *M )
 	true_sum = 0.0;
 	int_sum = 0;
 	for( i = 0; i < convi->nnz; i++ ) {
-		int value;
-
 		true_sum += 128 * scaled[convi->coeff_pos[i]];
-		value = 128 * convi->mant[i];
-		value = (value + (1 << (convi->sexp - 1))) >> convi->sexp;
-		int_sum += value;
-		int_sum = VIPS_CLIP( SHRT_MIN, int_sum, SHRT_MAX ); 
+		int_sum += 128 * convi->mant[i];
 	}
 
 	true_value = VIPS_CLIP( 0, true_sum, 255 ); 
