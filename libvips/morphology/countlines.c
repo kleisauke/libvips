@@ -95,8 +95,9 @@ vips_countlines_build( VipsObject *object )
 			vips_conv( t[1], &t[2], t[0], 
 				"precision", VIPS_PRECISION_FLOAT,
 				NULL ) ||
-			vips_project( t[2], &t[3], &t[4], NULL ) ||
-			vips_avg( t[3], &nolines, NULL ) )
+			vips_cast( t[2], &t[3], VIPS_FORMAT_UCHAR, NULL ) ||
+			vips_project( t[3], &t[4], &t[5], NULL ) ||
+			vips_avg( t[4], &nolines, NULL ) )
 			return( -1 ); 
 		break;
 
@@ -106,8 +107,9 @@ vips_countlines_build( VipsObject *object )
 			vips_conv( t[1], &t[2], t[0], 
 				"precision", VIPS_PRECISION_FLOAT,
 				NULL ) ||
-			vips_project( t[2], &t[3], &t[4], NULL ) ||
-			vips_avg( t[4], &nolines, NULL ) )
+			vips_cast( t[2], &t[3], VIPS_FORMAT_UCHAR, NULL ) ||
+			vips_project( t[3], &t[4], &t[5], NULL ) ||
+			vips_avg( t[5], &nolines, NULL ) )
 			return( -1 ); 
 		break;
 
