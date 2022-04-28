@@ -19,6 +19,7 @@ if get_option('sse41')
 
     if get_option('avx2')
         simd_args += {'avx2': files(
+            'convolution/convi_avx2.c',
             'resample/reduce_avx2.c',
         )}
     endif
