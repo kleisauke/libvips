@@ -61,8 +61,6 @@ vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
 	int y, x, i;
 	int bo = VIPS_RECT_BOTTOM( r );
 
-	__m128i mm_sexp = _mm_set1_epi16( 1 << (sexp - 1) );
-	__m128i mm_exp = _mm_set1_epi16( 1 << (exp - 1) );
 	__m128i mm_offset = _mm_set1_epi16( offset );
 	__m128i zero = _mm_setzero_si128();
 
@@ -94,19 +92,19 @@ vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
 
 				source = _mm_unpacklo_epi8( source1, source2 );
 				pix = _mm_unpacklo_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss0 = _mm_adds_epi16( sss0, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss0 = _mm_adds_epi16( sss0, ss );
 				pix = _mm_unpackhi_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss1 = _mm_adds_epi16( sss1, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss1 = _mm_adds_epi16( sss1, ss );
 
 				source = _mm_unpackhi_epi8( source1, source2 );
 				pix = _mm_unpacklo_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss2 = _mm_adds_epi16( sss2, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss2 = _mm_adds_epi16( sss2, ss );
 				pix = _mm_unpackhi_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss3 = _mm_adds_epi16( sss3, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss3 = _mm_adds_epi16( sss3, ss );
 
 				source1 = _mm_loadu_si128(  /* top line */
 					(__m128i *) &p[offsets[i] + 4] );
@@ -115,19 +113,19 @@ vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
 
 				source = _mm_unpacklo_epi8( source1, source2 );
 				pix = _mm_unpacklo_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss4 = _mm_adds_epi16( sss4, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss4 = _mm_adds_epi16( sss4, ss );
 				pix = _mm_unpackhi_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss5 = _mm_adds_epi16( sss5, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss5 = _mm_adds_epi16( sss5, ss );
 
 				source = _mm_unpackhi_epi8( source1, source2 );
 				pix = _mm_unpacklo_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss6 = _mm_adds_epi16( sss6, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss6 = _mm_adds_epi16( sss6, ss );
 				pix = _mm_unpackhi_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss7 = _mm_adds_epi16( sss7, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss7 = _mm_adds_epi16( sss7, ss );
 			}
 			for( ; i < nnz; i++ ) {
 				__m128i source, source1;
@@ -139,48 +137,39 @@ vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
 
 				source = _mm_unpacklo_epi8( source1, zero );
 				pix = _mm_unpacklo_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss0 = _mm_adds_epi16( sss0, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss0 = _mm_adds_epi16( sss0, ss );
 				pix = _mm_unpackhi_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss1 = _mm_adds_epi16( sss1, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss1 = _mm_adds_epi16( sss1, ss );
 
 				source = _mm_unpackhi_epi8( source1, zero );
 				pix = _mm_unpacklo_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss2 = _mm_adds_epi16( sss2, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss2 = _mm_adds_epi16( sss2, ss );
 				pix = _mm_unpackhi_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss3 = _mm_adds_epi16( sss3, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss3 = _mm_adds_epi16( sss3, ss );
 
 				source1 = _mm_loadu_si128(  /* top line */
 					(__m128i *) &p[offsets[i] + 4] );
 
 				source = _mm_unpacklo_epi8( source1, zero );
 				pix = _mm_unpacklo_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss4 = _mm_adds_epi16( sss4, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss4 = _mm_adds_epi16( sss4, ss );
 				pix = _mm_unpackhi_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss5 = _mm_adds_epi16( sss5, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss5 = _mm_adds_epi16( sss5, ss );
 
 				source = _mm_unpackhi_epi8( source1, zero );
 				pix = _mm_unpacklo_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss6 = _mm_adds_epi16( sss6, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss6 = _mm_adds_epi16( sss6, ss );
 				pix = _mm_unpackhi_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss7 = _mm_adds_epi16( sss7, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss7 = _mm_adds_epi16( sss7, ss );
 			}
-			sss0 = _mm_add_epi16( sss0, mm_exp );
-			sss1 = _mm_add_epi16( sss1, mm_exp );
-			sss2 = _mm_add_epi16( sss2, mm_exp );
-			sss3 = _mm_add_epi16( sss3, mm_exp );
-			sss4 = _mm_add_epi16( sss4, mm_exp );
-			sss5 = _mm_add_epi16( sss5, mm_exp );
-			sss6 = _mm_add_epi16( sss6, mm_exp );
-			sss7 = _mm_add_epi16( sss7, mm_exp );
-
 			sss0 = _mm_srai_epi16( sss0, exp );
 			sss1 = _mm_srai_epi16( sss1, exp );
 			sss2 = _mm_srai_epi16( sss2, exp );
@@ -228,11 +217,11 @@ vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
 
 				source = _mm_unpacklo_epi8( source1, source2 );
 				pix = _mm_unpacklo_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss0 = _mm_adds_epi16( sss0, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss0 = _mm_adds_epi16( sss0, ss );
 				pix = _mm_unpackhi_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss1 = _mm_adds_epi16( sss1, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss1 = _mm_adds_epi16( sss1, ss );
 			}
 			for( ; i < nnz; i++ ) {
 				__m128i source, source1;
@@ -244,15 +233,12 @@ vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
 
 				source = _mm_unpacklo_epi8( source1, zero );
 				pix = _mm_unpacklo_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss0 = _mm_adds_epi16( sss0, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss0 = _mm_adds_epi16( sss0, ss );
 				pix = _mm_unpackhi_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss1 = _mm_adds_epi16( sss1,  _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss1 = _mm_adds_epi16( sss1,  ss );
 			}
-			sss0 = _mm_add_epi16( sss0, mm_exp );
-			sss1 = _mm_add_epi16( sss1, mm_exp );
-
 			sss0 = _mm_srai_epi16( sss0, exp );
 			sss1 = _mm_srai_epi16( sss1, exp );
 
@@ -282,8 +268,8 @@ vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
 
 				source = _mm_unpacklo_epi8( source1, source2 );
 				pix = _mm_unpacklo_epi8( source, zero );
-				ss = _mm_add_epi16( _mm_madd_epi16( pix, mmk ), mm_sexp );
-				sss = _mm_adds_epi16( sss, _mm_srai_epi16( ss, sexp ) );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
+				sss = _mm_adds_epi16( sss, ss );
 			}
 			for( ; i < nnz; i++ ) {
 				__m128i pix, mmk, ss;
@@ -293,12 +279,9 @@ vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
 				pix = mm_cvtepu8_epi32( &p[offsets[i]] );
 				mmk = _mm_set1_epi32( mant[i] );
 
-				ss = _mm_madd_epi16( pix, mmk );
-
 				/* Shift right before add to prevent overflow on large masks.
 				 */
-				ss = _mm_add_epi16( ss, mm_sexp );
-				ss = _mm_srai_epi16( ss, sexp );
+				ss = _mm_srai_epi16( _mm_madd_epi16( pix, mmk ), sexp );
 
 				/* We accumulate the signed 16-bit result in sum. Saturated
 				 * add.
@@ -308,9 +291,9 @@ vips_convi_uchar_sse41( VipsRegion *or, VipsRegion *ir, VipsRect *r,
 
 			/* The final 16->8 conversion.
 			 */
-			sss = _mm_add_epi16( sss, mm_exp );
 			sss = _mm_srai_epi16( sss, exp );
 			sss = _mm_add_epi16( sss, mm_offset );
+			sss = _mm_packs_epi32( sss, sss );
 
 			q[x] = _mm_cvtsi128_si32( _mm_packus_epi16( sss, sss ) );
 			p += 1;

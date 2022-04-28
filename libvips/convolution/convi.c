@@ -691,7 +691,7 @@ vips_convi_intize( VipsConvi *convi, VipsImage *M )
 
 		true_sum += 128 * scaled[convi->coeff_pos[i]];
 		value = 128 * convi->mant[i];
-		value = (value + (1 << (convi->sexp - 1))) >> convi->sexp;
+		value >>= convi->sexp;
 		int_sum += value;
 		int_sum = VIPS_CLIP( SHRT_MIN, int_sum, SHRT_MAX ); 
 	}
@@ -699,7 +699,7 @@ vips_convi_intize( VipsConvi *convi, VipsImage *M )
 	true_value = VIPS_CLIP( 0, true_sum, 255 ); 
 
 	if( convi->exp > 0 )
-		int_value = (int_sum + (1 << (convi->exp - 1))) >> convi->exp;
+		int_value = int_sum >> convi->exp;
 	else
 		int_value = VIPS_LSHIFT_INT( int_sum, convi->exp );
 	int_value = VIPS_CLIP( 0, int_value, 255 ); 
