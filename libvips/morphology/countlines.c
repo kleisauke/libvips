@@ -93,7 +93,7 @@ vips_countlines_build( VipsObject *object )
 		if( !(t[0] = vips_image_new_matrixv( 1, 2, -1.0, 1.0 )) ||
 			vips_moreeq_const1( in, &t[1], 128, NULL ) ||
 			vips_conv( t[1], &t[2], t[0], 
-				"precision", VIPS_PRECISION_INTEGER,
+				"precision", VIPS_PRECISION_FLOAT,
 				NULL ) ||
 			vips_project( t[2], &t[3], &t[4], NULL ) ||
 			vips_avg( t[3], &nolines, NULL ) )
@@ -104,7 +104,7 @@ vips_countlines_build( VipsObject *object )
 		if( !(t[0] = vips_image_new_matrixv( 2, 1, -1.0, 1.0 )) ||
 			vips_moreeq_const1( in, &t[1], 128, NULL ) ||
 			vips_conv( t[1], &t[2], t[0], 
-				"precision", VIPS_PRECISION_INTEGER,
+				"precision", VIPS_PRECISION_FLOAT,
 				NULL ) ||
 			vips_project( t[2], &t[3], &t[4], NULL ) ||
 			vips_avg( t[4], &nolines, NULL ) )
