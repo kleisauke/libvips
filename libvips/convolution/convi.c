@@ -205,7 +205,7 @@ vips_convi_start( VipsImage *out, void *a, void *b )
 
 #ifdef HAVE_SSE41
 static int
-vips_convi_gen_simd( VipsRegion *or, 
+vips_convi_gen_sse41( VipsRegion *or, 
 	void *vseq, void *a, void *b, gboolean *stop )
 {
 	VipsConviSequence *seq = (VipsConviSequence *) vseq;
@@ -249,15 +249,75 @@ vips_convi_gen_simd( VipsRegion *or,
 		}
 	}
 
-	VIPS_GATE_START( "vips_convi_gen_simd: work" ); 
+	VIPS_GATE_START( "vips_convi_gen_sse41: work" ); 
 
 	vips_convi_uchar_sse41( or, ir, r,
 		ne, nnz, (short) offset, seq->offsets,
 		convi->mant, convi->sexp, convi->exp );
 
-	VIPS_GATE_STOP( "vips_convi_gen_simd: work" ); 
+	VIPS_GATE_STOP( "vips_convi_gen_sse41: work" ); 
 
-	VIPS_COUNT_PIXELS( or, "vips_convi_gen_simd" ); 
+	VIPS_COUNT_PIXELS( or, "vips_convi_gen_sse41" ); 
+
+	return( 0 );
+}
+#endif
+
+#ifdef HAVE_AVX2
+static int
+vips_convi_gen_avx2( VipsRegion *or, 
+	void *vseq, void *a, void *b, gboolean *stop )
+{
+	VipsConviSequence *seq = (VipsConviSequence *) vseq;
+	VipsConvi *convi = (VipsConvi *) b;
+	VipsConvolution *convolution = (VipsConvolution *) convi;
+	VipsImage *M = convolution->M;
+	int offset = VIPS_RINT( vips_image_get_offset( M ) ); 
+	VipsImage *in = (VipsImage *) a;
+	VipsRegion *ir = seq->ir;
+	const int nnz = convi->nnz;
+	VipsRect *r = &or->valid;
+	int ne = r->width * in->Bands;
+
+	VipsRect s;
+	int x, y, z, i;
+
+	/* Prepare the section of the input image we need. A little larger
+	 * than the section of the output image we are producing.
+	 */
+	s = *r;
+	s.width += M->Xsize - 1;
+	s.height += M->Ysize - 1;
+	if( vips_region_prepare( ir, &s ) )
+		return( -1 );
+
+	/* Fill offset array. Only do this if the bpl has changed since the 
+	 * previous vips_region_prepare().
+	 */
+	if( seq->last_bpl != VIPS_REGION_LSKIP( ir ) ) {
+		seq->last_bpl = VIPS_REGION_LSKIP( ir );
+
+		for( i = 0; i < nnz; i++ ) {
+			z = convi->coeff_pos[i];
+			x = z % M->Xsize;
+			y = z / M->Xsize;
+
+			seq->offsets[i] = 
+				(VIPS_REGION_ADDR( ir, x + r->left, y + r->top ) -
+				 VIPS_REGION_ADDR( ir, r->left, r->top )) / 
+					VIPS_IMAGE_SIZEOF_ELEMENT( ir->im ); 
+		}
+	}
+
+	VIPS_GATE_START( "vips_convi_gen_avx2: work" ); 
+
+	vips_convi_uchar_avx2( or, ir, r,
+		ne, nnz, (short) offset, seq->offsets,
+		convi->mant, convi->sexp, convi->exp );
+
+	VIPS_GATE_STOP( "vips_convi_gen_avx2: work" ); 
+
+	VIPS_COUNT_PIXELS( or, "vips_convi_gen_avx2" ); 
 
 	return( 0 );
 }
@@ -687,14 +747,22 @@ vips_convi_build( VipsObject *object )
 
 	/* For uchar input, try to make a SIMD path.
 	 */
-#ifdef HAVE_SSE41
-	if( vips__simd_have_sse41() &&
-		in->BandFmt == VIPS_FORMAT_UCHAR &&
+	if( in->BandFmt == VIPS_FORMAT_UCHAR &&
 		!vips_convi_intize( convi, M ) ) {
-		generate = vips_convi_gen_simd;
-		g_info( "convi: using SIMD path" );
-	}
+#ifdef HAVE_AVX2
+		if( vips__simd_have_avx2() ) {
+			generate = vips_convi_gen_avx2;
+			g_info( "convi: using AVX2 SIMD path" );
+		} else
 #endif
+#ifdef HAVE_SSE41
+		if( vips__simd_have_sse41() ) {
+			generate = vips_convi_gen_sse41;
+			g_info( "convi: using SSE4.1 SIMD path" );
+		} else
+#endif
+			g_info( "convi: AVX2 and SSE4.1 not available" );
+	}
 
 	/* Make the data for the C path.
 	 */
