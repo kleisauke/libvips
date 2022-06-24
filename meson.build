@@ -495,7 +495,7 @@ endif
 
 # niftiio.pc is not present, and only provides the CMake package definition
 # files since v3.0.0, so, as a last resort, fall back on heuristic grabbing the
-# libs when -Dnifti-prefix-dir=<PREFIX> is specified
+# libs
 #
 # cmake find fails on ubuntu due to /usr/lib/x86_64-linux-gnu madness, so it's
 # simplest to create a niftiio.pc in this case
@@ -512,13 +512,13 @@ endif
 #   Libs: -L${libdir} -lniftiio -lznz
 #   Cflags: -I${includedir}
 #
-nifti_prefix_dir = get_option('nifti-prefix-dir')
-libnifti_dep = dependency('niftiio', 'NIFTI', modules: ['NIFTI::niftiio'], required: get_option('nifti').enabled() and nifti_prefix_dir == '')
-if nifti_prefix_dir != '' and not libnifti_dep.found()
-    nifti_inc = include_directories(nifti_prefix_dir / 'include' / 'nifti')
-    nifti_lib = cc.find_library('niftiio', has_headers: ['nifti1_io.h'], header_include_directories: nifti_inc, required: get_option('nifti'))
-    znz_lib = cc.find_library('znz', has_headers: ['znzlib.h'], header_include_directories: nifti_inc, required: get_option('nifti'))
-    libnifti_dep = declare_dependency(dependencies: [nifti_lib, znz_lib], include_directories: nifti_inc)
+libnifti_dep = dependency('niftiio', 'NIFTI', modules: ['NIFTI::niftiio'], required: false)
+if not libnifti_dep.found()
+    nifti_lib = cc.find_library('niftiio', has_headers: ['nifti/nifti1_io.h'], required: get_option('nifti'))
+    znz_lib = cc.find_library('znz', has_headers: ['nifti/znzlib.h'], required: get_option('nifti'))
+    if nifti_lib.found() and znz_lib.found()
+        libnifti_dep = declare_dependency(dependencies: [nifti_lib, znz_lib])
+    endif
 endif
 libnifti_found = get_option('nifti').allowed() and libnifti_dep.found()
 if libnifti_found

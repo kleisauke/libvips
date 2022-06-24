@@ -67,7 +67,7 @@
 
 #ifdef HAVE_NIFTI
 
-#include <nifti1_io.h>
+#include <nifti/nifti1_io.h>
 
 #include "pforeign.h"
 

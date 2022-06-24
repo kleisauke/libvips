@@ -129,11 +129,6 @@ option('nifti',
   value: 'auto',
   description: 'Build with nifti')
 
-option('nifti-prefix-dir',
-  type: 'string',
-  value: '',
-  description: 'Prefix where nifticlib is installed (optional)')
-
 option('openexr',
   type: 'feature',
   value: 'auto',
