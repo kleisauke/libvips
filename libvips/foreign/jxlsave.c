@@ -935,7 +935,7 @@ vips_foreign_save_jxl_build(VipsObject *object)
 	if (jxl->distance == 0)
 		jxl->lossless = TRUE;
 
-	jxl->runner = JxlThreadParallelRunnerCreate(NULL, vips_concurrency_get());
+	jxl->runner = JxlThreadParallelRunnerCreate(NULL, 0);
 	jxl->encoder = JxlEncoderCreate(NULL);
 
 	if (JxlEncoderSetParallelRunner(jxl->encoder,
