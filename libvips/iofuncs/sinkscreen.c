@@ -89,11 +89,6 @@ typedef struct {
 	 */
 	gboolean painted;
 
-	/* The tile is on the dirty list. This saves us having to search the
-	 * dirty list all the time.
-	 */
-	gboolean dirty;
-
 	/* Time of last use, for LRU flush
 	 */
 	int ticks;
@@ -120,18 +115,7 @@ typedef struct _Render {
 	VipsImage *mask; /* Set valid pixels here */
 	int tile_width;	 /* Tile size */
 	int tile_height;
-	int max_tiles;		   /* Maximum number of tiles */
-	int priority;		   /* Larger numbers done sooner */
-	VipsSinkNotify notify; /* Tell caller about paints here */
-	void *a;
-
-	/* This render has it's own threadpool and is not on the shared list.
-	 *
-	 * This private threadpool needs a semaphore to wait on for dirty tiles
-	 * to arrive.
-	 */
-	gboolean private_threadpool;
-	VipsSemaphore dirty_sem;
+	int max_tiles; /* Maximum number of tiles */
 
 	/* Lock here before reading or modifying the tile structure.
 	 */
@@ -143,78 +127,10 @@ typedef struct _Render {
 	int ntiles;	 /* Number of tiles */
 	int ticks;	 /* Inc. on each access ... used for LRU */
 
-	/* List of dirty tiles. Most recent at the front.
-	 */
-	GSList *dirty;
-
-	/* Hash of tiles with positions. Tiles can be dirty or painted.
+	/* Hash of tiles with positions. Tiles can be painted.
 	 */
 	GHashTable *tiles;
-
-	/* A shutdown flag. If ->out or ->mask close, we must no longer do
-	 * anything to them until we shut down too.
-	 */
-	gboolean shutdown;
 } Render;
-
-/* Our per-thread state.
- */
-typedef struct _RenderThreadState {
-	VipsThreadState parent_object;
-
-	/* The tile that should be calculated.
-	 */
-	Tile *tile;
-} RenderThreadState;
-
-typedef struct _RenderThreadStateClass {
-	VipsThreadStateClass parent_class;
-
-} RenderThreadStateClass;
-
-G_DEFINE_TYPE(RenderThreadState, render_thread_state, VIPS_TYPE_THREAD_STATE);
-
-/* The BG thread which sits waiting to do some calculations, and the semaphore
- * it waits on holding the number of renders with dirty tiles.
- */
-static GThread *render_thread = NULL;
-
-/* Set this to ask the render thread to quit.
- */
-static gboolean render_kill = FALSE;
-
-/* All the renders with dirty tiles, and a semaphore that the bg render thread
- * waits on.
- */
-static GMutex render_dirty_lock;
-static GSList *render_dirty_all = NULL;
-static VipsSemaphore n_render_dirty_sem;
-
-/* Set this to make the bg thread stop and reschedule.
- */
-static gboolean render_reschedule = FALSE;
-
-static void
-render_thread_state_class_init(RenderThreadStateClass *class)
-{
-	VipsObjectClass *object_class = VIPS_OBJECT_CLASS(class);
-
-	object_class->nickname = "renderthreadstate";
-	object_class->description = _("per-thread state for render");
-}
-
-static void
-render_thread_state_init(RenderThreadState *state)
-{
-	state->tile = NULL;
-}
-
-static VipsThreadState *
-render_thread_state_new(VipsImage *im, void *a)
-{
-	return VIPS_THREAD_STATE(vips_object_new(render_thread_state_get_type(),
-		vips_thread_state_set, im, a));
-}
 
 static void *
 tile_free(Tile *tile, void *a, void *b)
@@ -238,29 +154,14 @@ render_free(Render *render)
 	g_assert(render->ref_count == 0);
 #endif
 
-	g_mutex_lock(&render_dirty_lock);
-	if (g_slist_find(render_dirty_all, render)) {
-		render_dirty_all = g_slist_remove(render_dirty_all, render);
-
-		/* We don't need to adjust the semaphore: if it's too high,
-		 * the render thread will just loop and decrement next time
-		 * render_dirty_all is NULL.
-		 */
-	}
-	g_mutex_unlock(&render_dirty_lock);
-
 #if !GLIB_CHECK_VERSION(2, 58, 0)
 	g_mutex_clear(&render->ref_count_lock);
 #endif
 	g_mutex_clear(&render->lock);
 
-	if (render->private_threadpool)
-		vips_semaphore_destroy(&render->dirty_sem);
-
 	vips_slist_map2(render->all, (VipsSListMap2Fn) tile_free, NULL, NULL);
 	VIPS_FREEF(g_slist_free, render->all);
 	render->ntiles = 0;
-	VIPS_FREEF(g_slist_free, render->dirty);
 	VIPS_FREEF(g_hash_table_destroy, render->tiles);
 
 	VIPS_UNREF(render->in);
@@ -314,196 +215,6 @@ render_unref(Render *render)
 	return 0;
 }
 
-/* Get the next tile to paint off the dirty list.
- */
-static Tile *
-render_tile_dirty_get(Render *render)
-{
-	Tile *tile;
-
-	if (!render->dirty)
-		tile = NULL;
-	else {
-		tile = (Tile *) render->dirty->data;
-		g_assert(tile->dirty);
-		render->dirty = g_slist_remove(render->dirty, tile);
-		tile->dirty = FALSE;
-	}
-
-	return tile;
-}
-
-/* Pick a dirty tile to reuse. We could potentially get the tile that
- * render_work() is working on in the background :-( but I don't think we'll
- * get a crash, just a mis-paint. It should be vanishingly impossible anyway.
- */
-static Tile *
-render_tile_dirty_reuse(Render *render)
-{
-	Tile *tile;
-
-	if (!render->dirty)
-		tile = NULL;
-	else {
-		tile = (Tile *) g_slist_last(render->dirty)->data;
-		render->dirty = g_slist_remove(render->dirty, tile);
-		g_assert(tile->dirty);
-		tile->dirty = FALSE;
-
-		VIPS_DEBUG_MSG("render_tile_get_dirty_reuse: reusing dirty %p\n", tile);
-	}
-
-	return tile;
-}
-
-/* Add a tile to the dirty list.
- */
-static void
-tile_dirty_set(Tile *tile)
-{
-	Render *render = tile->render;
-
-	if (!tile->dirty) {
-		g_assert(!g_slist_find(render->dirty, tile));
-		render->dirty = g_slist_prepend(render->dirty, tile);
-		tile->dirty = TRUE;
-		tile->painted = FALSE;
-	}
-	else
-		g_assert(g_slist_find(render->dirty, tile));
-}
-
-/* Bump a tile to the front of the dirty list, if it's there.
- */
-static void
-tile_dirty_bump(Tile *tile)
-{
-	Render *render = tile->render;
-
-	if (tile->dirty) {
-		g_assert(g_slist_find(render->dirty, tile));
-
-		render->dirty = g_slist_remove(render->dirty, tile);
-		render->dirty = g_slist_prepend(render->dirty, tile);
-	}
-	else
-		g_assert(!g_slist_find(render->dirty, tile));
-}
-
-static int
-render_allocate(VipsThreadState *state, void *a, gboolean *stop)
-{
-	Render *render = (Render *) a;
-	RenderThreadState *rstate = (RenderThreadState *) state;
-
-	Tile *tile;
-
-	g_mutex_lock(&render->lock);
-
-	if (render_reschedule ||
-		!(tile = render_tile_dirty_get(render))) {
-		VIPS_DEBUG_MSG_GREEN("render_allocate: stopping\n");
-		*stop = TRUE;
-		rstate->tile = NULL;
-	}
-	else
-		rstate->tile = tile;
-
-	g_mutex_unlock(&render->lock);
-
-	return 0;
-}
-
-static int
-render_work(VipsThreadState *state, void *a)
-{
-	Render *render = (Render *) a;
-	RenderThreadState *rstate = (RenderThreadState *) state;
-	Tile *tile = rstate->tile;
-
-	g_assert(tile);
-
-	VIPS_DEBUG_MSG("calculating tile %p %dx%d\n",
-		tile, tile->area.left, tile->area.top);
-
-	if (vips_region_prepare_to(state->reg, tile->region,
-			&tile->area, tile->area.left, tile->area.top)) {
-		VIPS_DEBUG_MSG_RED("render_work: vips_region_prepare_to() failed: %s\n",
-			vips_error_buffer());
-		return -1;
-	}
-	tile->painted = TRUE;
-
-	if (!render->shutdown &&
-		render->notify)
-		render->notify(render->out, &tile->area, render->a);
-
-	return 0;
-}
-
-static void render_dirty_put(Render *render);
-
-/* Called from vips_shutdown().
- */
-void
-vips__render_shutdown(void)
-{
-	/* We may come here without having inited.
-	 */
-	if (render_thread) {
-		g_mutex_lock(&render_dirty_lock);
-
-		GThread *thread;
-
-		thread = render_thread;
-		render_reschedule = TRUE;
-		render_kill = TRUE;
-
-		g_mutex_unlock(&render_dirty_lock);
-
-		vips_semaphore_up(&n_render_dirty_sem);
-
-		(void) g_thread_join(thread);
-
-		vips_semaphore_destroy(&n_render_dirty_sem);
-	}
-}
-
-static int
-render_dirty_sort(Render *a, Render *b, void *user_data)
-{
-	return b->priority - a->priority;
-}
-
-/* Add to the jobs list, if it has work to be done.
- */
-static void
-render_dirty_put(Render *render)
-{
-	if (render->private_threadpool)
-		// set our private renderer going
-		vips_semaphore_up(&render->dirty_sem);
-	else {
-		// add to the worklist for thwe global renderer
-		g_mutex_lock(&render_dirty_lock);
-
-		if (render->dirty) {
-			if (!g_slist_find(render_dirty_all, render)) {
-				render_dirty_all = g_slist_prepend(render_dirty_all, render);
-				render_dirty_all = g_slist_sort(render_dirty_all,
-					(GCompareFunc) render_dirty_sort);
-
-				/* Tell the bg render thread we have one more dirty
-				 * render on there.
-				 */
-				vips_semaphore_up(&n_render_dirty_sem);
-			}
-		}
-
-		g_mutex_unlock(&render_dirty_lock);
-	}
-}
-
 static guint
 tile_hash(gconstpointer key)
 {
@@ -530,36 +241,13 @@ render_close_cb(VipsImage *image, Render *render)
 {
 	VIPS_DEBUG_MSG_AMBER("render_close_cb\n");
 
-	/* The output image or mask are closing. This render will stick
-	 * around for a while, since threads can still be running, but it
-	 * must no longer reference ->out or ->mask (for example, invalidating
-	 * them).
-	 */
-	render->shutdown = TRUE;
-
-	if (render->private_threadpool) {
-		/* Nudge the bg thread (if any) for this pool.
-		 */
-		VIPS_DEBUG_MSG_GREEN("render_close_cb: nudge private worker\n");
-		vips_semaphore_up(&render->dirty_sem);
-	}
-	else {
-		/* If this render is being worked on, we want to jog the bg thread,
-		 * make it drop it's ref and think again.
-		 */
-		VIPS_DEBUG_MSG_GREEN("render_close_cb: reschedule\n");
-		render_reschedule = TRUE;
-	}
-
 	render_unref(render);
 }
 
 static Render *
 render_new(VipsImage *in, VipsImage *out, VipsImage *mask,
 	int tile_width, int tile_height,
-	int max_tiles,
-	int priority,
-	VipsSinkNotify notify, void *a)
+	int max_tiles)
 {
 	Render *render;
 
@@ -586,14 +274,6 @@ render_new(VipsImage *in, VipsImage *out, VipsImage *mask,
 	render->tile_width = tile_width;
 	render->tile_height = tile_height;
 	render->max_tiles = max_tiles;
-	render->priority = priority;
-	render->notify = notify;
-	render->a = a;
-
-	if (render->priority < 0) {
-		render->private_threadpool = TRUE;
-		vips_semaphore_init(&render->dirty_sem, 0, "dirty_sem");
-	}
 
 	g_mutex_init(&render->lock);
 
@@ -602,10 +282,6 @@ render_new(VipsImage *in, VipsImage *out, VipsImage *mask,
 	render->ticks = 0;
 
 	render->tiles = g_hash_table_new(tile_hash, tile_equal);
-
-	render->dirty = NULL;
-
-	render->shutdown = FALSE;
 
 	/* Both out and mask must close before we can free the render.
 	 */
@@ -647,7 +323,6 @@ tile_new(Render *render)
 	tile->area.height = render->tile_height;
 	tile->region = NULL;
 	tile->painted = FALSE;
-	tile->dirty = FALSE;
 	tile->ticks = render->ticks;
 
 	if (!(tile->region = vips_region_new(render->in))) {
@@ -711,7 +386,7 @@ render_tile_move(Tile *tile, VipsRect *area)
 	}
 }
 
-/* We've looked at a tile ... bump to end of LRU and front of dirty.
+/* We've looked at a tile ... bump to end of LRU.
  */
 static void
 tile_touch(Tile *tile)
@@ -720,7 +395,6 @@ tile_touch(Tile *tile)
 
 	tile->ticks = render->ticks;
 	render->ticks += 1;
-	tile_dirty_bump(tile);
 }
 
 /* Queue a tile for calculation.
@@ -730,42 +404,31 @@ tile_queue(Tile *tile, VipsRegion *reg)
 {
 	Render *render = tile->render;
 
-	VIPS_DEBUG_MSG("tile_queue: adding tile %p %dx%d to dirty\n",
+	VIPS_DEBUG_MSG("tile_queue: queue tile %p %dx%d for calculation\n",
 		tile, tile->area.left, tile->area.top);
 
 	tile->painted = FALSE;
 	tile_touch(tile);
 
-	if (render->notify) {
-		/* Add to the list of renders with dirty tiles. The bg
-		 * thread will pick it up and paint it. It can be already on
-		 * the dirty list.
-		 */
-		tile_dirty_set(tile);
-		render_dirty_put(render);
-	}
-	else {
-		/* no notify ... paint the tile ourselves
-		 * synchronously. No need to notify the client since they'll
-		 * never see black tiles.
-		 */
-		VIPS_DEBUG_MSG("tile_queue: painting tile %p %dx%d synchronously\n",
-			tile, tile->area.left, tile->area.top);
+	/* Paint the tile synchronously. No need to notify the
+	 * client since they'll never see black tiles.
+	 */
+	VIPS_DEBUG_MSG("tile_queue: painting tile %p %dx%d synchronously\n",
+		tile, tile->area.left, tile->area.top);
 
-		/* While we're computing, let other threads use the cache.
-		 * This tile won't get pulled out from under us since it's not
-		 * marked as "painted", and it's not on the dirty list.
-		 */
-		g_mutex_unlock(&render->lock);
+	/* While we're computing, let other threads use the cache.
+	 * This tile won't get pulled out from under us since it's not
+	 * marked as "painted".
+	 */
+	g_mutex_unlock(&render->lock);
 
-		if (vips_region_prepare_to(reg, tile->region,
-				&tile->area, tile->area.left, tile->area.top))
-			VIPS_DEBUG_MSG_RED("tile_queue: prepare failed\n");
+	if (vips_region_prepare_to(reg, tile->region,
+			&tile->area, tile->area.left, tile->area.top))
+		VIPS_DEBUG_MSG_RED("tile_queue: prepare failed\n");
 
-		g_mutex_lock(&render->lock);
+	g_mutex_lock(&render->lock);
 
-		tile->painted = TRUE;
-	}
+	tile->painted = TRUE;
 }
 
 static void
@@ -825,11 +488,9 @@ render_tile_request(Render *render, VipsRegion *reg, VipsRect *area)
 		tile_queue(tile, reg);
 	}
 	else {
-		/* Need to reuse a tile. Try for an old painted tile first,
-		 * then if that fails, reuse a dirty tile.
+		/* Need to reuse a tile. Try an old painted tile.
 		 */
-		if (!(tile = render_tile_get_painted(render)) &&
-			!(tile = render_tile_dirty_reuse(render))) {
+		if (!(tile = render_tile_get_painted(render))) {
 			VIPS_DEBUG_MSG("render_tile_request: no tiles to reuse\n");
 			return NULL;
 		}
@@ -981,148 +642,6 @@ mask_fill(VipsRegion *out, void *seq, void *a, void *b, gboolean *stop)
 	return 0;
 }
 
-/* Get the first render with dirty tiles.
- */
-static Render *
-render_dirty_get(void)
-{
-	Render *render;
-
-	/* Wait for a render with dirty tiles.
-	 */
-	vips_semaphore_down(&n_render_dirty_sem);
-
-	g_mutex_lock(&render_dirty_lock);
-
-	/* Just take the head of the jobs list ... we sort when we add.
-	 */
-	render = NULL;
-	if (render_dirty_all) {
-		render = (Render *) render_dirty_all->data;
-
-		/* Ref the render to make sure it can't die while we're
-		 * working on it.
-		 */
-		render_ref(render);
-
-		render_dirty_all = g_slist_remove(render_dirty_all, render);
-	}
-
-	g_mutex_unlock(&render_dirty_lock);
-
-	return render;
-}
-
-/* Loop for the background render manager thread.
- */
-static void *
-render_thread_main(void *client)
-{
-	Render *render;
-
-	while (!render_kill) {
-		VIPS_DEBUG_MSG_GREEN("render_thread_main: threadpool start\n");
-
-		render_reschedule = FALSE;
-
-		if ((render = render_dirty_get())) {
-			if (vips_threadpool_run(render->in,
-					render_thread_state_new,
-					render_allocate,
-					render_work,
-					NULL,
-					render))
-				VIPS_DEBUG_MSG_RED("render_thread_main: "
-								   "threadpool_run failed\n");
-
-			VIPS_DEBUG_MSG_GREEN("render_thread_main: threadpool return\n");
-
-			/* Add back to the jobs list, if we need to.
-			 */
-			render_dirty_put(render);
-
-			/* _get() does a ref to make sure we keep the render
-			 * alive during processing ... unref before we loop.
-			 * This can kill off the render.
-			 */
-			render_unref(render);
-		}
-	}
-
-	/* We are exiting, so render_thread must now be NULL.
-	 */
-	render_thread = NULL;
-
-	return NULL;
-}
-
-static int
-render_allocate_private(VipsThreadState *state, void *a, gboolean *stop)
-{
-	Render *render = (Render *) a;
-	RenderThreadState *rstate = (RenderThreadState *) state;
-
-	/* Wait for a dirty tile to arrive on this render.
-	 */
-	vips_semaphore_down(&render->dirty_sem);
-
-	/* The mask or image is closing, we must exit.
-	 */
-	if (render->shutdown) {
-		*stop = TRUE;
-		rstate->tile = NULL;
-		return 0;
-	}
-
-	/* Get the dirty tile, if any.
-	 */
-	g_mutex_lock(&render->lock);
-	rstate->tile = render_tile_dirty_get(render);
-	VIPS_DEBUG_MSG_AMBER("render_allocate_private: allocated tile %p\n",
-		rstate->tile);
-	g_mutex_unlock(&render->lock);
-
-	return 0;
-}
-
-/* A worker for a private render.
- */
-static void
-render_work_private(void *data, void *null)
-{
-	VIPS_DEBUG_MSG_AMBER("render_work_private: start\n");
-
-	Render *render = (Render *) data;
-
-	// this will quit on ->shutdown == TRUE
-	if (vips_threadpool_run(render->in,
-			render_thread_state_new,
-			render_allocate_private,
-			render_work,
-			NULL,
-			render))
-		VIPS_DEBUG_MSG_RED("render_work_private: threadpool_run failed\n");
-
-	render_unref(render);
-
-	VIPS_DEBUG_MSG_AMBER("render_work_private: stop\n");
-}
-
-static void *
-vips__sink_screen_once(void *data)
-{
-	g_assert(!render_thread);
-
-	vips_semaphore_init(&n_render_dirty_sem, 0, "n_render_dirty");
-
-	/* Don't use vips_thread_execute(), since this thread will only be
-	 * ended by vips_shutdown, and that isn't always called.
-	 */
-	render_thread = vips_g_thread_new("sink_screen", render_thread_main, NULL);
-
-	return NULL;
-}
-
 /**
  * vips_sink_screen: (method)
  * @in: input image
@@ -1131,41 +650,19 @@ vips__sink_screen_once(void *data)
  * @tile_width: tile width
  * @tile_height: tile height
  * @max_tiles: maximum tiles to cache
- * @priority: rendering priority
- * @notify_fn: (scope call) (closure a) (nullable): pixels are ready notification callback
- * @a: (nullable): client data for callback
  *
  * This operation renders @in in the background, making pixels available
- * on @out as they are calculated. The @notify_fn callback is run every
- * time a new set of pixels are available. Calculated pixels are kept in
+ * on @out as they are calculated. Calculated pixels are kept in
  * a cache with tiles sized @tile_width by @tile_height pixels and with at
  * most @max_tiles tiles.  If @max_tiles is -1, the cache is of unlimited
  * size (up to the maximum image * size). The @mask image is a one-band
  * uchar image and has 255 for pixels which are currently in cache and 0
  * for uncalculated pixels.
- *
- * Renders with a positive priority are assumed to be large, gh-priority,
- * foreground images. Although there can be many of these, only one is ever
- * active, to avoid overcommitting threads.
- *
- * Renders with a negative priority are assumed to be small, thumbnail images
- * consisting of a single tile. Single tile images are effectively
- * single-threaded, so all these renders are evaluated together.
- *
+
  * Calls to [method@Region.prepare] on @out return immediately and hold
  * whatever is currently in cache for that [struct@Rect] (check @mask to see
  * which parts of the [struct@Rect] are valid). Any pixels in the [struct@Rect]
- * which are not in cache are added to a queue, and the @notify_fn
- * callback will trigger when those pixels are ready.
- *
- * The @notify_fn callback is run from one of the background threads. In the
- * callback you need to somehow send a message to the main thread that the
- * pixels are ready. In a glib-based application, this is easily done with
- * [func@GLib.idle_add].
- *
- * If @notify_fn is `NULL` then [method@Image.sink_screen] runs synchronously.
- * [method@Region.prepare] on @out will always block until the pixels have been
- * calculated.
+ * which are not in cache are added to a queue.
  *
  * ::: seealso
  *     [method@Image.tilecache], [method@Region.prepare],
@@ -1180,11 +677,11 @@ vips_sink_screen(VipsImage *in, VipsImage *out, VipsImage *mask,
 	int priority,
 	VipsSinkNotify notify_fn, void *a)
 {
-	static GOnce once = G_ONCE_INIT;
-
 	Render *render;
 
-	VIPS_ONCE(&once, vips__sink_screen_once, NULL);
+	(void) priority;
+	(void) notify_fn;
+	(void) a;
 
 	if (tile_width <= 0 || tile_height <= 0 ||
 		max_tiles < -1) {
@@ -1207,15 +704,10 @@ vips_sink_screen(VipsImage *in, VipsImage *out, VipsImage *mask,
 	}
 
 	if (!(render = render_new(in, out, mask,
-			  tile_width, tile_height, max_tiles, priority, notify_fn, a)))
+			  tile_width, tile_height, max_tiles)))
 		return -1;
 
 	VIPS_DEBUG_MSG("vips_sink_screen: max = %d, %p\n", max_tiles, render);
-
-	if (render->private_threadpool) {
-		render_ref(render);
-		vips_thread_execute("private threadpool", render_work_private, render);
-	}
 
 	if (vips_image_generate(out,
 			vips_start_one, image_fill, vips_stop_one, in, render))
@@ -1240,14 +732,6 @@ vips__print_renders(void)
 		n_leaks += render_num_renders;
 	}
 #endif /*VIPS_DEBUG_AMBER*/
-
-	g_mutex_lock(&render_dirty_lock);
-
-	n_leaks += g_slist_length(render_dirty_all);
-	if (render_dirty_all)
-		printf("dirty renders\n");
-
-	g_mutex_unlock(&render_dirty_lock);
 
 	return n_leaks;
 }
