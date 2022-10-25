@@ -53,7 +53,6 @@
 #include <stdlib.h>
 
 #include <vips/vips.h>
-#include <vips/internal.h>
 
 #include "pconversion.h"
 
@@ -102,9 +101,6 @@ vips_subsample_line_gen(VipsRegion *out_region,
 	for (y = to; y < bo; y++) {
 		VipsPel *q = VIPS_REGION_ADDR(out_region, le, y);
 		VipsPel *p;
-
-		if (vips__worker_exit())
-			return 0;
 
 		/* Loop across the region, in owidth-sized pieces.
 		 */
@@ -168,9 +164,6 @@ vips_subsample_point_gen(VipsRegion *out_region,
 	for (y = to; y < bo; y++) {
 		VipsPel *q = VIPS_REGION_ADDR(out_region, le, y);
 		VipsPel *p;
-
-		if (vips__worker_exit())
-			return 0;
 
 		for (x = le; x < ri; x++) {
 			s.left = x * subsample->xfac;
