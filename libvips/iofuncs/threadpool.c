@@ -78,6 +78,13 @@
 #include <windows.h>
 #endif /*G_OS_WIN32*/
 
+/* The amount of background threads that may run additionally
+ * within the set. vips_sink_disc uses two write-behind background
+ * threads, plus we need another one to run a maximum of two pipelines
+ * simultaneously.
+ */
+const int vips__bg_threads = 2 + 1;
+
 /**
  * SECTION: threadpool
  * @short_description: pools of worker threads 
@@ -120,8 +127,8 @@ vips__threadpool_init( void )
 	 */
 	const char *max_threads_env = g_getenv( "VIPS_MAX_THREADS" );
 	int max_threads = max_threads_env ? 
-		VIPS_CLIP( 3, atoi( max_threads_env ), MAX_THREADS ) : 
-		0;
+		VIPS_CLIP( vips__bg_threads, atoi( max_threads_env ), MAX_THREADS ) :
+		vips_concurrency_get() + vips__bg_threads;
 
 	worker_key = &private;
 
