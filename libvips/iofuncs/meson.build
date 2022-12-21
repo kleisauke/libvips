@@ -37,6 +37,12 @@ iofuncs_sources = files(
     'buffer.c',
 )
 
+if host_os == 'emscripten'
+    iofuncs_sources += files(
+        'init-emscripten.cpp',
+    )
+endif
+
 iofuncs_headers = files(
     'sink.h',
 )
