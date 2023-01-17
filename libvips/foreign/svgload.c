@@ -330,9 +330,7 @@ vips_foreign_load_svg_dispose( GObject *gobject )
 	VIPS_UNREF( svg->page );
 #else
 	resvg_options_destroy( svg->options );
-	if ( svg->tree ) {
-		resvg_tree_destroy( svg->tree );
-	}
+	VIPS_FREEF( resvg_tree_destroy, svg->tree );
 #endif
 
 	G_OBJECT_CLASS( vips_foreign_load_svg_parent_class )->
@@ -512,7 +510,7 @@ vips_foreign_load_svg_get_natural_size( VipsForeignLoadSvg *svg,
 
 #endif /*LIBRSVG_CHECK_VERSION( 2, 52, 0 )*/
 #else /* HAVE_RSVG */
-	resvg_size size = resvg_get_image_size(svg->tree);
+	resvg_size size = resvg_get_image_size( svg->tree );
 	width = size.width;
 	height = size.height;
 #endif
@@ -543,7 +541,7 @@ vips_foreign_load_svg_get_scaled_size( VipsForeignLoadSvg *svg,
 #ifdef HAVE_RSVG
 	rsvg_handle_set_dpi( svg->page, 72.0 );
 #else
-	resvg_options_set_dpi(svg->options, 72.0);
+	resvg_options_set_dpi( svg->options, 72.0 );
 #endif
 	if( vips_foreign_load_svg_get_natural_size( svg, &width, &height ) )
 		return( -1 );
@@ -701,17 +699,21 @@ vips_foreign_load_svg_generate( VipsRegion *or,
 		(char *) pixmap
 	);
 
-	// Just unpremultiply.
-	for (int i = 0; i < r->width * r->height; i++) {
+	/* Just unpremultiply.
+	 */
+	for( int i = 0; i < r->width * r->height; i++ ) {
 		guint8 *ptr = &pixmap[i * 4];
 		guint8 a = ptr[3];
-		// Skip transparent and fully opaque pixels.
-		if ( a != 0 && a != 255 ) {
-			// Any compiler will unroll it.
-			for (int i = 0; i < 3; i++) {
-				ptr[i] = 255 * ptr[i] / a;
-			}
-		}
+
+		/* Skip transparent and fully opaque pixels.
+		 */
+		if( a == 0 || a == 255 )
+			continue;
+
+		/* Any compiler will unroll it.
+		 */
+		for( int j = 0; j < 3; j++ )
+			ptr[j] = 255 * ptr[j] / a;
 	}
 
 #endif
@@ -934,22 +936,23 @@ vips_foreign_load_svg_file_is_a( const char *filename )
 		vips_foreign_load_svg_is_a( buf, bytes ) );
 }
 
-static const char *resvg_error_msg(resvg_error e) {
-	switch (e) {
-		case RESVG_ERROR_NOT_AN_UTF8_STR:
-			return "only UTF-8 content is supported";
-		case RESVG_ERROR_FILE_OPEN_FAILED:
-			return "failed to open the provided file";
-		case RESVG_ERROR_MALFORMED_GZIP:
-			return "compressed SVG must use the GZip algorithm";
-		case RESVG_ERROR_ELEMENTS_LIMIT_REACHED:
-			return "we do not allow SVG with more than 1_000_000 elements for security reasons";
-		case RESVG_ERROR_INVALID_SIZE:
-			return "SVG doesn't have a valid size";
-		case RESVG_ERROR_PARSING_FAILED:
-			return "failed to parse SVG data";
-		default:
-			return "unknown error";
+static const char *
+resvg_error_msg( resvg_error e ) {
+	switch( e ) {
+	case RESVG_ERROR_NOT_AN_UTF8_STR:
+		return "only UTF-8 content is supported";
+	case RESVG_ERROR_FILE_OPEN_FAILED:
+		return "failed to open the provided file";
+	case RESVG_ERROR_MALFORMED_GZIP:
+		return "compressed SVG must use the GZip algorithm";
+	case RESVG_ERROR_ELEMENTS_LIMIT_REACHED:
+		return "we do not allow SVG with more than 1_000_000 elements for security reasons";
+	case RESVG_ERROR_INVALID_SIZE:
+		return "SVG doesn't have a valid size";
+	case RESVG_ERROR_PARSING_FAILED:
+		return "failed to parse SVG data";
+	default:
+		return "unknown error";
 	}
 }
 
@@ -974,10 +977,12 @@ vips_foreign_load_svg_file_header( VipsForeignLoad *load )
 	}
 	g_object_unref( gfile );
 #else
-	resvg_error error = resvg_parse_tree_from_file(file->filename, svg->options, &svg->tree);
-	if (error != RESVG_OK) {
-		vips_error(VIPS_OBJECT_GET_CLASS( svg )->nickname, "%s", resvg_error_msg(error));
-		return (-1);
+	resvg_error error = resvg_parse_tree_from_file(
+		file->filename, svg->options, &svg->tree );
+	if( error != RESVG_OK ) {
+		vips_error( VIPS_OBJECT_GET_CLASS( svg )->nickname,
+			"%s", resvg_error_msg( error ) );
+		return( -1 );
 	}
 #endif
 	VIPS_SETSTR( load->out->filename, file->filename );
@@ -1066,10 +1071,12 @@ vips_foreign_load_svg_buffer_header( VipsForeignLoad *load )
 	}
 	g_object_unref( gstream );
 #else
-	resvg_error error = resvg_parse_tree_from_data(buffer->buf->data, buffer->buf->length, svg->options, &svg->tree);
-	if (error != RESVG_OK) {
-		vips_error(VIPS_OBJECT_GET_CLASS( svg )->nickname, "%s", resvg_error_msg(error));
-		return (-1);
+	resvg_error error = resvg_parse_tree_from_data(
+		buffer->buf->data, buffer->buf->length, svg->options, &svg->tree );
+	if( error != RESVG_OK ) {
+		vips_error( VIPS_OBJECT_GET_CLASS( svg )->nickname,
+			"%s", resvg_error_msg( error ) );
+		return( -1 );
 	}
 #endif
 	return( vips_foreign_load_svg_header( load ) );
