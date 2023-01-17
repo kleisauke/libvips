@@ -371,13 +371,18 @@ if librsvg_found
     cfg_var.set('HAVE_RSVG', '1')
 endif
 
-# libresvg doesn't ship pkg-config files, so we can't use dependency().
-libresvg_dep = cc.find_library('resvg', has_headers: ['resvg.h'], required: get_option('resvg'))
-libresvg_found = libresvg_dep.found()
-if libresvg_found
-    # It's annoying that I have to spell out the `include_directories` here, but without it Meson can build
-    # but `compile_commands.json` doesn't have the -I$PREFIX/include, making code analysis tools & VSCode fail.
-    libvips_deps += declare_dependency(dependencies: [libresvg_dep], include_directories: [include_directories(get_option('prefix') / get_option('includedir'))], link_args: ['-ldl'])
+# only if librsvg not found
+resvg_dep = disabler()
+resvg_module = false
+if not librsvg_found
+    # resvg doesn't ship pkg-config files, so we can't use dependency()
+    resvg_dep = cc.find_library('resvg', has_headers: ['resvg.h'], required: get_option('resvg'))
+    resvg_module = modules_enabled and not get_option('resvg-module').disabled()
+    if resvg_module
+        cfg_var.set('RESVG_MODULE', '1')
+    else
+        libvips_deps += resvg_dep
+    endif
     cfg_var.set('HAVE_RESVG', '1')
 endif
 
@@ -644,7 +649,7 @@ build_summary = {
      'PDF load with PDFium': [pdfium_dep.found()],
      'PDF load with poppler-glib': [libpoppler_found, ' (dynamic module: ', libpoppler_module, ')'],
      'SVG load with librsvg': [librsvg_found],
-     'SVG load with libresvg': [libresvg_found],
+     'SVG load with libresvg': [resvg_dep.found(), ' (dynamic module: ', resvg_module, ')'],
      'EXR load with OpenEXR': [openexr_dep.found()],
      'OpenSlide load': [openslide_dep.found(), ' (dynamic module: ', openslide_module, ')'],
      'Matlab load with libmatio': [matio_dep.found()],

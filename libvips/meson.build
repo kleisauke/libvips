@@ -165,3 +165,18 @@ if openslide_module
         install_dir: module_dir
     )
 endif
+
+if resvg_module
+    shared_module('vips-resvg',
+        'module/resvg.c',
+        resvg_module_sources,
+        c_args: module_c_args,
+        link_args: module_link_args,
+        name_prefix: '',
+        name_suffix: module_suffix,
+        dependencies: [gmodule_dep, libvips_dep, resvg_dep],
+        gnu_symbol_visibility: 'hidden',
+        install: true,
+        install_dir: module_dir
+    )
+endif
