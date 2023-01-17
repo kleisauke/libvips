@@ -936,6 +936,7 @@ vips_foreign_load_svg_file_is_a( const char *filename )
 		vips_foreign_load_svg_is_a( buf, bytes ) );
 }
 
+#ifndef HAVE_RSVG
 static const char *
 resvg_error_msg( resvg_error e ) {
 	switch( e ) {
@@ -955,6 +956,7 @@ resvg_error_msg( resvg_error e ) {
 		return "unknown error";
 	}
 }
+#endif
 
 static int
 vips_foreign_load_svg_file_header( VipsForeignLoad *load )
