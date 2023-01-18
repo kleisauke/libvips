@@ -936,7 +936,7 @@ vips_foreign_load_svg_file_is_a( const char *filename )
 		vips_foreign_load_svg_is_a( buf, bytes ) );
 }
 
-#ifndef HAVE_RSVG
+#ifdef HAVE_RESVG
 static const char *
 resvg_error_msg( resvg_error e ) {
 	switch( e ) {
