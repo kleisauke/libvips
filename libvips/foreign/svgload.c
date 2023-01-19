@@ -536,12 +536,10 @@ vips_foreign_load_svg_get_scaled_size( VipsForeignLoadSvg *svg,
 	double width;
 	double height;
 
+#ifdef HAVE_RSVG
 	/* Get dimensions with the default dpi.
 	 */
-#ifdef HAVE_RSVG
 	rsvg_handle_set_dpi( svg->page, 72.0 );
-#else
-	resvg_options_set_dpi( svg->options, 72.0 );
 #endif
 	if( vips_foreign_load_svg_get_natural_size( svg, &width, &height ) )
 		return( -1 );
@@ -806,6 +804,10 @@ vips_foreign_load_svg_init( VipsForeignLoadSvg *svg )
 	svg->cairo_scale = 1.0;
 #ifdef HAVE_RESVG
 	svg->options = resvg_options_create();
+
+	/* Get dimensions with the default dpi.
+	 */
+	resvg_options_set_dpi( svg->options, 72.0 );
 #endif
 }
 
