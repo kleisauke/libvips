@@ -681,7 +681,7 @@ vips_foreign_load_svg_generate( VipsRegion *or,
 			r->width ); 
 #else
 
-	guint8 *pixmap = VIPS_REGION_ADDR( or, r->left, r->top );
+	VipsPel *q = VIPS_REGION_ADDR( or, r->left, r->top );
 
 	resvg_render(
 		svg->tree,
@@ -694,24 +694,24 @@ vips_foreign_load_svg_generate( VipsRegion *or,
 		},
 		r->width,
 		r->height,
-		(char *) pixmap
+		(char *) q
 	);
 
 	/* Just unpremultiply.
 	 */
 	for( int i = 0; i < r->width * r->height; i++ ) {
-		guint8 *ptr = &pixmap[i * 4];
-		guint8 a = ptr[3];
+		VipsPel * restrict p = &q[i * 4];
+		VipsPel x = p[3];
 
 		/* Skip transparent and fully opaque pixels.
 		 */
-		if( a == 0 || a == 255 )
+		if( x == 0 || x == 255 )
 			continue;
 
 		/* Any compiler will unroll it.
 		 */
 		for( int j = 0; j < 3; j++ )
-			ptr[j] = 255 * ptr[j] / a;
+			p[j] = 255 * p[j] / x;
 	}
 
 #endif
