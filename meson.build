@@ -649,7 +649,7 @@ build_summary = {
      'PDF load with PDFium': [pdfium_dep.found()],
      'PDF load with poppler-glib': [libpoppler_found, ' (dynamic module: ', libpoppler_module, ')'],
      'SVG load with librsvg': [librsvg_found],
-     'SVG load with libresvg': [resvg_dep.found(), ' (dynamic module: ', resvg_module, ')'],
+     'SVG load with resvg': [resvg_dep.found(), ' (dynamic module: ', resvg_module, ')'],
      'EXR load with OpenEXR': [openexr_dep.found()],
      'OpenSlide load': [openslide_dep.found(), ' (dynamic module: ', openslide_module, ')'],
      'Matlab load with libmatio': [matio_dep.found()],
