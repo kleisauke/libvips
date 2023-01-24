@@ -377,13 +377,15 @@ resvg_module = false
 if not librsvg_found
     # resvg doesn't ship pkg-config files, so we can't use dependency()
     resvg_dep = cc.find_library('resvg', has_headers: ['resvg.h'], required: get_option('resvg'))
-    resvg_module = modules_enabled and not get_option('resvg-module').disabled()
-    if resvg_module
-        cfg_var.set('RESVG_MODULE', '1')
-    else
-        libvips_deps += resvg_dep
+    if resvg_dep.found()
+        resvg_module = modules_enabled and not get_option('resvg-module').disabled()
+        if resvg_module
+            cfg_var.set('RESVG_MODULE', '1')
+        else
+            libvips_deps += resvg_dep
+        endif
+        cfg_var.set('HAVE_RESVG', '1')
     endif
-    cfg_var.set('HAVE_RESVG', '1')
 endif
 
 openslide_dep = dependency('openslide', version: '>=3.3.0', required: get_option('openslide'))
