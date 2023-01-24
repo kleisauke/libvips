@@ -46,7 +46,6 @@ foreign_sources = files(
     'rawsave.c',
     'spngload.c',
     'spngsave.c',
-    'svgload.c',
     'tiff2vips.c',
     'tiff.c',
     'tiffload.c',
@@ -121,6 +120,14 @@ openslide_module_sources = files(
 
 if not openslide_module
     foreign_sources += openslide_module_sources
+endif
+
+resvg_module_sources = files(
+    'svgload.c',
+)
+
+if not resvg_module
+    foreign_sources += resvg_module_sources
 endif
 
 libvips_sources += foreign_sources
