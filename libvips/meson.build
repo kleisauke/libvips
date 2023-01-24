@@ -179,7 +179,7 @@ if resvg_module
         link_args: module_link_args,
         name_prefix: '',
         name_suffix: module_suffix,
-        dependencies: [gmodule_dep, libvips_dep, resvg_dep],
+        dependencies: [module_dep, resvg_dep],
         gnu_symbol_visibility: 'hidden',
         install: true,
         install_dir: module_dir
