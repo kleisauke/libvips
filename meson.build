@@ -380,16 +380,38 @@ if libtiff_dep.found()
     cfg_var.set('HAVE_TIFF_OPEN_OPTIONS_SET_MAX_CUMULATED_MEM_ALLOC', cc.has_function('TIFFOpenOptionsSetMaxCumulatedMemAlloc', prefix: '#include <tiffio.h>', dependencies: libtiff_dep))
 endif
 
+# svg loader we use
+svg_loader = disabler()
+
 # 2.40.3 so we get the UNLIMITED open flag
 librsvg_dep = dependency('librsvg-2.0', version: '>=2.40.3', required: get_option('rsvg'))
 cairo_dep = dependency('cairo', version: '>=1.2', required: get_option('rsvg'))
-librsvg_found = librsvg_dep.found() and cairo_dep.found()
-if librsvg_found
+if librsvg_dep.found() and cairo_dep.found()
     external_deps += librsvg_dep
     external_deps += cairo_dep
     cfg_var.set('HAVE_RSVG', true)
     # CAIRO_FORMAT_RGBA128F added in cairo 1.17.2
     cfg_var.set('HAVE_CAIRO_FORMAT_RGBA128F', cc.has_type('CAIRO_FORMAT_RGBA128F', prefix: '#include <cairo.h>', dependencies: cairo_dep))
+    svg_loader = librsvg_dep
+endif
+
+# only if librsvg not found
+resvg_module = false
+if not svg_loader.found()
+    # resvg doesn't ship pkg-config files, so we can't use dependency()
+    resvg_lib = cc.find_library('resvg', has_headers: ['resvg.h'], required: get_option('resvg'))
+    if resvg_lib.found()
+        resvg_dep = declare_dependency(dependencies: [resvg_lib])
+        resvg_module = modules_enabled and not get_option('resvg-module').disabled()
+        if resvg_module
+            cfg_var.set('RESVG_MODULE', true)
+            module_deps += resvg_dep
+        else
+            external_deps += resvg_dep
+        endif
+        cfg_var.set('HAVE_RESVG', true)
+        svg_loader = resvg_dep
+    endif
 endif
 
 openslide_dep = dependency('openslide', version: '>=3.4.0', required: get_option('openslide'))
@@ -687,7 +709,7 @@ build_features = {
      'HEIC/AVIF load/save': ['libheif', libheif_dep, libheif_module],
      'WebP load/save': ['libwebp', libwebp_dep],
      'PDF load': ['PDFium or Poppler', pdf_loader, libpoppler_module],
-     'SVG load': ['librsvg', librsvg_found ? librsvg_dep : disabler()],
+     'SVG load': ['librsvg or resvg', svg_loader, resvg_module],
      'EXR load': ['OpenEXR', openexr_dep],
      'WSI load': ['OpenSlide', openslide_dep, openslide_module],
      'Matlab load': ['Matio', matio_dep],
