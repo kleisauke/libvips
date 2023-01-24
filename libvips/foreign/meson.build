@@ -44,7 +44,6 @@ foreign_sources = files(
     'rawsave.c',
     'spngload.c',
     'spngsave.c',
-    'svgload.c',
     'tiff2vips.c',
     'tiff.c',
     'tiffload.c',
@@ -121,6 +120,14 @@ if not openslide_module
 endif
 
 libvips_sources += foreign_sources
+
+resvg_module_sources = files(
+    'svgload.c',
+)
+
+if not resvg_module
+    foreign_sources += resvg_module_sources
+endif
 
 foreign_lib = static_library('foreign',
     foreign_sources,
