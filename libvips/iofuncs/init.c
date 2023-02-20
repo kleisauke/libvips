@@ -717,6 +717,9 @@ vips_thread_shutdown(void)
  *
  * See also: vips_profile_set(), vips_leak_set().
  */
+#ifdef HAVE_DESTRUCTOR
+__attribute__ ((destructor))
+#endif
 void
 vips_shutdown(void)
 {
