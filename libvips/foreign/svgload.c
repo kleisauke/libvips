@@ -773,7 +773,6 @@ vips_foreign_load_svg_generate(VipsRegion *out_region,
 
 	resvg_render(
 		svg->tree,
-		(resvg_fit_to){ .type = RESVG_FIT_TO_TYPE_ORIGINAL },
 		(resvg_transform){
 			.a = svg->total_scale,
 			.d = svg->total_scale,
