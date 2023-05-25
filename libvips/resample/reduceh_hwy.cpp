@@ -58,6 +58,8 @@ namespace HWY_NAMESPACE {
 
 using namespace hwy::HWY_NAMESPACE;
 
+using DF64 = ScalableTag<double>;
+using DF32 = ScalableTag<float>;
 using DI32 = ScalableTag<int32_t>;
 using DI16 = ScalableTag<int16_t>;
 using DI8 = ScalableTag<int8_t>;
@@ -67,6 +69,9 @@ constexpr Rebind<uint8_t, DI32> du8x32;
 constexpr DI8 di8;
 constexpr DI16 di16;
 constexpr DI32 di32;
+constexpr DF32 df32;
+constexpr DF64 df64;
+constexpr Rebind<float, DF64> df32x4;
 
 HWY_ATTR void
 vips_reduceh_uchar_hwy(VipsPel *pout, VipsPel *pin,
@@ -215,10 +220,66 @@ vips_reduceh_uchar_hwy(VipsPel *pout, VipsPel *pin,
 #endif
 }
 
+HWY_ATTR void
+vips_reduceh_float_hwy(VipsPel *pout, VipsPel *pin,
+	int32_t n, int32_t width, int32_t bands,
+	double *HWY_RESTRICT cf[VIPS_TRANSFORM_SCALE + 1],
+	double X, double hshrink)
+{
+#if HWY_TARGET != HWY_SCALAR
+	for (int32_t x = 0; x < width; ++x) {
+		const int ix = (int) X;
+		const int sx = X * VIPS_TRANSFORM_SCALE * 2;
+		const int six = sx & (VIPS_TRANSFORM_SCALE * 2 - 1);
+		const int tx = (six + 1) >> 1;
+		const double *k = cf[tx];
+
+		auto *HWY_RESTRICT p = (float *) pin + ix * bands;
+		auto *HWY_RESTRICT q = (float *) pout + x * bands;
+
+		auto sum0 = Zero(df64);
+
+		/* Only 2x unroll to avoid excessive code size.
+		 */
+		int32_t i = 0;
+		for (; i + 2 <= n; i += 2) {
+			auto k1 = Set(df64, k[i + 0]);
+			auto k2 = Set(df64, k[i + 1]);
+
+			auto top = LoadU(df32x4, p); /* top line */
+			p += bands;
+			auto bottom = LoadU(df32x4, p); /* bottom line */
+			p += bands;
+
+			auto source = PromoteTo(df64, top);
+			sum0 = MulAdd(source, k1, sum0);
+
+			source = PromoteTo(df64, bottom);
+			sum0 = MulAdd(source, k2, sum0);
+		}
+		for (; i < n; ++i) {
+			auto k1 = Set(df64, k[i]);
+
+			auto top = LoadU(df32x4, p);
+			p += bands;
+
+			auto source = PromoteTo(df64, top);
+			sum0 = MulAdd(source, k1, sum0);
+		}
+
+		auto demoted = DemoteTo(df32x4, sum0);
+		StoreU(demoted, df32x4, q);
+
+		X += hshrink;
+	}
+#endif
+}
+
 } /*namespace HWY_NAMESPACE*/
 
 #if HWY_ONCE
 HWY_EXPORT(vips_reduceh_uchar_hwy);
+HWY_EXPORT(vips_reduceh_float_hwy);
 
 void
 vips_reduceh_uchar_hwy(VipsPel *pout, VipsPel *pin,
@@ -229,6 +290,18 @@ vips_reduceh_uchar_hwy(VipsPel *pout, VipsPel *pin,
 	/* clang-format off */
 	HWY_DYNAMIC_DISPATCH(vips_reduceh_uchar_hwy)(pout, pin,
 		n, width, bands, cs, X, hshrink);
+	/* clang-format on */
+}
+
+void
+vips_reduceh_float_hwy(VipsPel *pout, VipsPel *pin,
+	int n, int width, int bands,
+	double *restrict cf[VIPS_TRANSFORM_SCALE + 1],
+	double X, double hshrink)
+{
+	/* clang-format off */
+	HWY_DYNAMIC_DISPATCH(vips_reduceh_float_hwy)(pout, pin,
+		n, width, bands, cf, X, hshrink);
 	/* clang-format on */
 }
 #endif /*HWY_ONCE*/

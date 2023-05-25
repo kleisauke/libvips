@@ -337,7 +337,7 @@ vips_reduceh_gen(VipsRegion *out_region, void *seq,
 
 #ifdef HAVE_HWY
 static int
-vips_reduceh_uchar_vector_gen(VipsRegion *out_region, void *seq,
+vips_reduceh_vector_gen(VipsRegion *out_region, void *seq,
 	void *a, void *b, gboolean *stop)
 {
 	VipsImage *in = (VipsImage *) a;
@@ -350,7 +350,7 @@ vips_reduceh_uchar_vector_gen(VipsRegion *out_region, void *seq,
 	VipsRect s;
 
 #ifdef DEBUG
-	printf("vips_reduceh_uchar_vector_gen: generating %d x %d at %d x %d\n",
+	printf("vips_reduceh_vector_gen: generating %d x %d at %d x %d\n",
 		r->width, r->height, r->left, r->top);
 #endif /*DEBUG*/
 
@@ -361,7 +361,7 @@ vips_reduceh_uchar_vector_gen(VipsRegion *out_region, void *seq,
 	if (vips_region_prepare(ir, &s))
 		return -1;
 
-	VIPS_GATE_START("vips_reduceh_uchar_vector_gen: work");
+	VIPS_GATE_START("vips_reduceh_vector_gen: work");
 
 	for (int y = 0; y < r->height; y++) {
 		VipsPel *p0;
@@ -377,13 +377,26 @@ vips_reduceh_uchar_vector_gen(VipsRegion *out_region, void *seq,
 		p0 = VIPS_REGION_ADDR(ir, ir->valid.left, r->top + y) -
 			ir->valid.left * ps;
 
-		vips_reduceh_uchar_hwy(q, p0, reduceh->n_point, r->width,
-			bands, reduceh->matrixs, X, reduceh->residual_hshrink);
+		switch (in->BandFmt) {
+		case VIPS_FORMAT_UCHAR:
+			vips_reduceh_uchar_hwy(q, p0, reduceh->n_point, r->width,
+				bands, reduceh->matrixs, X, reduceh->residual_hshrink);
+			break;
+
+		case VIPS_FORMAT_FLOAT:
+			vips_reduceh_float_hwy(q, p0, reduceh->n_point, r->width,
+				bands, reduceh->matrixf, X, reduceh->residual_hshrink);
+			break;
+
+		default:
+			g_assert_not_reached();
+			break;
+		}
 	}
 
-	VIPS_GATE_STOP("vips_reduceh_uchar_vector_gen: work");
+	VIPS_GATE_STOP("vips_reduceh_vector_gen: work");
 
-	VIPS_COUNT_PIXELS(out_region, "vips_reduceh_uchar_vector_gen");
+	VIPS_COUNT_PIXELS(out_region, "vips_reduceh_vector_gen");
 
 	return 0;
 }
@@ -517,13 +530,14 @@ vips_reduceh_build(VipsObject *object)
 		return -1;
 	in = t[2];
 
-	/* For uchar input, try to make a vector path.
+	/* For uchar or float input, try to make a vector path.
 	 */
 #ifdef HAVE_HWY
-	if (in->BandFmt == VIPS_FORMAT_UCHAR &&
+	if ((in->BandFmt == VIPS_FORMAT_UCHAR ||
+			in->BandFmt == VIPS_FORMAT_FLOAT) &&
 		(in->Bands == 4 || in->Bands == 3) &&
 		vips_vector_isenabled()) {
-		generate = vips_reduceh_uchar_vector_gen;
+		generate = vips_reduceh_vector_gen;
 		g_info("reduceh: using vector path");
 	}
 	else

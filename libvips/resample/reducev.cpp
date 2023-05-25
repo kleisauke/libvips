@@ -588,7 +588,7 @@ vips_reducev_gen(VipsRegion *out_region, void *vseq,
 
 #ifdef HAVE_HWY
 static int
-vips_reducev_uchar_vector_gen(VipsRegion *out_region, void *vseq,
+vips_reducev_vector_gen(VipsRegion *out_region, void *vseq,
 	void *a, void *b, gboolean *stop)
 {
 	VipsImage *in = (VipsImage *) a;
@@ -602,7 +602,7 @@ vips_reducev_uchar_vector_gen(VipsRegion *out_region, void *vseq,
 	VipsRect s;
 
 #ifdef DEBUG
-	printf("vips_reducev_uchar_vector_gen: generating %d x %d at %d x %d\n",
+	printf("vips_reducev_vector_gen: generating %d x %d at %d x %d\n",
 		r->width, r->height, r->left, r->top);
 #endif /*DEBUG*/
 
@@ -613,7 +613,7 @@ vips_reducev_uchar_vector_gen(VipsRegion *out_region, void *vseq,
 	if (vips_region_prepare(ir, &s))
 		return -1;
 
-	VIPS_GATE_START("vips_reducev_uchar_vector_gen: work");
+	VIPS_GATE_START("vips_reducev_vector_gen: work");
 
 	double Y = (r->top + 0.5) * reducev->residual_vshrink - 0.5 -
 		reducev->voffset;
@@ -627,18 +627,33 @@ vips_reducev_uchar_vector_gen(VipsRegion *out_region, void *vseq,
 		const int siy = sy & (VIPS_TRANSFORM_SCALE * 2 - 1);
 		const int ty = (siy + 1) >> 1;
 		const short *cys = reducev->matrixs[ty];
+		const double *cyf = reducev->matrixf[ty];
 		const int lskip = VIPS_REGION_LSKIP(ir);
 
-		vips_reducev_uchar_hwy(
-			q, p,
-			reducev->n_point, ne, lskip, cys);
+		switch (in->BandFmt) {
+		case VIPS_FORMAT_UCHAR:
+			vips_reducev_uchar_hwy(
+				q, p,
+				reducev->n_point, ne, lskip, cys);
+			break;
+
+		case VIPS_FORMAT_FLOAT:
+			vips_reducev_float_hwy(
+				q, p,
+				reducev->n_point, ne, lskip, cyf);
+			break;
+
+		default:
+			g_assert_not_reached();
+			break;
+		}
 
 		Y += reducev->residual_vshrink;
 	}
 
-	VIPS_GATE_STOP("vips_reducev_uchar_vector_gen: work");
+	VIPS_GATE_STOP("vips_reducev_vector_gen: work");
 
-	VIPS_COUNT_PIXELS(out_region, "vips_reducev_uchar_vector_gen");
+	VIPS_COUNT_PIXELS(out_region, "vips_reducev_vector_gen");
 
 	return 0;
 }
@@ -948,12 +963,13 @@ vips_reducev_build(VipsObject *object)
 		return -1;
 	in = t[2];
 
-	/* For uchar input, try to make a vector path.
+	/* For uchar or float input, try to make a vector path.
 	 */
 #ifdef HAVE_HWY
-	if (in->BandFmt == VIPS_FORMAT_UCHAR &&
+	if ((in->BandFmt == VIPS_FORMAT_UCHAR ||
+			in->BandFmt == VIPS_FORMAT_FLOAT) &&
 		vips_vector_isenabled()) {
-		generate = vips_reducev_uchar_vector_gen;
+		generate = vips_reducev_vector_gen;
 		g_info("reducev: using vector path");
 	}
 	else

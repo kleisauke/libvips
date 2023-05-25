@@ -75,8 +75,14 @@ void vips_reduceh_uchar_hwy(VipsPel *pout, VipsPel *pin,
 	int n, int width, int bands,
 	short *restrict cs[VIPS_TRANSFORM_SCALE + 1],
 	double X, double hshrink);
+void vips_reduceh_float_hwy(VipsPel *pout, VipsPel *pin,
+	int n, int width, int bands,
+	double *restrict cf[VIPS_TRANSFORM_SCALE + 1],
+	double X, double hshrink);
 void vips_reducev_uchar_hwy(VipsPel *pout, VipsPel *pin,
 	int n, int ne, int lskip, const short *restrict k);
+void vips_reducev_float_hwy(VipsPel *pout, VipsPel *pin,
+	int n, int ne, int lskip, const double *restrict k);
 
 void vips_shrinkh_uchar_hwy(VipsPel *pout, VipsPel *pin,
 	int width, int hshrink, int bands);

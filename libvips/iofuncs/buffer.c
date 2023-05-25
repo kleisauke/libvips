@@ -485,7 +485,8 @@ buffer_move(VipsBuffer *buffer, VipsRect *area)
 	 * 64 bytes for the vips_reduce{h,v} highway path.
 	 */
 #ifdef HAVE_HWY
-	if (im->BandFmt == VIPS_FORMAT_UCHAR) {
+	if (im->BandFmt == VIPS_FORMAT_UCHAR ||
+		im->BandFmt == VIPS_FORMAT_FLOAT) {
 		new_bsize += /*HWY_ALIGNMENT*/ 64 - 1;
 		align = /*HWY_ALIGNMENT*/ 64;
 	}
