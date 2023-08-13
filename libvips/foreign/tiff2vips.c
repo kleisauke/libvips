@@ -3417,6 +3417,60 @@ rtiff_header_read_all(Rtiff *rtiff)
 
 typedef gboolean (*TiffPropertyFn)(TIFF *tif);
 
+#ifdef HAVE_LIBRAW
+/* Avoid employing libtiff for RAW/DNG images that share the same file
+ * signature as TIFF.
+ *
+ * ORF, RAF and RW2 uses a different file signature, so there's no need
+ * to check for that.
+ *
+ * See:
+ * https://github.com/search?q=repo%3Adarktable-org%2Frawspeed+%22%2F%2F+FIXME%3A+magic%22&type=code
+ * http://fileformats.archiveteam.org/wiki/Cameras_and_Digital_Image_Sensors
+ */
+static char *magic_make_names[] = {
+	"SONY",							// ARW
+	"Canon",						// CR2
+	"Kodak",						// DCR
+	"KODAK",						// DCS
+	"NIKON",						// NEF
+	"PENTAX",						// PEF
+	"SAMSUNG",						// SRW
+	"Sinar AG",						// STI
+	"Hasselblad",					// 3FR
+	"NIKON CORPORATION",			// NEF
+	"SEIKO EPSON CORP.",			// ERF
+	"Mamiya-OP Co.,Ltd.",			// MEF
+	"PENTAX Corporation",			// PEF
+	"EASTMAN KODAK COMPANY",		// KDC
+	"RICOH IMAGING COMPANY, LTD.",	// PEF
+};
+
+static gboolean
+vips__istiff_skip_raw_dng(TIFF *tif)
+{
+	char *dng_version, *make;
+
+	if (TIFFGetField(tif, TIFFTAG_DNGVERSION, &dng_version) ||
+		TIFFGetField(tif, TIFFTAG_MAKE, &make)) {
+		for (int i = 0; i < VIPS_NUMBER(magic_make_names); i++)
+			if (g_str_equal(make, magic_make_names[i]))
+				return FALSE;
+	}
+
+	return TRUE;
+}
+
+#else
+static gboolean
+vips__istiff_skip_raw_dng(TIFF *tif G_GNUC_UNUSED)
+{
+	/* No skipping needed without libraw support.
+	 */
+	return TRUE;
+}
+#endif
+
 static gboolean
 vips__testtiff_source(VipsSource *source, TiffPropertyFn fn)
 {
@@ -3441,7 +3495,7 @@ vips__testtiff_source(VipsSource *source, TiffPropertyFn fn)
 gboolean
 vips__istiff_source(VipsSource *source)
 {
-	return vips__testtiff_source(source, NULL);
+	return vips__testtiff_source(source, vips__istiff_skip_raw_dng);
 }
 
 gboolean
