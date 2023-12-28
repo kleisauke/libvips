@@ -496,14 +496,12 @@ vips_thumbnail_find_jpegshrink(VipsThumbnail *thumbnail,
 	 * extra sharpness to the image. We want to block shrink to a
 	 * bit above our target, then vips_shrink() / vips_reduce() to the
 	 * final size.
-	 *
-	 * Leave at least a factor of two for the final resize step.
 	 */
-	if (shrink >= 16)
+	if (shrink >= 9)
 		return 8;
-	else if (shrink >= 8)
+	else if (shrink >= 5)
 		return 4;
-	else if (shrink >= 4)
+	else if (shrink >= 3)
 		return 2;
 	else
 		return 1;
