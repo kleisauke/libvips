@@ -1,19 +1,44 @@
 # core options
 
+option('cplusplus',
+  type: 'boolean',
+  value: true,
+  description: 'Build C++ API')
+
+option('cpp-docs',
+  type: 'boolean',
+  value: false,
+  description: 'Build C++ documentation (requires doxygen)')
+
 option('deprecated',
   type: 'boolean',
   value: true,
   description: 'Build deprecated components')
+
+option('docs',
+  type: 'boolean',
+  value: false,
+  description: 'Build API reference and tools documentation (requires gi-docgen)')
 
 option('examples',
   type: 'boolean',
   value: true,
   description: 'Build example programs')
 
+option('introspection',
+  type: 'feature',
+  value: 'auto',
+  description: 'Build GObject introspection data')
+
 option('man',
   type: 'boolean',
   value: true,
   description: 'Build man pages')
+
+option('modules',
+  type: 'feature',
+  value: 'auto',
+  description: 'Build dynamic modules')
 
 option('po',
   type: 'boolean',
@@ -30,37 +55,17 @@ option('tools',
   value: true,
   description: 'Build tools')
 
-option('cplusplus',
-  type: 'boolean',
-  value: true,
-  description: 'Build C++ API')
-
-option('cpp-docs',
-  type: 'boolean',
-  value: false,
-  description: 'Build C++ documentation (requires doxygen)')
-
-option('docs',
-  type: 'boolean',
-  value: false,
-  description: 'Build API reference and tools documentation (requires gi-docgen)')
-
-option('modules',
-  type: 'feature',
-  value: 'auto',
-  description: 'Build dynamic modules')
-
-option('introspection',
-  type: 'feature',
-  value: 'auto',
-  description: 'Build GObject introspection data')
-
 option('vapi',
   type: 'boolean',
   value: false,
   description: 'Build VAPI')
 
 # External libraries
+
+option('archive',
+  type: 'feature',
+  value: 'auto',
+  description: 'Build with libarchive')
 
 option('cfitsio',
   type: 'feature',
@@ -87,11 +92,6 @@ option('fontconfig',
   value: 'auto',
   description: 'Build with fontconfig')
 
-option('archive',
-  type: 'feature',
-  value: 'auto',
-  description: 'Build with libarchive')
-
 option('heif',
   type: 'feature',
   value: 'auto',
@@ -102,6 +102,11 @@ option('heif-module',
   value: 'auto',
   description: 'Build libheif as module')
 
+option('highway',
+  type: 'feature',
+  value: 'auto',
+  description: 'Build with highway')
+
 option('imagequant',
   type: 'feature',
   value: 'auto',
@@ -111,11 +116,6 @@ option('jpeg',
   type: 'feature',
   value: 'auto',
   description: 'Build with jpeg')
-
-option('uhdr',
-  type: 'feature',
-  value: 'auto',
-  description: 'Build with libuhdr')
 
 option('jpeg-xl',
   type: 'feature',
@@ -137,12 +137,6 @@ option('magick',
   value: 'auto',
   description: 'Build with libMagic')
 
-option('magick-package',
-  type: 'array',
-  choices: ['MagickCore', 'ImageMagick', 'GraphicsMagick'],
-  value: ['MagickCore', 'ImageMagick'],
-  description: 'ImageMagick package to build with')
-
 option('magick-features',
   type: 'array',
   choices: ['load', 'save'],
@@ -153,6 +147,12 @@ option('magick-module',
   type: 'feature',
   value: 'auto',
   description: 'Build libMagic as module')
+
+option('magick-package',
+  type: 'array',
+  choices: ['MagickCore', 'ImageMagick', 'GraphicsMagick'],
+  value: ['MagickCore', 'ImageMagick'],
+  description: 'ImageMagick package to build with')
 
 option('matio',
   type: 'feature',
@@ -188,11 +188,6 @@ option('openslide-module',
   type: 'feature',
   value: 'auto',
   description: 'Build OpenSlide as module')
-
-option('highway',
-  type: 'feature',
-  value: 'auto',
-  description: 'Build with highway')
 
 option('orc',
   type: 'feature',
@@ -249,6 +244,11 @@ option('tiff',
   value: 'auto',
   description: 'Build with tiff')
 
+option('uhdr',
+  type: 'feature',
+  value: 'auto',
+  description: 'Build with libuhdr')
+
 option('webp',
   type: 'feature',
   value: 'auto',
@@ -262,6 +262,11 @@ option('zlib',
 # not external libraries, but we have options to disable them to reduce
 # the potential attack surface
 
+option('analyze',
+  type: 'boolean',
+  value: true,
+  description: 'Build with analyze')
+
 option('nsgif',
   type: 'boolean',
   value: true,
@@ -271,11 +276,6 @@ option('ppm',
   type: 'boolean',
   value: true,
   description: 'Build with ppm')
-
-option('analyze',
-  type: 'boolean',
-  value: true,
-  description: 'Build with analyze')
 
 option('radiance',
   type: 'boolean',
@@ -289,12 +289,12 @@ option('fuzz',
   value: false,
   description: 'Build fuzz targets')
 
-option('fuzzing_engine',
-    type: 'combo',
-    choices : ['none', 'libfuzzer', 'oss-fuzz'],
-    value: 'none',
-    description: 'Select the fuzzing engine')
-
 option('fuzzer_ldflags',
-    type: 'string',
-    description: 'Extra LDFLAGS used during linking of fuzzing binaries')
+  type: 'string',
+  description: 'Extra LDFLAGS used during linking of fuzzing binaries')
+
+option('fuzzing_engine',
+  type: 'combo',
+  choices: ['none', 'libfuzzer', 'oss-fuzz'],
+  value: 'none',
+  description: 'Select the fuzzing engine')
