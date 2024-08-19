@@ -378,6 +378,14 @@ vips_text_init_once(void *client)
 {
 	vips_text_lock = vips_g_mutex_new();
 	vips_text_fontmap = pango_cairo_font_map_new();
+#ifdef HAVE_FONTCONFIG
+	if (PANGO_IS_FC_FONT_MAP(vips_text_fontmap)) {
+		FcConfig *config = FcInitLoadConfigAndFonts();
+		pango_fc_font_map_set_config(PANGO_FC_FONT_MAP(vips_text_fontmap),
+			config);
+		FcConfigDestroy(config);
+	}
+#endif /*HAVE_FONTCONFIG*/
 	vips_text_fontfiles = g_hash_table_new(g_str_hash, g_str_equal);
 
 	return NULL;
@@ -420,24 +428,24 @@ vips_text_build(VipsObject *object)
 
 #ifdef HAVE_FONTCONFIG
 	if (text->fontfile &&
+		PANGO_IS_FC_FONT_MAP(vips_text_fontmap) &&
 		!g_hash_table_lookup(vips_text_fontfiles, text->fontfile)) {
-		/* This can fail if you eg. add the same font from two
-		 * different files. Just warn.
+		FcConfig *config =
+			pango_fc_font_map_get_config(PANGO_FC_FONT_MAP(vips_text_fontmap));
+
+		/* This can fail if you eg. add the same font from two different
+		 * files. Just warn.
 		 */
-		if (!FcConfigAppFontAddFile(NULL,
-				(const FcChar8 *) text->fontfile))
-			g_warning(_("unable to load fontfile \"%s\""),
-				text->fontfile);
-		g_hash_table_insert(vips_text_fontfiles,
-			text->fontfile,
+		if (!FcConfigAppFontAddFile(config, (const FcChar8 *) text->fontfile))
+			g_warning(_("unable to load fontfile \"%s\""), text->fontfile);
+
+		g_hash_table_insert(vips_text_fontfiles, text->fontfile,
 			g_strdup(text->fontfile));
 
 		/* We need to inform that pango should invalidate its
 		 * fontconfig cache whenever any changes are made.
 		 */
-		if (PANGO_IS_FC_FONT_MAP(vips_text_fontmap))
-			pango_fc_font_map_cache_clear(
-				PANGO_FC_FONT_MAP(vips_text_fontmap));
+		pango_fc_font_map_config_changed(PANGO_FC_FONT_MAP(vips_text_fontmap));
 	}
 #else  /*!HAVE_FONTCONFIG*/
 	if (text->fontfile)
