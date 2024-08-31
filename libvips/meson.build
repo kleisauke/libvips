@@ -26,7 +26,7 @@ libvips_lib = library('vips',
     darwin_versions: darwin_versions,
     gnu_symbol_visibility: 'hidden',
     install: true,
-    link_args: nodelete_link_args,
+    link_args: [nodelete_link_args, dbghelp_link_args],
 )
 
 libvips_dep = declare_dependency(

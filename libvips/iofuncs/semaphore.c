@@ -54,6 +54,8 @@
 #include <vips/vips.h>
 #include <vips/thread.h>
 
+#include "stacktrace.h"
+
 void
 vips_semaphore_init(VipsSemaphore *s, int v, char *name)
 {
@@ -121,13 +123,23 @@ vips__semaphore_downn_until(VipsSemaphore *s, int n, gint64 end_time)
 
 	g_mutex_lock(s->mutex);
 
+	gboolean fail_print = FALSE;
+
 	while (s->v < n) {
-		if (end_time == -1)
-			g_cond_wait(s->cond, s->mutex);
-		else if (!g_cond_wait_until(s->cond, s->mutex, end_time)) {
+		if (end_time == -1) {
+			end_time = g_get_monotonic_time() + 30 * G_TIME_SPAN_SECOND;
+			fail_print = TRUE;
+		}
+
+		if (!g_cond_wait_until(s->cond, s->mutex, end_time)) {
 			/* timeout has passed.
 			 */
 			g_mutex_unlock(s->mutex);
+
+			if (fail_print) {
+				printf("timed out after 30 seconds ... possible deadlock\n");
+				print_stacktrace();
+			}
 
 			VIPS_GATE_STOP("vips__semaphore_downn_until: wait");
 			return -1;

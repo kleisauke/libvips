@@ -72,6 +72,7 @@ libvips_deps = [
     m_dep,
 ]
 nodelete_link_args = cc.get_supported_link_arguments('-Wl,-z,nodelete')
+dbghelp_link_args = host_os == 'windows' ? cc.get_supported_link_arguments('-ldbghelp') : []
 
 prefix_dir = get_option('prefix')
 lib_dir = prefix_dir / get_option('libdir')

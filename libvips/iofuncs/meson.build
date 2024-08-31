@@ -42,6 +42,7 @@ iofuncs_sources = files(
 
 iofuncs_headers = files(
     'sink.h',
+    'stacktrace.h',
 )
 
 vipsmarshal = gnome.genmarshal(
