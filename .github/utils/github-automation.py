@@ -13,27 +13,11 @@
 
 import argparse
 from git import Repo  # type: ignore
-import html
 import github
 import os
 import re
 import sys
 from typing import List, Optional
-
-
-def escape_description(str):
-    # If the description of an issue/pull request is empty, the GitHub API
-    # library returns None instead of an empty string. Handle this here to
-    # avoid failures from trying to manipulate None.
-    if str is None:
-        return ""
-    # https://github.com/github/markup/issues/1168#issuecomment-494946168
-    str = html.escape(str, False)
-    # '@' followed by alphanum is a user name
-    str = re.sub("@(?=\w)", "@<!-- -->", str)
-    # '#' followed by digits is considered an issue number
-    str = re.sub("#(?=\d)", "#<!-- -->", str)
-    return str
 
 
 def setup_bot_git(git_dir="."):
@@ -61,7 +45,7 @@ def extract_commit_hash(arg: str):
 
 
 class BackportWorkflow:
-    CHERRY_PICK_FAILED_LABEL = "backport:cherry-pick-failed"
+    CHERRY_PICK_FAILED_LABEL = "cherry-pick-failed"
 
     """
     This class implements the sub-commands for the backport-workflow command.
