@@ -38,8 +38,8 @@ jobs:
       pull-requests: write
     if: >-
       (github.repository == 'libvips/libvips') &&
-      !startswith(github.event.comment.body, '<!--IGNORE-->') &&
-      contains(github.event.action == 'opened' && github.event.issue.body || github.event.comment.body, '/cherry-pick')
+      !startswith(env.COMMENT_BODY, '<!--IGNORE-->') &&
+      contains(env.COMMENT_BODY, '/cherry-pick')
     steps:
       - name: Fetch sources
         uses: actions/checkout@v4
