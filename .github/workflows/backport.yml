@@ -37,7 +37,7 @@ jobs:
       issues: write
       pull-requests: write
     if: >-
-      (github.repository == 'libvips/libvips') &&
+      (github.repository == 'kleisauke/libvips') &&
       !startswith(github.event.comment.body, '<!--IGNORE-->') &&
       contains(github.event.action == 'opened' && github.event.issue.body || github.event.comment.body, '/cherry-pick')
     steps:
