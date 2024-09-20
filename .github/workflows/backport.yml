@@ -37,14 +37,14 @@ jobs:
       issues: write
       pull-requests: write
     if: >-
-      (github.repository == 'libvips/libvips') &&
+      (github.repository == 'kleisauke/libvips') &&
       !startswith(github.event.comment.body, '<!--IGNORE-->') &&
       contains(github.event.action == 'opened' && github.event.issue.body || github.event.comment.body, '/cherry-pick')
     steps:
       - name: Fetch sources
         uses: actions/checkout@v4
         with:
-          repository: libvips/libvips
+          repository: kleisauke/libvips
           # GitHub stores the token used for checkout and uses it for pushes
           # too, but we want to use a different token for pushing, so we need
           # to disable persist-credentials here.
