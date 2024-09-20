@@ -2,6 +2,7 @@
 #
 # Originally from:
 # https://github.com/llvm/llvm-project/blob/main/llvm/utils/git/github-automation.py
+#
 # Preserved license:
 # ======- github-automation - LLVM GitHub Automation Routines--*- python -*--==#
 #
