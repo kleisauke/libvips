@@ -77,7 +77,7 @@ class BackportWorkflow:
         issue_number: int,
         branch_repo_name: str,
         branch_repo_token: str,
-        libvips_project_dir: str,
+        libvips_dir: str,
         requested_by: str,
     ) -> None:
         self._token = token
@@ -88,7 +88,7 @@ class BackportWorkflow:
             self._branch_repo_token = branch_repo_token
         else:
             self._branch_repo_token = self.token
-        self._libvips_project_dir = libvips_project_dir
+        self._libvips_dir = libvips_dir
         self._requested_by = requested_by
 
     @property
@@ -116,8 +116,8 @@ class BackportWorkflow:
         return self._branch_repo_token
 
     @property
-    def libvips_project_dir(self) -> str:
-        return self._libvips_project_dir
+    def libvips_dir(self) -> str:
+        return self._libvips_dir
 
     @property
     def requested_by(self) -> str:
@@ -154,11 +154,6 @@ class BackportWorkflow:
 
     def print_release_branch(self) -> None:
         print(self.release_branch_for_issue)
-
-    def issue_notify_branch(self) -> None:
-        self.issue.create_comment(
-            "/branch {}/{}".format(self.branch_repo_name, self.branch_name)
-        )
 
     def issue_notify_pull_request(self, pull: github.PullRequest.PullRequest) -> None:
         self.issue.create_comment(
@@ -261,7 +256,7 @@ class BackportWorkflow:
         """
         print("cherry-picking", commits)
         branch_name = self.branch_name
-        local_repo = Repo(self.libvips_project_dir)
+        local_repo = Repo(self.libvips_dir)
         local_repo.git.checkout(self.release_branch_for_issue)
 
         for c in commits:
@@ -276,9 +271,7 @@ class BackportWorkflow:
         local_repo.git.push(push_url, "HEAD:{}".format(branch_name), force=True)
 
         self.issue_remove_cherry_pick_failed_label()
-        return self.create_pull_request(
-            self.branch_repo_owner, self.repo_name, branch_name, commits
-        )
+        return self.create_pull_request(branch_name, commits)
 
     def check_if_pull_request_exists(
         self, repo: github.Repository.Repository, head: str
@@ -287,7 +280,7 @@ class BackportWorkflow:
         return pulls.totalCount != 0
 
     def create_pull_request(
-        self, owner: str, repo_name: str, branch: str, commits: List[str]
+        self, branch: str, commits: List[str]
     ) -> bool:
         """
         Create a pull request in `self.repo_name`.  The base branch of the
@@ -304,7 +297,7 @@ class BackportWorkflow:
         if release_branch_for_issue is None:
             return False
 
-        head = f"{owner}:{branch}"
+        head = f"{self.branch_repo_owner}:{branch}"
         if self.check_if_pull_request_exists(repo, head):
             print("PR already exists...")
             return True
@@ -382,10 +375,10 @@ subparsers = parser.add_subparsers(dest="command")
 
 backport_workflow_parser = subparsers.add_parser("backport-workflow")
 backport_workflow_parser.add_argument(
-    "--llvm-project-dir",
+    "--libvips-dir",
     type=str,
     default=".",
-    help="directory containing the llvm-project checkout",
+    help="directory containing the libvips checkout",
 )
 backport_workflow_parser.add_argument(
     "--issue-number", type=int, required=True, help="The issue number to update"
@@ -428,7 +421,7 @@ if args.command == "backport-workflow":
         args.issue_number,
         args.branch_repo,
         args.branch_repo_token,
-        args.llvm_project_dir,
+        args.libvips_dir,
         args.requested_by,
     )
     if not backport_workflow.release_branch_for_issue:
