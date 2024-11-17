@@ -568,6 +568,10 @@ if libheif_dep.found()
     if libheif_dep.version().version_compare('>=1.17.0')
         cfg_var.set('HAVE_HEIF_ERROR_SUCCESS', '1')
     endif
+    # heif_context_set_security_limits added in 1.19.0
+    if libheif_dep.version().version_compare('>=1.19.0')
+        cfg_var.set('HAVE_HEIF_CONTEXT_SET_SECURITY_LIMITS', '1')
+    endif
 endif
 
 libjxl_dep = dependency('libjxl', version: '>=0.6', required: get_option('jpeg-xl'))

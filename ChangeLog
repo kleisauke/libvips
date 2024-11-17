@@ -2,6 +2,8 @@
 
 - add `keep_duplicate_frames` option to GIF save [dloebl]
 - add Magic Kernel support [akimon658]
+- heifload: increase maximum image size to 32768^2 [kleisauke]
+- heifload: "unlimited" flag disables all security limits [kleisauke]
 
 8.16.1
 
