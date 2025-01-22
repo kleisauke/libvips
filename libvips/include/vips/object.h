@@ -40,6 +40,26 @@
 extern "C" {
 #endif /*__cplusplus*/
 
+#if G_GNUC_CHECK_VERSION(4, 8)
+#ifdef __cplusplus
+#define IS_CONST_MEMBER(STRUCT, MEMBER) \
+	std::is_const<decltype(STRUCT::MEMBER)>::value
+#else
+#define IS_CONST_MEMBER(STRUCT, MEMBER) \
+	__builtin_types_compatible_p( \
+		__typeof__(((STRUCT *) 0)->MEMBER) *, \
+		const __typeof__(((STRUCT *) 0)->MEMBER) *)
+#endif
+
+#define VIPS_STRUCT_OFFSET(STRUCT, MEMBER) \
+	({ \
+		G_STATIC_ASSERT(IS_CONST_MEMBER(STRUCT, MEMBER)); \
+		G_STRUCT_OFFSET(STRUCT, MEMBER); \
+	})
+#else
+#define VIPS_STRUCT_OFFSET(STRUCT, MEMBER) G_STRUCT_OFFSET(STRUCT, MEMBER)
+#endif
+
 /* Handy!
  */
 #ifdef VIPS_DEBUG
