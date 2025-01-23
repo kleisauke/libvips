@@ -762,21 +762,21 @@ vips_icc_class_init(VipsIccClass *class)
 		_("Intent"),
 		_("Rendering intent"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIcc, intent),
+		VIPS_STRUCT_OFFSET(VipsIcc, intent),
 		VIPS_TYPE_INTENT, VIPS_INTENT_RELATIVE);
 
 	VIPS_ARG_ENUM(class, "pcs", 6,
 		_("PCS"),
 		_("Set Profile Connection Space"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIcc, pcs),
+		VIPS_STRUCT_OFFSET(VipsIcc, pcs),
 		VIPS_TYPE_PCS, VIPS_PCS_LAB);
 
 	VIPS_ARG_BOOL(class, "black_point_compensation", 7,
 		_("Black point compensation"),
 		_("Enable black point compensation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIcc, black_point_compensation),
+		VIPS_STRUCT_OFFSET(VipsIcc, black_point_compensation),
 		FALSE);
 
 	cmsSetLogErrorHandler(icc_error);
@@ -958,14 +958,14 @@ vips_icc_import_class_init(VipsIccImportClass *class)
 		_("Embedded"),
 		_("Use embedded input profile, if available"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIccImport, embedded),
+		VIPS_STRUCT_OFFSET(VipsIccImport, embedded),
 		FALSE);
 
 	VIPS_ARG_STRING(class, "input_profile", 120,
 		_("Input profile"),
 		_("Filename to load input profile from"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIccImport, input_profile_filename),
+		VIPS_STRUCT_OFFSET(VipsIccImport, input_profile_filename),
 		NULL);
 }
 
@@ -1130,14 +1130,14 @@ vips_icc_export_class_init(VipsIccExportClass *class)
 		_("Output profile"),
 		_("Filename to load output profile from"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIccExport, output_profile_filename),
+		VIPS_STRUCT_OFFSET(VipsIccExport, output_profile_filename),
 		NULL);
 
 	VIPS_ARG_INT(class, "depth", 130,
 		_("Depth"),
 		_("Output device space depth in bits"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIcc, depth),
+		VIPS_STRUCT_OFFSET(VipsIcc, depth),
 		8, 16, 8);
 }
 
@@ -1234,28 +1234,28 @@ vips_icc_transform_class_init(VipsIccImportClass *class)
 		_("Output profile"),
 		_("Filename to load output profile from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsIccTransform, output_profile_filename),
+		VIPS_STRUCT_OFFSET(VipsIccTransform, output_profile_filename),
 		NULL);
 
 	VIPS_ARG_BOOL(class, "embedded", 120,
 		_("Embedded"),
 		_("Use embedded input profile, if available"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIccTransform, embedded),
+		VIPS_STRUCT_OFFSET(VipsIccTransform, embedded),
 		FALSE);
 
 	VIPS_ARG_STRING(class, "input_profile", 130,
 		_("Input profile"),
 		_("Filename to load input profile from"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIccTransform, input_profile_filename),
+		VIPS_STRUCT_OFFSET(VipsIccTransform, input_profile_filename),
 		NULL);
 
 	VIPS_ARG_INT(class, "depth", 140,
 		_("Depth"),
 		_("Output device space depth in bits"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIcc, depth),
+		VIPS_STRUCT_OFFSET(VipsIcc, depth),
 		8, 16, 8);
 }
 

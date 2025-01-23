@@ -498,13 +498,13 @@ vips_mosaic1_class_init(VipsMosaic1Class *class)
 		_("Reference"),
 		_("Reference image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, ref));
+		VIPS_STRUCT_OFFSET(VipsMosaic1, ref));
 
 	VIPS_ARG_IMAGE(class, "sec", 2,
 		_("Secondary"),
 		_("Secondary image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, sec));
+		VIPS_STRUCT_OFFSET(VipsMosaic1, sec));
 
 	VIPS_ARG_IMAGE(class, "out", 3,
 		_("Output"),
@@ -516,97 +516,97 @@ vips_mosaic1_class_init(VipsMosaic1Class *class)
 		_("Direction"),
 		_("Horizontal or vertical mosaic"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, direction),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, direction),
 		VIPS_TYPE_DIRECTION, VIPS_DIRECTION_HORIZONTAL);
 
 	VIPS_ARG_INT(class, "xr1", 5,
 		_("xr1"),
 		_("Position of first reference tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, xr1),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, xr1),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "yr1", 6,
 		_("yr1"),
 		_("Position of first reference tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, yr1),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, yr1),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "xs1", 7,
 		_("xs1"),
 		_("Position of first secondary tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, xs1),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, xs1),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "ys1", 8,
 		_("ys1"),
 		_("Position of first secondary tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, ys1),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, ys1),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "xr2", 9,
 		_("xr2"),
 		_("Position of second reference tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, xr2),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, xr2),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "yr2", 10,
 		_("yr2"),
 		_("Position of second reference tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, yr2),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, yr2),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "xs2", 11,
 		_("xs2"),
 		_("Position of second secondary tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, xs2),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, xs2),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "ys2", 12,
 		_("ys2"),
 		_("Position of second secondary tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, ys2),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, ys2),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "hwindow", 13,
 		_("hwindow"),
 		_("Half window size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, hwindow),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, hwindow),
 		0, 1000000000, 5);
 
 	VIPS_ARG_INT(class, "harea", 14,
 		_("harea"),
 		_("Half area size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, harea),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, harea),
 		0, 1000000000, 15);
 
 	VIPS_ARG_BOOL(class, "search", 15,
 		_("Search"),
 		_("Search to improve tie-points"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, search),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, search),
 		FALSE);
 
 	VIPS_ARG_INTERPOLATE(class, "interpolate", 16,
 		_("Interpolate"),
 		_("Interpolate pixels with this"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, interpolate));
+		VIPS_STRUCT_OFFSET(VipsMosaic1, interpolate));
 
 	VIPS_ARG_INT(class, "mblend", 17,
 		_("Max blend"),
 		_("Maximum blend size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic1, mblend),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, mblend),
 		0, 10000, 10);
 
 	VIPS_ARG_INT(class, "bandno", 18,

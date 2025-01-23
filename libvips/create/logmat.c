@@ -201,21 +201,21 @@ vips_logmat_class_init(VipsLogmatClass *class)
 		_("Radius"),
 		_("Radius of Gaussian"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsLogmat, sigma),
+		VIPS_STRUCT_OFFSET(VipsLogmat, sigma),
 		0.000001, 10000.0, 1.0);
 
 	VIPS_ARG_DOUBLE(class, "min_ampl", 3,
 		_("Width"),
 		_("Minimum amplitude of Gaussian"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsLogmat, min_ampl),
+		VIPS_STRUCT_OFFSET(VipsLogmat, min_ampl),
 		0.000001, 10000.0, 0.1);
 
 	VIPS_ARG_BOOL(class, "separable", 4,
 		_("Separable"),
 		_("Generate separable Gaussian"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsLogmat, separable),
+		VIPS_STRUCT_OFFSET(VipsLogmat, separable),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "integer", 5,
@@ -229,7 +229,7 @@ vips_logmat_class_init(VipsLogmatClass *class)
 		_("Precision"),
 		_("Generate with this precision"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsLogmat, precision),
+		VIPS_STRUCT_OFFSET(VipsLogmat, precision),
 		VIPS_TYPE_PRECISION, VIPS_PRECISION_INTEGER);
 }
 

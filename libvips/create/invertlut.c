@@ -288,13 +288,13 @@ vips_invertlut_class_init(VipsInvertlutClass *class)
 		_("Input"),
 		_("Matrix of XY coordinates"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsInvertlut, in));
+		VIPS_STRUCT_OFFSET(VipsInvertlut, in));
 
 	VIPS_ARG_INT(class, "size", 5,
 		_("Size"),
 		_("LUT size to generate"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsInvertlut, size),
+		VIPS_STRUCT_OFFSET(VipsInvertlut, size),
 		1, 1000000, 256);
 }
 

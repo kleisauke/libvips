@@ -224,13 +224,13 @@ vips_recomb_class_init(VipsRecombClass *class)
 		_("Input"),
 		_("Input image argument"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRecomb, in));
+		VIPS_STRUCT_OFFSET(VipsRecomb, in));
 
 	VIPS_ARG_IMAGE(class, "m", 102,
 		_("M"),
 		_("Matrix of coefficients"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRecomb, m));
+		VIPS_STRUCT_OFFSET(VipsRecomb, m));
 }
 
 static void

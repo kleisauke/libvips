@@ -191,35 +191,35 @@ vips_xyz_class_init(VipsXyzClass *class)
 		_("Width"),
 		_("Image width in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsXyz, width),
+		VIPS_STRUCT_OFFSET(VipsXyz, width),
 		1, VIPS_MAX_COORD, 64);
 
 	VIPS_ARG_INT(class, "height", 5,
 		_("Height"),
 		_("Image height in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsXyz, height),
+		VIPS_STRUCT_OFFSET(VipsXyz, height),
 		1, VIPS_MAX_COORD, 64);
 
 	VIPS_ARG_INT(class, "csize", 6,
 		_("csize"),
 		_("Size of third dimension"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsXyz, csize),
+		VIPS_STRUCT_OFFSET(VipsXyz, csize),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "dsize", 7,
 		_("dsize"),
 		_("Size of fourth dimension"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsXyz, dsize),
+		VIPS_STRUCT_OFFSET(VipsXyz, dsize),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "esize", 8,
 		_("esize"),
 		_("Size of fifth dimension"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsXyz, esize),
+		VIPS_STRUCT_OFFSET(VipsXyz, esize),
 		1, VIPS_MAX_COORD, 1);
 }
 

@@ -269,27 +269,27 @@ vips_draw_image_class_init(VipsDrawImageClass *class)
 		_("Sub-image"),
 		_("Sub-image to insert into main image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawImage, sub));
+		VIPS_STRUCT_OFFSET(VipsDrawImage, sub));
 
 	VIPS_ARG_INT(class, "x", 6,
 		_("x"),
 		_("Draw image here"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawImage, x),
+		VIPS_STRUCT_OFFSET(VipsDrawImage, x),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_INT(class, "y", 7,
 		_("y"),
 		_("Draw image here"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawImage, y),
+		VIPS_STRUCT_OFFSET(VipsDrawImage, y),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_ENUM(class, "mode", 8,
 		_("Mode"),
 		_("Combining mode"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsDrawImage, mode),
+		VIPS_STRUCT_OFFSET(VipsDrawImage, mode),
 		VIPS_TYPE_COMBINE_MODE, VIPS_COMBINE_MODE_SET);
 }
 

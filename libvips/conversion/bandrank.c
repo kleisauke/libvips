@@ -254,14 +254,14 @@ vips_bandrank_class_init(VipsBandrankClass *class)
 		_("Input"),
 		_("Array of input images"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBandrank, in),
+		VIPS_STRUCT_OFFSET(VipsBandrank, in),
 		VIPS_TYPE_ARRAY_IMAGE);
 
 	VIPS_ARG_INT(class, "index", 0,
 		_("Index"),
 		_("Select this band element from sorted list"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsBandrank, index),
+		VIPS_STRUCT_OFFSET(VipsBandrank, index),
 		-1, 1000000, -1);
 }
 

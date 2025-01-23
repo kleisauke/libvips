@@ -181,7 +181,7 @@ vips_round_class_init(VipsRoundClass *class)
 		_("Round operation"),
 		_("Rounding operation to perform"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRound, round),
+		VIPS_STRUCT_OFFSET(VipsRound, round),
 		VIPS_TYPE_OPERATION_ROUND, VIPS_OPERATION_ROUND_RINT);
 }
 

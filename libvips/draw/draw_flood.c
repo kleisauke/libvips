@@ -566,27 +566,27 @@ vips_draw_flood_class_init(VipsDrawFloodClass *class)
 		_("x"),
 		_("DrawFlood start point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawFlood, x),
+		VIPS_STRUCT_OFFSET(VipsDrawFlood, x),
 		0, 1000000000, 0);
 
 	VIPS_ARG_INT(class, "y", 4,
 		_("y"),
 		_("DrawFlood start point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawFlood, y),
+		VIPS_STRUCT_OFFSET(VipsDrawFlood, y),
 		0, 1000000000, 0);
 
 	VIPS_ARG_IMAGE(class, "test", 5,
 		_("Test"),
 		_("Test pixels in this image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsDrawFlood, test));
+		VIPS_STRUCT_OFFSET(VipsDrawFlood, test));
 
 	VIPS_ARG_BOOL(class, "equal", 6,
 		_("Equal"),
 		_("DrawFlood while equal to edge"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsDrawFlood, equal),
+		VIPS_STRUCT_OFFSET(VipsDrawFlood, equal),
 		FALSE);
 
 	VIPS_ARG_INT(class, "left", 7,

@@ -111,7 +111,7 @@ vips_phasecor_class_init(VipsPhasecorClass *class)
 		_("in2"),
 		_("Second input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsPhasecor, in2));
+		VIPS_STRUCT_OFFSET(VipsPhasecor, in2));
 }
 
 static void

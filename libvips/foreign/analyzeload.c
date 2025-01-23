@@ -141,7 +141,7 @@ vips_foreign_load_analyze_class_init(VipsForeignLoadAnalyzeClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadAnalyze, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadAnalyze, filename),
 		NULL);
 }
 

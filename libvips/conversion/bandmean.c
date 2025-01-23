@@ -212,7 +212,7 @@ vips_bandmean_class_init(VipsBandmeanClass *class)
 		_("Input"),
 		_("Input image argument"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBandmean, in));
+		VIPS_STRUCT_OFFSET(VipsBandmean, in));
 }
 
 static void

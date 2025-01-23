@@ -120,7 +120,7 @@ negative_class_init(NegativeClass *class)
         "Input",
         "Input image",
         VIPS_ARGUMENT_REQUIRED_INPUT,
-        G_STRUCT_OFFSET(Negative, in));
+        VIPS_STRUCT_OFFSET(Negative, in));
 
     VIPS_ARG_IMAGE(class, "out", 2,
         "Output",
@@ -132,7 +132,7 @@ negative_class_init(NegativeClass *class)
         "Image maximum",
         "Maximum value in image: pivot about this",
         VIPS_ARGUMENT_OPTIONAL_INPUT,
-        G_STRUCT_OFFSET(Negative, image_max),
+        VIPS_STRUCT_OFFSET(Negative, image_max),
         0, 255, 255);
 }
 </programlisting>

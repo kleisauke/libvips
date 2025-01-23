@@ -130,21 +130,21 @@ vips_convsep_class_init(VipsConvsepClass *class)
 		_("Precision"),
 		_("Convolve with this precision"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsConvsep, precision),
+		VIPS_STRUCT_OFFSET(VipsConvsep, precision),
 		VIPS_TYPE_PRECISION, VIPS_PRECISION_FLOAT);
 
 	VIPS_ARG_INT(class, "layers", 204,
 		_("Layers"),
 		_("Use this many layers in approximation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsConvsep, layers),
+		VIPS_STRUCT_OFFSET(VipsConvsep, layers),
 		1, 1000, 5);
 
 	VIPS_ARG_INT(class, "cluster", 205,
 		_("Cluster"),
 		_("Cluster lines closer than this in approximation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsConvsep, cluster),
+		VIPS_STRUCT_OFFSET(VipsConvsep, cluster),
 		1, 100, 1);
 }
 

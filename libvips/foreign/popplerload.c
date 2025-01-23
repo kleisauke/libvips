@@ -545,42 +545,42 @@ vips_foreign_load_pdf_class_init(VipsForeignLoadPdfClass *class)
 		_("Page"),
 		_("First page to load"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPdf, page_no),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPdf, page_no),
 		0, 100000, 0);
 
 	VIPS_ARG_INT(class, "n", 21,
 		_("n"),
 		_("Number of pages to load, -1 for all"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPdf, n),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPdf, n),
 		-1, 100000, 1);
 
 	VIPS_ARG_DOUBLE(class, "dpi", 22,
 		_("DPI"),
 		_("DPI to render at"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPdf, dpi),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPdf, dpi),
 		0.001, 100000.0, 72.0);
 
 	VIPS_ARG_DOUBLE(class, "scale", 23,
 		_("Scale"),
 		_("Factor to scale by"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPdf, scale),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPdf, scale),
 		0.0, 100000.0, 1.0);
 
 	VIPS_ARG_BOXED(class, "background", 24,
 		_("Background"),
 		_("Background colour"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPdf, background),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPdf, background),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_STRING(class, "password", 25,
 		_("Password"),
 		_("Password to decrypt with"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPdf, password),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPdf, password),
 		NULL);
 }
 
@@ -689,7 +689,7 @@ vips_foreign_load_pdf_file_class_init(
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPdfFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPdfFile, filename),
 		NULL);
 }
 
@@ -749,7 +749,7 @@ vips_foreign_load_pdf_buffer_class_init(
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPdfBuffer, buf),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPdfBuffer, buf),
 		VIPS_TYPE_BLOB);
 }
 
@@ -809,7 +809,7 @@ vips_foreign_load_pdf_source_class_init(
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPdfSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPdfSource, source),
 		VIPS_TYPE_SOURCE);
 }
 

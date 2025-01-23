@@ -322,7 +322,7 @@ vips_sharpen_class_init(VipsSharpenClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSharpen, in));
+		VIPS_STRUCT_OFFSET(VipsSharpen, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),
@@ -334,42 +334,42 @@ vips_sharpen_class_init(VipsSharpenClass *class)
 		_("Sigma"),
 		_("Sigma of Gaussian"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSharpen, sigma),
+		VIPS_STRUCT_OFFSET(VipsSharpen, sigma),
 		0.000001, 10.0, 0.5);
 
 	VIPS_ARG_DOUBLE(class, "x1", 5,
 		_("x1"),
 		_("Flat/jaggy threshold"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSharpen, x1),
+		VIPS_STRUCT_OFFSET(VipsSharpen, x1),
 		0, 1000000, 2.0);
 
 	VIPS_ARG_DOUBLE(class, "y2", 6,
 		_("y2"),
 		_("Maximum brightening"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSharpen, y2),
+		VIPS_STRUCT_OFFSET(VipsSharpen, y2),
 		0, 1000000, 10);
 
 	VIPS_ARG_DOUBLE(class, "y3", 7,
 		_("y3"),
 		_("Maximum darkening"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSharpen, y3),
+		VIPS_STRUCT_OFFSET(VipsSharpen, y3),
 		0, 1000000, 20);
 
 	VIPS_ARG_DOUBLE(class, "m1", 8,
 		_("m1"),
 		_("Slope for flat areas"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSharpen, m1),
+		VIPS_STRUCT_OFFSET(VipsSharpen, m1),
 		0, 1000000, 0.0);
 
 	VIPS_ARG_DOUBLE(class, "m2", 9,
 		_("m2"),
 		_("Slope for jaggy areas"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSharpen, m2),
+		VIPS_STRUCT_OFFSET(VipsSharpen, m2),
 		0, 1000000, 3.0);
 
 	/* We used to have a radius control.

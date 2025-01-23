@@ -164,13 +164,13 @@ vips_bandunfold_class_init(VipsBandunfoldClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBandunfold, in));
+		VIPS_STRUCT_OFFSET(VipsBandunfold, in));
 
 	VIPS_ARG_INT(class, "factor", 11,
 		_("Factor"),
 		_("Unfold by this factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsBandunfold, factor),
+		VIPS_STRUCT_OFFSET(VipsBandunfold, factor),
 		0, 10000000, 0);
 }
 

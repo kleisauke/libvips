@@ -294,35 +294,35 @@ vips_perlin_class_init(VipsPerlinClass *class)
 		_("Width"),
 		_("Image width in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsPerlin, width),
+		VIPS_STRUCT_OFFSET(VipsPerlin, width),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "height", 3,
 		_("Height"),
 		_("Image height in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsPerlin, height),
+		VIPS_STRUCT_OFFSET(VipsPerlin, height),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "cell_size", 3,
 		_("Cell size"),
 		_("Size of Perlin cells"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsPerlin, cell_size),
+		VIPS_STRUCT_OFFSET(VipsPerlin, cell_size),
 		1, VIPS_MAX_COORD, 256);
 
 	VIPS_ARG_BOOL(class, "uchar", 4,
 		_("Uchar"),
 		_("Output an unsigned char image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsPerlin, uchar),
+		VIPS_STRUCT_OFFSET(VipsPerlin, uchar),
 		FALSE);
 
 	VIPS_ARG_INT(class, "seed", 5,
 		_("Seed"),
 		_("Random number seed"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsPerlin, seed),
+		VIPS_STRUCT_OFFSET(VipsPerlin, seed),
 		INT_MIN, INT_MAX, 0);
 }
 

@@ -261,7 +261,7 @@ vips_math_class_init(VipsMathClass *class)
 		_("Operation"),
 		_("Math to perform"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMath, math),
+		VIPS_STRUCT_OFFSET(VipsMath, math),
 		VIPS_TYPE_OPERATION_MATH, VIPS_OPERATION_MATH_SIN);
 }
 

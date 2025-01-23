@@ -442,7 +442,7 @@ vips_canny_class_init(VipsCannyClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsCanny, in));
+		VIPS_STRUCT_OFFSET(VipsCanny, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),
@@ -454,14 +454,14 @@ vips_canny_class_init(VipsCannyClass *class)
 		_("Sigma"),
 		_("Sigma of Gaussian"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCanny, sigma),
+		VIPS_STRUCT_OFFSET(VipsCanny, sigma),
 		0.01, 1000, 1.4);
 
 	VIPS_ARG_ENUM(class, "precision", 103,
 		_("Precision"),
 		_("Convolve with this precision"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCanny, precision),
+		VIPS_STRUCT_OFFSET(VipsCanny, precision),
 		VIPS_TYPE_PRECISION, VIPS_PRECISION_FLOAT);
 }
 

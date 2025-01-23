@@ -294,7 +294,7 @@ vips_target_class_init(VipsTargetClass *class)
 		_("Memory"),
 		_("File descriptor should output to memory"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsTarget, memory),
+		VIPS_STRUCT_OFFSET(VipsTarget, memory),
 		FALSE);
 
 	/* SET_ALWAYS means that blob is set by C and the obj system is not

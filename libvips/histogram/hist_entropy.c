@@ -111,7 +111,7 @@ vips_hist_entropy_class_init(VipsHistEntropyClass *class)
 		_("Input"),
 		_("Input histogram image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsHistEntropy, in));
+		VIPS_STRUCT_OFFSET(VipsHistEntropy, in));
 
 	VIPS_ARG_DOUBLE(class, "out", 2,
 		_("Output"),

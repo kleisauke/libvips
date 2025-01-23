@@ -427,14 +427,14 @@ vips_shrinkv_class_init(VipsShrinkvClass *class)
 		_("Vshrink"),
 		_("Vertical shrink factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsShrinkv, vshrink),
+		VIPS_STRUCT_OFFSET(VipsShrinkv, vshrink),
 		1, 1000000, 1);
 
 	VIPS_ARG_BOOL(class, "ceil", 10,
 		_("Ceil"),
 		_("Round-up output dimensions"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsShrinkv, ceil),
+		VIPS_STRUCT_OFFSET(VipsShrinkv, ceil),
 		FALSE);
 
 	/* The old name .. now use h and v everywhere.

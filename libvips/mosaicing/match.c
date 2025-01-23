@@ -196,13 +196,13 @@ vips_match_class_init(VipsMatchClass *class)
 		_("Reference"),
 		_("Reference image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, ref));
+		VIPS_STRUCT_OFFSET(VipsMatch, ref));
 
 	VIPS_ARG_IMAGE(class, "sec", 2,
 		_("Secondary"),
 		_("Secondary image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, sec));
+		VIPS_STRUCT_OFFSET(VipsMatch, sec));
 
 	VIPS_ARG_IMAGE(class, "out", 3,
 		_("Output"),
@@ -214,84 +214,84 @@ vips_match_class_init(VipsMatchClass *class)
 		_("xr1"),
 		_("Position of first reference tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, xr1),
+		VIPS_STRUCT_OFFSET(VipsMatch, xr1),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "yr1", 6,
 		_("yr1"),
 		_("Position of first reference tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, yr1),
+		VIPS_STRUCT_OFFSET(VipsMatch, yr1),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "xs1", 7,
 		_("xs1"),
 		_("Position of first secondary tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, xs1),
+		VIPS_STRUCT_OFFSET(VipsMatch, xs1),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "ys1", 8,
 		_("ys1"),
 		_("Position of first secondary tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, ys1),
+		VIPS_STRUCT_OFFSET(VipsMatch, ys1),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "xr2", 9,
 		_("xr2"),
 		_("Position of second reference tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, xr2),
+		VIPS_STRUCT_OFFSET(VipsMatch, xr2),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "yr2", 10,
 		_("yr2"),
 		_("Position of second reference tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, yr2),
+		VIPS_STRUCT_OFFSET(VipsMatch, yr2),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "xs2", 11,
 		_("xs2"),
 		_("Position of second secondary tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, xs2),
+		VIPS_STRUCT_OFFSET(VipsMatch, xs2),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "ys2", 12,
 		_("ys2"),
 		_("Position of second secondary tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, ys2),
+		VIPS_STRUCT_OFFSET(VipsMatch, ys2),
 		-1000000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "hwindow", 13,
 		_("hwindow"),
 		_("Half window size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, hwindow),
+		VIPS_STRUCT_OFFSET(VipsMatch, hwindow),
 		0, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "harea", 14,
 		_("harea"),
 		_("Half area size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, harea),
+		VIPS_STRUCT_OFFSET(VipsMatch, harea),
 		0, 1000000000, 1);
 
 	VIPS_ARG_BOOL(class, "search", 15,
 		_("Search"),
 		_("Search to improve tie-points"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, search),
+		VIPS_STRUCT_OFFSET(VipsMatch, search),
 		FALSE);
 
 	VIPS_ARG_INTERPOLATE(class, "interpolate", 16,
 		_("Interpolate"),
 		_("Interpolate pixels with this"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMatch, interpolate));
+		VIPS_STRUCT_OFFSET(VipsMatch, interpolate));
 }
 
 static void

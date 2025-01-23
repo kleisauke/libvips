@@ -164,21 +164,21 @@ vips_foreign_save_jpeg_class_init(VipsForeignSaveJpegClass *class)
 		_("Q"),
 		_("Q factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJpeg, Q),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJpeg, Q),
 		1, 100, 75);
 
 	VIPS_ARG_BOOL(class, "optimize_coding", 12,
 		_("Optimize coding"),
 		_("Compute optimal Huffman coding tables"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJpeg, optimize_coding),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJpeg, optimize_coding),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "interlace", 13,
 		_("Interlace"),
 		_("Generate an interlaced (progressive) jpeg"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJpeg, interlace),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJpeg, interlace),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "no_subsample", 14,
@@ -192,35 +192,35 @@ vips_foreign_save_jpeg_class_init(VipsForeignSaveJpegClass *class)
 		_("Trellis quantisation"),
 		_("Apply trellis quantisation to each 8x8 block"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJpeg, trellis_quant),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJpeg, trellis_quant),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "overshoot_deringing", 16,
 		_("Overshoot de-ringing"),
 		_("Apply overshooting to samples with extreme values"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJpeg, overshoot_deringing),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJpeg, overshoot_deringing),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "optimize_scans", 17,
 		_("Optimize scans"),
 		_("Split spectrum of DCT coefficients into separate scans"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJpeg, optimize_scans),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJpeg, optimize_scans),
 		FALSE);
 
 	VIPS_ARG_INT(class, "quant_table", 18,
 		_("Quantization table"),
 		_("Use predefined quantization table with given index"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJpeg, quant_table),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJpeg, quant_table),
 		0, 8, 0);
 
 	VIPS_ARG_ENUM(class, "subsample_mode", 19,
 		_("Subsample mode"),
 		_("Select chroma subsample operation mode"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJpeg, subsample_mode),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJpeg, subsample_mode),
 		VIPS_TYPE_FOREIGN_SUBSAMPLE,
 		VIPS_FOREIGN_SUBSAMPLE_AUTO);
 
@@ -228,7 +228,7 @@ vips_foreign_save_jpeg_class_init(VipsForeignSaveJpegClass *class)
 		_("Restart interval"),
 		_("Add restart markers every specified number of mcu"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJpeg, restart_interval),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJpeg, restart_interval),
 		0, INT_MAX, 0);
 }
 
@@ -292,7 +292,7 @@ vips_foreign_save_jpeg_target_class_init(
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJpegTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJpegTarget, target),
 		VIPS_TYPE_TARGET);
 }
 
@@ -361,7 +361,7 @@ vips_foreign_save_jpeg_file_class_init(VipsForeignSaveJpegFileClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJpegFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJpegFile, filename),
 		NULL);
 }
 

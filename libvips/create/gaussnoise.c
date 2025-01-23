@@ -167,35 +167,35 @@ vips_gaussnoise_class_init(VipsGaussnoiseClass *class)
 		_("Width"),
 		_("Image width in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGaussnoise, width),
+		VIPS_STRUCT_OFFSET(VipsGaussnoise, width),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "height", 5,
 		_("Height"),
 		_("Image height in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGaussnoise, height),
+		VIPS_STRUCT_OFFSET(VipsGaussnoise, height),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_DOUBLE(class, "mean", 6,
 		_("Mean"),
 		_("Mean of pixels in generated image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsGaussnoise, mean),
+		VIPS_STRUCT_OFFSET(VipsGaussnoise, mean),
 		-10000000, 1000000, 128);
 
 	VIPS_ARG_DOUBLE(class, "sigma", 6,
 		_("Sigma"),
 		_("Standard deviation of pixels in generated image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsGaussnoise, sigma),
+		VIPS_STRUCT_OFFSET(VipsGaussnoise, sigma),
 		0, 100000, 30);
 
 	VIPS_ARG_INT(class, "seed", 7,
 		_("Seed"),
 		_("Random number seed"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsGaussnoise, seed),
+		VIPS_STRUCT_OFFSET(VipsGaussnoise, seed),
 		INT_MIN, INT_MAX, 0);
 }
 

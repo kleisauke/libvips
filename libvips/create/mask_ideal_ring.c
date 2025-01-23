@@ -98,7 +98,7 @@ vips_mask_ideal_ring_class_init(VipsMaskIdealClass *class)
 		_("Ringwidth"),
 		_("Ringwidth"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskIdealRing, ringwidth),
+		VIPS_STRUCT_OFFSET(VipsMaskIdealRing, ringwidth),
 		0.0, 1000000.0, 0.5);
 }
 

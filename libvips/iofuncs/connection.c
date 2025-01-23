@@ -126,14 +126,14 @@ vips_connection_class_init(VipsConnectionClass *class)
 		_("Descriptor"),
 		_("File descriptor for read or write"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsConnection, descriptor),
+		VIPS_STRUCT_OFFSET(VipsConnection, descriptor),
 		-1, 1000000000, 0);
 
 	VIPS_ARG_STRING(class, "filename", 2,
 		_("Filename"),
 		_("Name of file to open"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsConnection, filename),
+		VIPS_STRUCT_OFFSET(VipsConnection, filename),
 		NULL);
 }
 

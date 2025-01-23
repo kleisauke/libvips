@@ -108,7 +108,7 @@ vips_eye_class_init(VipsEyeClass *class)
 		_("Factor"),
 		_("Maximum spatial frequency"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsEye, factor),
+		VIPS_STRUCT_OFFSET(VipsEye, factor),
 		0.0, 1.0, 0.5);
 }
 

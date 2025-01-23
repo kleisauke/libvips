@@ -620,14 +620,14 @@ vips_foreign_load_nsgif_class_init(VipsForeignLoadNsgifClass *class)
 		_("Page"),
 		_("First page to load"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadNsgif, page),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadNsgif, page),
 		0, 100000, 0);
 
 	VIPS_ARG_INT(class, "n", 6,
 		_("n"),
 		_("Number of pages to load, -1 for all"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadNsgif, n),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadNsgif, n),
 		-1, 100000, 1);
 }
 
@@ -765,7 +765,7 @@ vips_foreign_load_nsgif_file_class_init(
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadNsgifFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadNsgifFile, filename),
 		NULL);
 }
 
@@ -843,7 +843,7 @@ vips_foreign_load_nsgif_buffer_class_init(
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadNsgifBuffer, blob),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadNsgifBuffer, blob),
 		VIPS_TYPE_BLOB);
 }
 
@@ -909,7 +909,7 @@ vips_foreign_load_nsgif_source_class_init(
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadNsgifSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadNsgifSource, source),
 		VIPS_TYPE_SOURCE);
 }
 

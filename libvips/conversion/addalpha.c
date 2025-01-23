@@ -90,7 +90,7 @@ vips_addalpha_class_init(VipsAddAlphaClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsAddAlpha, in));
+		VIPS_STRUCT_OFFSET(VipsAddAlpha, in));
 }
 
 static void

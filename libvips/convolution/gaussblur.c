@@ -132,7 +132,7 @@ vips_gaussblur_class_init(VipsGaussblurClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGaussblur, in));
+		VIPS_STRUCT_OFFSET(VipsGaussblur, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),
@@ -144,21 +144,21 @@ vips_gaussblur_class_init(VipsGaussblurClass *class)
 		_("Sigma"),
 		_("Sigma of Gaussian"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGaussblur, sigma),
+		VIPS_STRUCT_OFFSET(VipsGaussblur, sigma),
 		0.0, 1000, 1.5);
 
 	VIPS_ARG_DOUBLE(class, "min_ampl", 3,
 		_("Minimum amplitude"),
 		_("Minimum amplitude of Gaussian"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsGaussblur, min_ampl),
+		VIPS_STRUCT_OFFSET(VipsGaussblur, min_ampl),
 		0.001, 1.0, 0.2);
 
 	VIPS_ARG_ENUM(class, "precision", 4,
 		_("Precision"),
 		_("Convolve with this precision"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsGaussblur, precision),
+		VIPS_STRUCT_OFFSET(VipsGaussblur, precision),
 		VIPS_TYPE_PRECISION, VIPS_PRECISION_INTEGER);
 }
 

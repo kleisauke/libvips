@@ -374,7 +374,7 @@ vips_foreign_load_matrix_file_class_init(
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadMatrixFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadMatrixFile, filename),
 		NULL);
 }
 
@@ -462,7 +462,7 @@ vips_foreign_load_matrix_source_class_init(
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadMatrixSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadMatrixSource, source),
 		VIPS_TYPE_SOURCE);
 }
 

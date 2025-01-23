@@ -529,25 +529,25 @@ vips_ifthenelse_class_init(VipsIfthenelseClass *class)
 		_("Condition"),
 		_("Condition input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsIfthenelse, cond));
+		VIPS_STRUCT_OFFSET(VipsIfthenelse, cond));
 
 	VIPS_ARG_IMAGE(class, "in1", -1,
 		_("Then image"),
 		_("Source for TRUE pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsIfthenelse, in1));
+		VIPS_STRUCT_OFFSET(VipsIfthenelse, in1));
 
 	VIPS_ARG_IMAGE(class, "in2", 0,
 		_("Else image"),
 		_("Source for FALSE pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsIfthenelse, in2));
+		VIPS_STRUCT_OFFSET(VipsIfthenelse, in2));
 
 	VIPS_ARG_BOOL(class, "blend", 4,
 		_("Blend"),
 		_("Blend smoothly between then and else parts"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIfthenelse, blend),
+		VIPS_STRUCT_OFFSET(VipsIfthenelse, blend),
 		FALSE);
 }
 

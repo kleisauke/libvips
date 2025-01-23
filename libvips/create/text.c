@@ -555,49 +555,49 @@ vips_text_class_init(VipsTextClass *class)
 		_("Text"),
 		_("Text to render"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsText, text),
+		VIPS_STRUCT_OFFSET(VipsText, text),
 		NULL);
 
 	VIPS_ARG_STRING(class, "font", 5,
 		_("Font"),
 		_("Font to render with"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsText, font),
+		VIPS_STRUCT_OFFSET(VipsText, font),
 		NULL);
 
 	VIPS_ARG_INT(class, "width", 6,
 		_("Width"),
 		_("Maximum image width in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsText, width),
+		VIPS_STRUCT_OFFSET(VipsText, width),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "height", 7,
 		_("Height"),
 		_("Maximum image height in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsText, height),
+		VIPS_STRUCT_OFFSET(VipsText, height),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_ENUM(class, "align", 8,
 		_("Align"),
 		_("Align on the low, centre or high edge"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsText, align),
+		VIPS_STRUCT_OFFSET(VipsText, align),
 		VIPS_TYPE_ALIGN, VIPS_ALIGN_LOW);
 
 	VIPS_ARG_BOOL(class, "justify", 9,
 		_("Justify"),
 		_("Justify lines"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsText, justify),
+		VIPS_STRUCT_OFFSET(VipsText, justify),
 		FALSE);
 
 	VIPS_ARG_INT(class, "dpi", 10,
 		_("DPI"),
 		_("DPI to render at"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsText, dpi),
+		VIPS_STRUCT_OFFSET(VipsText, dpi),
 		1, 1000000, 72);
 
 	VIPS_ARG_INT(class, "autofit_dpi", 11,
@@ -611,28 +611,28 @@ vips_text_class_init(VipsTextClass *class)
 		_("Spacing"),
 		_("Line spacing"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsText, spacing),
+		VIPS_STRUCT_OFFSET(VipsText, spacing),
 		-1000000, 1000000, 0);
 
 	VIPS_ARG_STRING(class, "fontfile", 13,
 		_("Font file"),
 		_("Load this font file"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsText, fontfile),
+		VIPS_STRUCT_OFFSET(VipsText, fontfile),
 		NULL);
 
 	VIPS_ARG_BOOL(class, "rgba", 14,
 		_("RGBA"),
 		_("Enable RGBA output"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsText, rgba),
+		VIPS_STRUCT_OFFSET(VipsText, rgba),
 		FALSE);
 
 	VIPS_ARG_ENUM(class, "wrap", 15,
 		_("Wrap"),
 		_("Wrap lines on word or character boundaries"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsText, wrap),
+		VIPS_STRUCT_OFFSET(VipsText, wrap),
 		VIPS_TYPE_TEXT_WRAP, VIPS_TEXT_WRAP_WORD);
 }
 

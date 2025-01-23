@@ -91,21 +91,21 @@ vips_mask_butterworth_class_init(VipsMaskButterworthClass *class)
 		_("Order"),
 		_("Filter order"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskButterworth, order),
+		VIPS_STRUCT_OFFSET(VipsMaskButterworth, order),
 		1.0, 1000000.0, 1.0);
 
 	VIPS_ARG_DOUBLE(class, "frequency_cutoff", 7,
 		_("Frequency cutoff"),
 		_("Frequency cutoff"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskButterworth, frequency_cutoff),
+		VIPS_STRUCT_OFFSET(VipsMaskButterworth, frequency_cutoff),
 		0.0, 1000000.0, 0.5);
 
 	VIPS_ARG_DOUBLE(class, "amplitude_cutoff", 8,
 		_("Amplitude cutoff"),
 		_("Amplitude cutoff"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskButterworth, amplitude_cutoff),
+		VIPS_STRUCT_OFFSET(VipsMaskButterworth, amplitude_cutoff),
 		0.0, 1.0, 0.5);
 }
 

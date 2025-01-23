@@ -373,20 +373,20 @@ vips_zoom_class_init(VipsZoomClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsZoom, in));
+		VIPS_STRUCT_OFFSET(VipsZoom, in));
 
 	VIPS_ARG_INT(class, "xfac", 3,
 		_("Xfac"),
 		_("Horizontal zoom factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsZoom, xfac),
+		VIPS_STRUCT_OFFSET(VipsZoom, xfac),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "yfac", 4,
 		_("Yfac"),
 		_("Vertical zoom factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsZoom, yfac),
+		VIPS_STRUCT_OFFSET(VipsZoom, yfac),
 		1, VIPS_MAX_COORD, 1);
 }
 

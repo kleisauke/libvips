@@ -167,13 +167,13 @@ vips_transpose3d_class_init(VipsTranspose3dClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsTranspose3d, in));
+		VIPS_STRUCT_OFFSET(VipsTranspose3d, in));
 
 	VIPS_ARG_INT(class, "page_height", 3,
 		_("Page height"),
 		_("Height of each input page"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsTranspose3d, page_height),
+		VIPS_STRUCT_OFFSET(VipsTranspose3d, page_height),
 		0, 10000000, 0);
 }
 

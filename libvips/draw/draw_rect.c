@@ -173,35 +173,35 @@ vips_draw_rect_class_init(VipsDrawRectClass *class)
 		_("Left"),
 		_("Rect to fill"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawRect, left),
+		VIPS_STRUCT_OFFSET(VipsDrawRect, left),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_INT(class, "top", 7,
 		_("Top"),
 		_("Rect to fill"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawRect, top),
+		VIPS_STRUCT_OFFSET(VipsDrawRect, top),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_INT(class, "width", 8,
 		_("Width"),
 		_("Rect to fill"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawRect, width),
+		VIPS_STRUCT_OFFSET(VipsDrawRect, width),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_INT(class, "height", 9,
 		_("Height"),
 		_("Rect to fill"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawRect, height),
+		VIPS_STRUCT_OFFSET(VipsDrawRect, height),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_BOOL(class, "fill", 10,
 		_("Fill"),
 		_("Draw a solid object"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsDrawRect, fill),
+		VIPS_STRUCT_OFFSET(VipsDrawRect, fill),
 		FALSE);
 }
 

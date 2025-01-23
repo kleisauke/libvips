@@ -2329,98 +2329,98 @@ vips_foreign_save_dz_class_init(VipsForeignSaveDzClass *class)
 		_("Image name"),
 		_("Image name"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, imagename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, imagename),
 		NULL);
 
 	VIPS_ARG_ENUM(class, "layout", 8,
 		_("Layout"),
 		_("Directory layout"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, layout),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, layout),
 		VIPS_TYPE_FOREIGN_DZ_LAYOUT, VIPS_FOREIGN_DZ_LAYOUT_DZ);
 
 	VIPS_ARG_STRING(class, "suffix", 9,
 		_("Suffix"),
 		_("Filename suffix for tiles"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, suffix),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, suffix),
 		".jpeg");
 
 	VIPS_ARG_INT(class, "overlap", 10,
 		_("Overlap"),
 		_("Tile overlap in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, overlap),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, overlap),
 		0, 8192, 1);
 
 	VIPS_ARG_INT(class, "tile_size", 11,
 		_("Tile size"),
 		_("Tile size in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, tile_size),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, tile_size),
 		1, 8192, 254);
 
 	VIPS_ARG_ENUM(class, "depth", 13,
 		_("Depth"),
 		_("Pyramid depth"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, depth),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, depth),
 		VIPS_TYPE_FOREIGN_DZ_DEPTH, VIPS_FOREIGN_DZ_DEPTH_ONEPIXEL);
 
 	VIPS_ARG_BOOL(class, "centre", 13,
 		_("Center"),
 		_("Center image in tile"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, centre),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, centre),
 		FALSE);
 
 	VIPS_ARG_ENUM(class, "angle", 14,
 		_("Angle"),
 		_("Rotate image during save"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, angle),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, angle),
 		VIPS_TYPE_ANGLE, VIPS_ANGLE_D0);
 
 	VIPS_ARG_ENUM(class, "container", 15,
 		_("Container"),
 		_("Pyramid container type"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, container),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, container),
 		VIPS_TYPE_FOREIGN_DZ_CONTAINER, VIPS_FOREIGN_DZ_CONTAINER_FS);
 
 	VIPS_ARG_INT(class, "compression", 17,
 		_("Compression"),
 		_("ZIP deflate compression level"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, compression),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, compression),
 		-1, 9, 0);
 
 	VIPS_ARG_ENUM(class, "region_shrink", 18,
 		_("Region shrink"),
 		_("Method to shrink regions"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, region_shrink),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, region_shrink),
 		VIPS_TYPE_REGION_SHRINK, VIPS_REGION_SHRINK_MEAN);
 
 	VIPS_ARG_INT(class, "skip_blanks", 19,
 		_("Skip blanks"),
 		_("Skip tiles which are nearly equal to the background"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, skip_blanks),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, skip_blanks),
 		-1, 65535, -1);
 
 	VIPS_ARG_STRING(class, "id", 20,
 		_("id"),
 		_("Resource ID"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, id),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, id),
 		"https://example.com/iiif");
 
 	VIPS_ARG_INT(class, "Q", 21,
 		_("Q"),
 		_("Q factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, Q),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, Q),
 		1, 100, 75);
 
 	/* How annoying. We stupidly had these in earlier versions.
@@ -2537,7 +2537,7 @@ vips_foreign_save_dz_target_class_init(VipsForeignSaveDzTargetClass *class)
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDzTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDzTarget, target),
 		VIPS_TYPE_TARGET);
 }
 
@@ -2597,7 +2597,7 @@ vips_foreign_save_dz_file_class_init(VipsForeignSaveDzFileClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveDzFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDzFile, filename),
 		NULL);
 }
 

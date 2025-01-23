@@ -98,21 +98,21 @@ vips_mask_ideal_band_class_init(VipsMaskIdealBandClass *class)
 		_("Frequency cutoff x"),
 		_("Frequency cutoff x"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskIdealBand, frequency_cutoff_x),
+		VIPS_STRUCT_OFFSET(VipsMaskIdealBand, frequency_cutoff_x),
 		0.0, 1000000.0, 0.5);
 
 	VIPS_ARG_DOUBLE(class, "frequency_cutoff_y", 7,
 		_("Frequency cutoff y"),
 		_("Frequency cutoff y"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskIdealBand, frequency_cutoff_y),
+		VIPS_STRUCT_OFFSET(VipsMaskIdealBand, frequency_cutoff_y),
 		0.0, 1000000.0, 0.5);
 
 	VIPS_ARG_DOUBLE(class, "radius", 8,
 		_("Radius"),
 		_("Radius of circle"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskIdealBand, radius),
+		VIPS_STRUCT_OFFSET(VipsMaskIdealBand, radius),
 		0.0, 1000000.0, 0.1);
 }
 

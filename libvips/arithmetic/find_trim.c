@@ -189,27 +189,27 @@ vips_find_trim_class_init(VipsFindTrimClass *class)
 		_("Input"),
 		_("Image to find_trim"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsFindTrim, in));
+		VIPS_STRUCT_OFFSET(VipsFindTrim, in));
 
 	VIPS_ARG_DOUBLE(class, "threshold", 2,
 		_("Threshold"),
 		_("Object threshold"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsFindTrim, threshold),
+		VIPS_STRUCT_OFFSET(VipsFindTrim, threshold),
 		0, INFINITY, 10.0);
 
 	VIPS_ARG_BOXED(class, "background", 3,
 		_("Background"),
 		_("Color for background pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsFindTrim, background),
+		VIPS_STRUCT_OFFSET(VipsFindTrim, background),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_BOOL(class, "line_art", 4,
 		_("Line art mode"),
 		_("Enable line art mode"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsFindTrim, line_art),
+		VIPS_STRUCT_OFFSET(VipsFindTrim, line_art),
 		FALSE);
 
 	VIPS_ARG_INT(class, "left", 5,

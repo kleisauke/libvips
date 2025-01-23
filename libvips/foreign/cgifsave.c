@@ -894,49 +894,49 @@ vips_foreign_save_cgif_class_init(VipsForeignSaveCgifClass *class)
 		_("Dithering"),
 		_("Amount of dithering"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCgif, dither),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCgif, dither),
 		0.0, 1.0, 1.0);
 
 	VIPS_ARG_INT(class, "effort", 11,
 		_("Effort"),
 		_("Quantisation effort"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCgif, effort),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCgif, effort),
 		1, 10, 7);
 
 	VIPS_ARG_INT(class, "bitdepth", 12,
 		_("Bit depth"),
 		_("Number of bits per pixel"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCgif, bitdepth),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCgif, bitdepth),
 		1, 8, 8);
 
 	VIPS_ARG_DOUBLE(class, "interframe_maxerror", 13,
 		_("Maximum inter-frame error"),
 		_("Maximum inter-frame error for transparency"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCgif, interframe_maxerror),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCgif, interframe_maxerror),
 		0, 32, 0.0);
 
 	VIPS_ARG_BOOL(class, "reuse", 14,
 		_("Reuse palette"),
 		_("Reuse palette from input"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCgif, reuse),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCgif, reuse),
 		FALSE);
 
 	VIPS_ARG_DOUBLE(class, "interpalette_maxerror", 15,
 		_("Maximum inter-palette error"),
 		_("Maximum inter-palette error for palette reusage"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCgif, interpalette_maxerror),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCgif, interpalette_maxerror),
 		0, 256, 3.0);
 
 	VIPS_ARG_BOOL(class, "interlace", 16,
 		_("Interlaced"),
 		_("Generate an interlaced (progressive) GIF"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCgif, interlace),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCgif, interlace),
 		FALSE);
 
 	/* Not a good thing to have enabled by default since it can cause very
@@ -953,7 +953,7 @@ vips_foreign_save_cgif_class_init(VipsForeignSaveCgifClass *class)
 		_("Keep duplicate frames"),
 		_("Keep duplicate frames in the output instead of combining them"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCgif, keep_duplicate_frames),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCgif, keep_duplicate_frames),
 		FALSE);
 }
 
@@ -1011,7 +1011,7 @@ vips_foreign_save_cgif_target_class_init(
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCgifTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCgifTarget, target),
 		VIPS_TYPE_TARGET);
 }
 
@@ -1059,7 +1059,7 @@ vips_foreign_save_cgif_file_class_init(VipsForeignSaveCgifFileClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCgifFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCgifFile, filename),
 		NULL);
 }
 

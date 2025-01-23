@@ -162,14 +162,14 @@ vips_clamp_class_init(VipsClampClass *class)
 		_("Min"),
 		_("Minimum value"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsClamp, min),
+		VIPS_STRUCT_OFFSET(VipsClamp, min),
 		-INFINITY, INFINITY, 0.0);
 
 	VIPS_ARG_DOUBLE(class, "max", 11,
 		_("Max"),
 		_("Maximum value"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsClamp, max),
+		VIPS_STRUCT_OFFSET(VipsClamp, max),
 		-INFINITY, INFINITY, 0.0);
 }
 

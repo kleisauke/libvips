@@ -361,7 +361,7 @@ vips_hist_local_class_init(VipsHistLocalClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsHistLocal, in));
+		VIPS_STRUCT_OFFSET(VipsHistLocal, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),
@@ -373,21 +373,21 @@ vips_hist_local_class_init(VipsHistLocalClass *class)
 		_("Width"),
 		_("Window width in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsHistLocal, width),
+		VIPS_STRUCT_OFFSET(VipsHistLocal, width),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "height", 5,
 		_("Height"),
 		_("Window height in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsHistLocal, height),
+		VIPS_STRUCT_OFFSET(VipsHistLocal, height),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "max_slope", 6,
 		_("Max slope"),
 		_("Maximum slope (CLAHE)"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsHistLocal, max_slope),
+		VIPS_STRUCT_OFFSET(VipsHistLocal, max_slope),
 		0, 100, 0);
 }
 

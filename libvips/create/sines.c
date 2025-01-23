@@ -128,14 +128,14 @@ vips_sines_class_init(VipsSinesClass *class)
 		_("hfreq"),
 		_("Horizontal spatial frequency"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSines, hfreq),
+		VIPS_STRUCT_OFFSET(VipsSines, hfreq),
 		0.0, 10000.0, 0.5);
 
 	VIPS_ARG_DOUBLE(class, "vfreq", 7,
 		_("vfreq"),
 		_("Vertical spatial frequency"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSines, vfreq),
+		VIPS_STRUCT_OFFSET(VipsSines, vfreq),
 		0.0, 10000.0, 0.5);
 }
 

@@ -200,7 +200,7 @@ vips_XYZ2scRGB_class_init(VipsXYZ2scRGBClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsXYZ2scRGB, in));
+		VIPS_STRUCT_OFFSET(VipsXYZ2scRGB, in));
 
 	VIPS_ARG_IMAGE(class, "out", 100,
 		_("Output"),

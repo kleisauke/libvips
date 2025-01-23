@@ -98,7 +98,7 @@ vips_freqfilt_class_init(VipsFreqfiltClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsFreqfilt, in));
+		VIPS_STRUCT_OFFSET(VipsFreqfilt, in));
 
 	VIPS_ARG_IMAGE(class, "out", 1,
 		_("Output"),

@@ -196,7 +196,7 @@ vips_foreign_save_raw_file_class_init(VipsForeignSaveRawFileClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveRawFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveRawFile, filename),
 		NULL);
 }
 
@@ -252,7 +252,7 @@ vips_foreign_save_raw_target_class_init(
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveRawTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveRawTarget, target),
 		VIPS_TYPE_TARGET);
 }
 

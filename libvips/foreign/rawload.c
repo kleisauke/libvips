@@ -139,49 +139,49 @@ vips_foreign_load_raw_class_init(VipsForeignLoadRawClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadRaw, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadRaw, filename),
 		NULL);
 
 	VIPS_ARG_INT(class, "width", 20,
 		_("Width"),
 		_("Image width in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadRaw, width),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadRaw, width),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "height", 21,
 		_("Height"),
 		_("Image height in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadRaw, height),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadRaw, height),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "bands", 22,
 		_("Bands"),
 		_("Number of bands in image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadRaw, bands),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadRaw, bands),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_UINT64(class, "offset", 23,
 		_("Size of header"),
 		_("Offset in bytes from start of file"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadRaw, offset),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadRaw, offset),
 		0, 100000000000, 0);
 
 	VIPS_ARG_ENUM(class, "format", 24,
 		_("Format"),
 		_("Pixel format in image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadRaw, format),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadRaw, format),
 		VIPS_TYPE_BAND_FORMAT, VIPS_FORMAT_UCHAR);
 
 	VIPS_ARG_ENUM(class, "interpretation", 25,
 		_("Interpretation"),
 		_("Pixel interpretation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadRaw, interpretation),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadRaw, interpretation),
 		VIPS_TYPE_INTERPRETATION, VIPS_INTERPRETATION_MULTIBAND);
 }
 

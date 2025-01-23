@@ -345,13 +345,13 @@ vips_quadratic_class_init(VipsQuadraticClass *class)
 		_("Coeff"),
 		_("Coefficient matrix"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsQuadratic, coeff));
+		VIPS_STRUCT_OFFSET(VipsQuadratic, coeff));
 
 	VIPS_ARG_INTERPOLATE(class, "interpolate", 9,
 		_("Interpolate"),
 		_("Interpolate values with this"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsQuadratic, interpolate));
+		VIPS_STRUCT_OFFSET(VipsQuadratic, interpolate));
 }
 
 static void

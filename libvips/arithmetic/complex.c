@@ -258,7 +258,7 @@ vips_complex_class_init(VipsComplexClass *class)
 		_("Operation"),
 		_("Complex to perform"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsComplex, cmplx),
+		VIPS_STRUCT_OFFSET(VipsComplex, cmplx),
 		VIPS_TYPE_OPERATION_COMPLEX, VIPS_OPERATION_COMPLEX_POLAR);
 }
 
@@ -538,7 +538,7 @@ vips_complex2_class_init(VipsComplex2Class *class)
 		_("Operation"),
 		_("Binary complex operation to perform"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsComplex2, cmplx),
+		VIPS_STRUCT_OFFSET(VipsComplex2, cmplx),
 		VIPS_TYPE_OPERATION_COMPLEX2,
 		VIPS_OPERATION_COMPLEX2_CROSS_PHASE);
 }
@@ -771,7 +771,7 @@ vips_complexget_class_init(VipsComplexgetClass *class)
 		_("Operation"),
 		_("Complex to perform"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsComplexget, get),
+		VIPS_STRUCT_OFFSET(VipsComplexget, get),
 		VIPS_TYPE_OPERATION_COMPLEXGET,
 		VIPS_OPERATION_COMPLEXGET_REAL);
 }

@@ -246,7 +246,7 @@ vips_relational_class_init(VipsRelationalClass *class)
 		_("Operation"),
 		_("Relational to perform"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRelational, relational),
+		VIPS_STRUCT_OFFSET(VipsRelational, relational),
 		VIPS_TYPE_OPERATION_RELATIONAL,
 		VIPS_OPERATION_RELATIONAL_EQUAL);
 }
@@ -611,7 +611,7 @@ vips_relational_const_class_init(VipsRelationalConstClass *class)
 		_("Operation"),
 		_("Relational to perform"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRelationalConst, relational),
+		VIPS_STRUCT_OFFSET(VipsRelationalConst, relational),
 		VIPS_TYPE_OPERATION_RELATIONAL,
 		VIPS_OPERATION_RELATIONAL_EQUAL);
 }

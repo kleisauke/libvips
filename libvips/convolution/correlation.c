@@ -150,13 +150,13 @@ vips_correlation_class_init(VipsCorrelationClass *class)
 		_("Input"),
 		_("Input image argument"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsCorrelation, in));
+		VIPS_STRUCT_OFFSET(VipsCorrelation, in));
 
 	VIPS_ARG_IMAGE(class, "ref", 10,
 		_("Mask"),
 		_("Input reference image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsCorrelation, ref));
+		VIPS_STRUCT_OFFSET(VipsCorrelation, ref));
 
 	VIPS_ARG_IMAGE(class, "out", 20,
 		_("Output"),

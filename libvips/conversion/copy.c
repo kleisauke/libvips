@@ -272,7 +272,7 @@ vips_copy_class_init(VipsCopyClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsCopy, in));
+		VIPS_STRUCT_OFFSET(VipsCopy, in));
 
 	VIPS_ARG_BOOL(class, "swap", 2,
 		_("Swap"),
@@ -285,70 +285,70 @@ vips_copy_class_init(VipsCopyClass *class)
 		_("Width"),
 		_("Image width in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCopy, width),
+		VIPS_STRUCT_OFFSET(VipsCopy, width),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "height", 4,
 		_("Height"),
 		_("Image height in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCopy, height),
+		VIPS_STRUCT_OFFSET(VipsCopy, height),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "bands", 5,
 		_("Bands"),
 		_("Number of bands in image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCopy, bands),
+		VIPS_STRUCT_OFFSET(VipsCopy, bands),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_ENUM(class, "format", 6,
 		_("Format"),
 		_("Pixel format in image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCopy, format),
+		VIPS_STRUCT_OFFSET(VipsCopy, format),
 		VIPS_TYPE_BAND_FORMAT, VIPS_FORMAT_UCHAR);
 
 	VIPS_ARG_ENUM(class, "coding", 7,
 		_("Coding"),
 		_("Pixel coding"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCopy, coding),
+		VIPS_STRUCT_OFFSET(VipsCopy, coding),
 		VIPS_TYPE_CODING, VIPS_CODING_NONE);
 
 	VIPS_ARG_ENUM(class, "interpretation", 8,
 		_("Interpretation"),
 		_("Pixel interpretation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCopy, interpretation),
+		VIPS_STRUCT_OFFSET(VipsCopy, interpretation),
 		VIPS_TYPE_INTERPRETATION, VIPS_INTERPRETATION_MULTIBAND);
 
 	VIPS_ARG_DOUBLE(class, "xres", 9,
 		_("Xres"),
 		_("Horizontal resolution in pixels/mm"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCopy, xres),
+		VIPS_STRUCT_OFFSET(VipsCopy, xres),
 		-0.0, 1000000, 0);
 
 	VIPS_ARG_DOUBLE(class, "yres", 10,
 		_("Yres"),
 		_("Vertical resolution in pixels/mm"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCopy, yres),
+		VIPS_STRUCT_OFFSET(VipsCopy, yres),
 		-0.0, 1000000, 0);
 
 	VIPS_ARG_INT(class, "xoffset", 11,
 		_("Xoffset"),
 		_("Horizontal offset of origin"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCopy, xoffset),
+		VIPS_STRUCT_OFFSET(VipsCopy, xoffset),
 		-VIPS_MAX_COORD, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "yoffset", 12,
 		_("Yoffset"),
 		_("Vertical offset of origin"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCopy, yoffset),
+		VIPS_STRUCT_OFFSET(VipsCopy, yoffset),
 		-VIPS_MAX_COORD, VIPS_MAX_COORD, 0);
 }
 

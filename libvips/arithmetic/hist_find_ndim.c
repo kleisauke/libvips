@@ -319,7 +319,7 @@ vips_hist_find_ndim_class_init(VipsHistFindNDimClass *class)
 		_("Bins"),
 		_("Number of bins in each dimension"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsHistFindNDim, bins),
+		VIPS_STRUCT_OFFSET(VipsHistFindNDim, bins),
 		1, 65536, 10);
 }
 

@@ -243,13 +243,13 @@ vips_sequential_class_init(VipsSequentialClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSequential, in));
+		VIPS_STRUCT_OFFSET(VipsSequential, in));
 
 	VIPS_ARG_INT(class, "tile_height", 3,
 		_("Tile height"),
 		_("Tile height in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSequential, tile_height),
+		VIPS_STRUCT_OFFSET(VipsSequential, tile_height),
 		1, 1000000, 1);
 
 	VIPS_ARG_ENUM(class, "access", 6,

@@ -233,21 +233,21 @@ vips_hough_circle_class_init(VipsHoughClass *class)
 		_("Scale"),
 		_("Scale down dimensions by this factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsHoughCircle, scale),
+		VIPS_STRUCT_OFFSET(VipsHoughCircle, scale),
 		1, 100000, 3);
 
 	VIPS_ARG_INT(class, "min_radius", 120,
 		_("Min radius"),
 		_("Smallest radius to search for"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsHoughCircle, min_radius),
+		VIPS_STRUCT_OFFSET(VipsHoughCircle, min_radius),
 		1, 100000, 10);
 
 	VIPS_ARG_INT(class, "max_radius", 121,
 		_("Max radius"),
 		_("Largest radius to search for"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsHoughCircle, max_radius),
+		VIPS_STRUCT_OFFSET(VipsHoughCircle, max_radius),
 		1, 100000, 20);
 }
 

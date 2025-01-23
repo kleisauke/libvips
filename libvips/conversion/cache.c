@@ -108,27 +108,27 @@ vips_cache_class_init(VipsCacheClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsCache, in));
+		VIPS_STRUCT_OFFSET(VipsCache, in));
 
 	VIPS_ARG_INT(class, "tile_width", 3,
 		_("Tile width"),
 		_("Tile width in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCache, tile_width),
+		VIPS_STRUCT_OFFSET(VipsCache, tile_width),
 		1, 1000000, 128);
 
 	VIPS_ARG_INT(class, "tile_height", 3,
 		_("Tile height"),
 		_("Tile height in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCache, tile_height),
+		VIPS_STRUCT_OFFSET(VipsCache, tile_height),
 		1, 1000000, 128);
 
 	VIPS_ARG_INT(class, "max_tiles", 3,
 		_("Max tiles"),
 		_("Maximum number of tiles to cache"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCache, max_tiles),
+		VIPS_STRUCT_OFFSET(VipsCache, max_tiles),
 		-1, 1000000, 1000);
 }
 

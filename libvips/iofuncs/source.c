@@ -366,7 +366,7 @@ vips_source_class_init(VipsSourceClass *class)
 		_("Blob"),
 		_("Blob to load from"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSource, blob),
+		VIPS_STRUCT_OFFSET(VipsSource, blob),
 		VIPS_TYPE_BLOB);
 }
 

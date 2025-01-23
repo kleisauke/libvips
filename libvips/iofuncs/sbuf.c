@@ -88,7 +88,7 @@ vips_sbuf_class_init(VipsSbufClass *class)
 		_("Input"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSbuf, source),
+		VIPS_STRUCT_OFFSET(VipsSbuf, source),
 		VIPS_TYPE_SOURCE);
 }
 

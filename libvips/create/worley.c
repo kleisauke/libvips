@@ -307,28 +307,28 @@ vips_worley_class_init(VipsWorleyClass *class)
 		_("Width"),
 		_("Image width in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsWorley, width),
+		VIPS_STRUCT_OFFSET(VipsWorley, width),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "height", 3,
 		_("Height"),
 		_("Image height in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsWorley, height),
+		VIPS_STRUCT_OFFSET(VipsWorley, height),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "cell_size", 3,
 		_("Cell size"),
 		_("Size of Worley cells"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsWorley, cell_size),
+		VIPS_STRUCT_OFFSET(VipsWorley, cell_size),
 		1, VIPS_MAX_COORD, 256);
 
 	VIPS_ARG_INT(class, "seed", 4,
 		_("Seed"),
 		_("Random number seed"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsWorley, seed),
+		VIPS_STRUCT_OFFSET(VipsWorley, seed),
 		INT_MIN, INT_MAX, 0);
 }
 

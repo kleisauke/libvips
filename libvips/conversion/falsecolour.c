@@ -380,7 +380,7 @@ vips_falsecolour_class_init(VipsFalsecolourClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsFalsecolour, in));
+		VIPS_STRUCT_OFFSET(VipsFalsecolour, in));
 }
 
 static void

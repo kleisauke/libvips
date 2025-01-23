@@ -1924,7 +1924,7 @@ vips_globalbalance_class_init(VipsGlobalbalanceClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGlobalbalance, in));
+		VIPS_STRUCT_OFFSET(VipsGlobalbalance, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),
@@ -1936,14 +1936,14 @@ vips_globalbalance_class_init(VipsGlobalbalanceClass *class)
 		_("Gamma"),
 		_("Image gamma"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsGlobalbalance, gamma),
+		VIPS_STRUCT_OFFSET(VipsGlobalbalance, gamma),
 		0.00001, 10, 1.6);
 
 	VIPS_ARG_BOOL(class, "int_output", 7,
 		_("Int output"),
 		_("Integer output"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsGlobalbalance, int_output),
+		VIPS_STRUCT_OFFSET(VipsGlobalbalance, int_output),
 		FALSE);
 }
 

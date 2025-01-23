@@ -217,7 +217,7 @@ vips_edge_class_init(VipsEdgeClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsEdge, in));
+		VIPS_STRUCT_OFFSET(VipsEdge, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),

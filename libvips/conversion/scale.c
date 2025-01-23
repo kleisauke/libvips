@@ -155,20 +155,20 @@ vips_scale_class_init(VipsScaleClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsScale, in));
+		VIPS_STRUCT_OFFSET(VipsScale, in));
 
 	VIPS_ARG_BOOL(class, "log", 3,
 		_("Log"),
 		_("Log scale"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsScale, log),
+		VIPS_STRUCT_OFFSET(VipsScale, log),
 		FALSE);
 
 	VIPS_ARG_DOUBLE(class, "exp", 3,
 		_("Exponent"),
 		_("Exponent for log scale"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsScale, exp),
+		VIPS_STRUCT_OFFSET(VipsScale, exp),
 		0.00001, 10000, 0.25);
 }
 

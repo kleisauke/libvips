@@ -234,28 +234,28 @@ vips_draw_circle_class_init(VipsDrawCircleClass *class)
 		_("cx"),
 		_("Centre of draw_circle"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawCircle, cx),
+		VIPS_STRUCT_OFFSET(VipsDrawCircle, cx),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_INT(class, "cy", 4,
 		_("cy"),
 		_("Centre of draw_circle"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawCircle, cy),
+		VIPS_STRUCT_OFFSET(VipsDrawCircle, cy),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_INT(class, "radius", 5,
 		_("Radius"),
 		_("Radius in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawCircle, radius),
+		VIPS_STRUCT_OFFSET(VipsDrawCircle, radius),
 		0, 1000000000, 0);
 
 	VIPS_ARG_BOOL(class, "fill", 6,
 		_("Fill"),
 		_("Draw a solid object"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsDrawCircle, fill),
+		VIPS_STRUCT_OFFSET(VipsDrawCircle, fill),
 		FALSE);
 }
 

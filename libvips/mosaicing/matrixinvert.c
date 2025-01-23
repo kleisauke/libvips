@@ -443,7 +443,7 @@ vips_matrixinvert_class_init(VipsMatrixinvertClass *class)
 		_("Input"),
 		_("An square matrix"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMatrixinvert, in));
+		VIPS_STRUCT_OFFSET(VipsMatrixinvert, in));
 
 	VIPS_ARG_IMAGE(class, "out", 1,
 		_("Output"),

@@ -394,56 +394,56 @@ vips_arrayjoin_class_init(VipsArrayjoinClass *class)
 		_("Input"),
 		_("Array of input images"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsArrayjoin, in),
+		VIPS_STRUCT_OFFSET(VipsArrayjoin, in),
 		VIPS_TYPE_ARRAY_IMAGE);
 
 	VIPS_ARG_INT(class, "across", 4,
 		_("Across"),
 		_("Number of images across grid"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsArrayjoin, across),
+		VIPS_STRUCT_OFFSET(VipsArrayjoin, across),
 		1, 1000000, 1);
 
 	VIPS_ARG_INT(class, "shim", 5,
 		_("Shim"),
 		_("Pixels between images"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsArrayjoin, shim),
+		VIPS_STRUCT_OFFSET(VipsArrayjoin, shim),
 		0, 1000000, 0);
 
 	VIPS_ARG_BOXED(class, "background", 6,
 		_("Background"),
 		_("Colour for new pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsArrayjoin, background),
+		VIPS_STRUCT_OFFSET(VipsArrayjoin, background),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_ENUM(class, "halign", 7,
 		_("Horizontal align"),
 		_("Align on the left, centre or right"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsArrayjoin, halign),
+		VIPS_STRUCT_OFFSET(VipsArrayjoin, halign),
 		VIPS_TYPE_ALIGN, VIPS_ALIGN_LOW);
 
 	VIPS_ARG_ENUM(class, "valign", 8,
 		_("Vertical align"),
 		_("Align on the top, centre or bottom"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsArrayjoin, valign),
+		VIPS_STRUCT_OFFSET(VipsArrayjoin, valign),
 		VIPS_TYPE_ALIGN, VIPS_ALIGN_LOW);
 
 	VIPS_ARG_INT(class, "hspacing", 9,
 		_("Horizontal spacing"),
 		_("Horizontal spacing between images"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsArrayjoin, hspacing),
+		VIPS_STRUCT_OFFSET(VipsArrayjoin, hspacing),
 		1, 1000000, 1);
 
 	VIPS_ARG_INT(class, "vspacing", 10,
 		_("Vertical spacing"),
 		_("Vertical spacing between images"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsArrayjoin, vspacing),
+		VIPS_STRUCT_OFFSET(VipsArrayjoin, vspacing),
 		1, 1000000, 1);
 }
 

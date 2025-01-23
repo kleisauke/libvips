@@ -1070,21 +1070,21 @@ vips_reducev_class_init(VipsReducevClass *reducev_class)
 		_("Vshrink"),
 		_("Vertical shrink factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsReducev, vshrink),
+		VIPS_STRUCT_OFFSET(VipsReducev, vshrink),
 		1.0, 1000000.0, 1.0);
 
 	VIPS_ARG_ENUM(reducev_class, "kernel", 4,
 		_("Kernel"),
 		_("Resampling kernel"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsReducev, kernel),
+		VIPS_STRUCT_OFFSET(VipsReducev, kernel),
 		VIPS_TYPE_KERNEL, VIPS_KERNEL_LANCZOS3);
 
 	VIPS_ARG_DOUBLE(reducev_class, "gap", 5,
 		_("Gap"),
 		_("Reducing gap"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsReducev, gap),
+		VIPS_STRUCT_OFFSET(VipsReducev, gap),
 		0.0, 1000000.0, 0.0);
 
 	/* Old name.

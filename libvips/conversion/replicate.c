@@ -196,20 +196,20 @@ vips_replicate_class_init(VipsReplicateClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsReplicate, in));
+		VIPS_STRUCT_OFFSET(VipsReplicate, in));
 
 	VIPS_ARG_INT(class, "across", 4,
 		_("Across"),
 		_("Repeat this many times horizontally"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsReplicate, across),
+		VIPS_STRUCT_OFFSET(VipsReplicate, across),
 		1, 1000000, 1);
 
 	VIPS_ARG_INT(class, "down", 5,
 		_("Down"),
 		_("Repeat this many times vertically"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsReplicate, down),
+		VIPS_STRUCT_OFFSET(VipsReplicate, down),
 		1, 1000000, 1);
 }
 

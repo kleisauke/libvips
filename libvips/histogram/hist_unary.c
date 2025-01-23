@@ -88,7 +88,7 @@ vips_hist_unary_class_init(VipsHistUnaryClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsHistUnary, in));
+		VIPS_STRUCT_OFFSET(VipsHistUnary, in));
 }
 
 static void

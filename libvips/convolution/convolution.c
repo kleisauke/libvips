@@ -128,7 +128,7 @@ vips_convolution_class_init(VipsConvolutionClass *class)
 		_("Input"),
 		_("Input image argument"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsConvolution, in));
+		VIPS_STRUCT_OFFSET(VipsConvolution, in));
 
 	VIPS_ARG_IMAGE(class, "out", 10,
 		_("Output"),
@@ -140,7 +140,7 @@ vips_convolution_class_init(VipsConvolutionClass *class)
 		_("Mask"),
 		_("Input matrix image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsConvolution, mask));
+		VIPS_STRUCT_OFFSET(VipsConvolution, mask));
 }
 
 static void

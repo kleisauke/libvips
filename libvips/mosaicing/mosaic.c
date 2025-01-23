@@ -179,13 +179,13 @@ vips_mosaic_class_init(VipsMosaicClass *class)
 		_("Reference"),
 		_("Reference image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic, ref));
+		VIPS_STRUCT_OFFSET(VipsMosaic, ref));
 
 	VIPS_ARG_IMAGE(class, "sec", 2,
 		_("Secondary"),
 		_("Secondary image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic, sec));
+		VIPS_STRUCT_OFFSET(VipsMosaic, sec));
 
 	VIPS_ARG_IMAGE(class, "out", 3,
 		_("Output"),
@@ -197,63 +197,63 @@ vips_mosaic_class_init(VipsMosaicClass *class)
 		_("Direction"),
 		_("Horizontal or vertical mosaic"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic, direction),
+		VIPS_STRUCT_OFFSET(VipsMosaic, direction),
 		VIPS_TYPE_DIRECTION, VIPS_DIRECTION_HORIZONTAL);
 
 	VIPS_ARG_INT(class, "xref", 5,
 		_("xref"),
 		_("Position of reference tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic, xref),
+		VIPS_STRUCT_OFFSET(VipsMosaic, xref),
 		0, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "yref", 6,
 		_("yref"),
 		_("Position of reference tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic, yref),
+		VIPS_STRUCT_OFFSET(VipsMosaic, yref),
 		0, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "xsec", 7,
 		_("xsec"),
 		_("Position of secondary tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic, xsec),
+		VIPS_STRUCT_OFFSET(VipsMosaic, xsec),
 		0, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "ysec", 8,
 		_("ysec"),
 		_("Position of secondary tie-point"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic, ysec),
+		VIPS_STRUCT_OFFSET(VipsMosaic, ysec),
 		0, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "hwindow", 9,
 		_("hwindow"),
 		_("Half window size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic, hwindow),
+		VIPS_STRUCT_OFFSET(VipsMosaic, hwindow),
 		0, 1000000000, 5);
 
 	VIPS_ARG_INT(class, "harea", 10,
 		_("harea"),
 		_("Half area size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic, harea),
+		VIPS_STRUCT_OFFSET(VipsMosaic, harea),
 		0, 1000000000, 15);
 
 	VIPS_ARG_INT(class, "mblend", 11,
 		_("Max blend"),
 		_("Maximum blend size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic, mblend),
+		VIPS_STRUCT_OFFSET(VipsMosaic, mblend),
 		0, 10000, 10);
 
 	VIPS_ARG_INT(class, "bandno", 12,
 		_("Search band"),
 		_("Band to search for features on"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMosaic, bandno),
+		VIPS_STRUCT_OFFSET(VipsMosaic, bandno),
 		0, 10000, 0);
 
 	VIPS_ARG_INT(class, "dx0", 13,

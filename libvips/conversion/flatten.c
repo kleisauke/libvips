@@ -419,20 +419,20 @@ vips_flatten_class_init(VipsFlattenClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsFlatten, in));
+		VIPS_STRUCT_OFFSET(VipsFlatten, in));
 
 	VIPS_ARG_BOXED(class, "background", 2,
 		_("Background"),
 		_("Background value"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsFlatten, background),
+		VIPS_STRUCT_OFFSET(VipsFlatten, background),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_DOUBLE(class, "max_alpha", 115,
 		_("Maximum alpha"),
 		_("Maximum value of alpha channel"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsFlatten, max_alpha),
+		VIPS_STRUCT_OFFSET(VipsFlatten, max_alpha),
 		0, 100000000, 255);
 }
 

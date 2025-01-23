@@ -294,7 +294,7 @@ vips_stdif_class_init(VipsStdifClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsStdif, in));
+		VIPS_STRUCT_OFFSET(VipsStdif, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),
@@ -308,42 +308,42 @@ vips_stdif_class_init(VipsStdifClass *class)
 		_("Width"),
 		_("Window width in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsStdif, width),
+		VIPS_STRUCT_OFFSET(VipsStdif, width),
 		1, 256, 11);
 
 	VIPS_ARG_INT(class, "height", 5,
 		_("Height"),
 		_("Window height in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsStdif, height),
+		VIPS_STRUCT_OFFSET(VipsStdif, height),
 		1, 256, 11);
 
 	VIPS_ARG_DOUBLE(class, "a", 2,
 		_("Mean weight"),
 		_("Weight of new mean"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsStdif, a),
+		VIPS_STRUCT_OFFSET(VipsStdif, a),
 		0.0, 1.0, 0.5);
 
 	VIPS_ARG_DOUBLE(class, "m0", 2,
 		_("Mean"),
 		_("New mean"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsStdif, m0),
+		VIPS_STRUCT_OFFSET(VipsStdif, m0),
 		-INFINITY, INFINITY, 128);
 
 	VIPS_ARG_DOUBLE(class, "b", 2,
 		_("Deviation weight"),
 		_("Weight of new deviation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsStdif, b),
+		VIPS_STRUCT_OFFSET(VipsStdif, b),
 		0.0, 2.0, 0.5);
 
 	VIPS_ARG_DOUBLE(class, "s0", 2,
 		_("Deviation"),
 		_("New deviation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsStdif, s0),
+		VIPS_STRUCT_OFFSET(VipsStdif, s0),
 		-INFINITY, INFINITY, 50);
 }
 

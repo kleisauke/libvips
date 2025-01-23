@@ -205,28 +205,28 @@ vips_reduce_class_init(VipsReduceClass *class)
 		_("Hshrink"),
 		_("Horizontal shrink factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsReduce, hshrink),
+		VIPS_STRUCT_OFFSET(VipsReduce, hshrink),
 		1.0, 1000000.0, 1.0);
 
 	VIPS_ARG_DOUBLE(class, "vshrink", 9,
 		_("Vshrink"),
 		_("Vertical shrink factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsReduce, vshrink),
+		VIPS_STRUCT_OFFSET(VipsReduce, vshrink),
 		1.0, 1000000.0, 1.0);
 
 	VIPS_ARG_ENUM(class, "kernel", 3,
 		_("Kernel"),
 		_("Resampling kernel"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsReduce, kernel),
+		VIPS_STRUCT_OFFSET(VipsReduce, kernel),
 		VIPS_TYPE_KERNEL, VIPS_KERNEL_LANCZOS3);
 
 	VIPS_ARG_DOUBLE(class, "gap", 4,
 		_("Gap"),
 		_("Reducing gap"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsReduce, gap),
+		VIPS_STRUCT_OFFSET(VipsReduce, gap),
 		0.0, 1000000.0, 0.0);
 
 	/* The old names .. now use h and v everywhere.

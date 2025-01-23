@@ -138,7 +138,7 @@ vips_foreign_load_mat_class_init(VipsForeignLoadMatClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadMat, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadMat, filename),
 		NULL);
 }
 

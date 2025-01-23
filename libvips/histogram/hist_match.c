@@ -161,13 +161,13 @@ vips_hist_match_class_init(VipsHistMatchClass *class)
 		_("Input"),
 		_("Input histogram"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsHistMatch, in));
+		VIPS_STRUCT_OFFSET(VipsHistMatch, in));
 
 	VIPS_ARG_IMAGE(class, "ref", 2,
 		_("Reference"),
 		_("Reference histogram"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsHistMatch, ref));
+		VIPS_STRUCT_OFFSET(VipsHistMatch, ref));
 }
 
 static void

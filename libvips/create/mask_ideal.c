@@ -84,7 +84,7 @@ vips_mask_ideal_class_init(VipsMaskIdealClass *class)
 		_("Frequency cutoff"),
 		_("Frequency cutoff"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskIdeal, frequency_cutoff),
+		VIPS_STRUCT_OFFSET(VipsMaskIdeal, frequency_cutoff),
 		0.0, 1000000.0, 0.5);
 }
 

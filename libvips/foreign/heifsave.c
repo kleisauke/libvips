@@ -774,28 +774,28 @@ vips_foreign_save_heif_class_init(VipsForeignSaveHeifClass *class)
 		_("Q"),
 		_("Q factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveHeif, Q),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveHeif, Q),
 		1, 100, 50);
 
 	VIPS_ARG_INT(class, "bitdepth", 11,
 		_("Bit depth"),
 		_("Number of bits per pixel"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveHeif, bitdepth),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveHeif, bitdepth),
 		8, 12, 12);
 
 	VIPS_ARG_BOOL(class, "lossless", 13,
 		_("Lossless"),
 		_("Enable lossless compression"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveHeif, lossless),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveHeif, lossless),
 		FALSE);
 
 	VIPS_ARG_ENUM(class, "compression", 14,
 		_("Compression"),
 		_("Compression format"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveHeif, compression),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveHeif, compression),
 		VIPS_TYPE_FOREIGN_HEIF_COMPRESSION,
 		VIPS_FOREIGN_HEIF_COMPRESSION_HEVC);
 
@@ -803,14 +803,14 @@ vips_foreign_save_heif_class_init(VipsForeignSaveHeifClass *class)
 		_("Effort"),
 		_("CPU effort"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveHeif, effort),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveHeif, effort),
 		0, 9, 4);
 
 	VIPS_ARG_ENUM(class, "subsample_mode", 16,
 		_("Subsample mode"),
 		_("Select chroma subsample operation mode"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveHeif, subsample_mode),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveHeif, subsample_mode),
 		VIPS_TYPE_FOREIGN_SUBSAMPLE,
 		VIPS_FOREIGN_SUBSAMPLE_AUTO);
 
@@ -825,7 +825,7 @@ vips_foreign_save_heif_class_init(VipsForeignSaveHeifClass *class)
 		_("Encoder"),
 		_("Select encoder to use"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveHeif, selected_encoder),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveHeif, selected_encoder),
 		VIPS_TYPE_FOREIGN_HEIF_ENCODER,
 		VIPS_FOREIGN_HEIF_ENCODER_AUTO);
 }
@@ -897,7 +897,7 @@ vips_foreign_save_heif_file_class_init(VipsForeignSaveHeifFileClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveHeifFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveHeifFile, filename),
 		NULL);
 }
 
@@ -1020,7 +1020,7 @@ vips_foreign_save_heif_target_class_init(
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveHeifTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveHeifTarget, target),
 		VIPS_TYPE_TARGET);
 }
 

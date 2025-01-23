@@ -146,7 +146,7 @@ vips_countlines_class_init(VipsCountlinesClass *class)
 		_("Direction"),
 		_("Countlines left-right or up-down"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsCountlines, direction),
+		VIPS_STRUCT_OFFSET(VipsCountlines, direction),
 		VIPS_TYPE_DIRECTION, VIPS_DIRECTION_HORIZONTAL);
 }
 

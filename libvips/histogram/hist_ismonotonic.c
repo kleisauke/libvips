@@ -118,7 +118,7 @@ vips_hist_ismonotonic_class_init(VipsHistIsmonotonicClass *class)
 		_("Input"),
 		_("Input histogram image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsHistIsmonotonic, in));
+		VIPS_STRUCT_OFFSET(VipsHistIsmonotonic, in));
 
 	VIPS_ARG_BOOL(class, "monotonic", 2,
 		_("Monotonic"),

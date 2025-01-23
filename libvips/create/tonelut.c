@@ -225,70 +225,70 @@ vips_tonelut_class_init(VipsTonelutClass *class)
 		_("In-max"),
 		_("Size of LUT to build"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsTonelut, in_max),
+		VIPS_STRUCT_OFFSET(VipsTonelut, in_max),
 		1, 65535, 32767);
 
 	VIPS_ARG_INT(class, "out_max", 5,
 		_("Out-max"),
 		_("Maximum value in output LUT"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsTonelut, out_max),
+		VIPS_STRUCT_OFFSET(VipsTonelut, out_max),
 		1, 65535, 32767);
 
 	VIPS_ARG_DOUBLE(class, "Lb", 6,
 		_("Black point"),
 		_("Lowest value in output"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsTonelut, Lb),
+		VIPS_STRUCT_OFFSET(VipsTonelut, Lb),
 		0, 100, 0);
 
 	VIPS_ARG_DOUBLE(class, "Lw", 7,
 		_("White point"),
 		_("Highest value in output"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsTonelut, Lw),
+		VIPS_STRUCT_OFFSET(VipsTonelut, Lw),
 		0, 100, 100);
 
 	VIPS_ARG_DOUBLE(class, "Ps", 8,
 		_("Shadow point"),
 		_("Position of shadow"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsTonelut, Ps),
+		VIPS_STRUCT_OFFSET(VipsTonelut, Ps),
 		0, 1, 0.2);
 
 	VIPS_ARG_DOUBLE(class, "Pm", 9,
 		_("Mid-tone point"),
 		_("Position of mid-tones"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsTonelut, Pm),
+		VIPS_STRUCT_OFFSET(VipsTonelut, Pm),
 		0, 1, 0.5);
 
 	VIPS_ARG_DOUBLE(class, "Ph", 10,
 		_("Highlight point"),
 		_("Position of highlights"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsTonelut, Ph),
+		VIPS_STRUCT_OFFSET(VipsTonelut, Ph),
 		0, 1, 0.8);
 
 	VIPS_ARG_DOUBLE(class, "S", 11,
 		_("Shadow adjust"),
 		_("Adjust shadows by this much"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsTonelut, S),
+		VIPS_STRUCT_OFFSET(VipsTonelut, S),
 		-30, 30, 0);
 
 	VIPS_ARG_DOUBLE(class, "M", 12,
 		_("Mid-tone adjust"),
 		_("Adjust mid-tones by this much"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsTonelut, M),
+		VIPS_STRUCT_OFFSET(VipsTonelut, M),
 		-30, 30, 0);
 
 	VIPS_ARG_DOUBLE(class, "H", 13,
 		_("Highlight adjust"),
 		_("Adjust highlights by this much"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsTonelut, H),
+		VIPS_STRUCT_OFFSET(VipsTonelut, H),
 		-30, 30, 0);
 }
 

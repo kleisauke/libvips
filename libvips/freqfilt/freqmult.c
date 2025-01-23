@@ -130,7 +130,7 @@ vips_freqmult_class_init(VipsFreqmultClass *class)
 		_("Mask"),
 		_("Input mask image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsFreqmult, mask));
+		VIPS_STRUCT_OFFSET(VipsFreqmult, mask));
 }
 
 static void

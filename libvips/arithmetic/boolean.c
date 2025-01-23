@@ -277,7 +277,7 @@ vips_boolean_class_init(VipsBooleanClass *class)
 		_("Operation"),
 		_("Boolean to perform"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBoolean, operation),
+		VIPS_STRUCT_OFFSET(VipsBoolean, operation),
 		VIPS_TYPE_OPERATION_BOOLEAN,
 		VIPS_OPERATION_BOOLEAN_AND);
 }
@@ -577,7 +577,7 @@ vips_boolean_const_class_init(VipsBooleanConstClass *class)
 		_("Operation"),
 		_("Boolean to perform"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBooleanConst, operation),
+		VIPS_STRUCT_OFFSET(VipsBooleanConst, operation),
 		VIPS_TYPE_OPERATION_BOOLEAN,
 		VIPS_OPERATION_BOOLEAN_AND);
 }

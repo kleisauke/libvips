@@ -678,7 +678,7 @@ vips_foreign_load_png_class_init(VipsForeignLoadPngClass *class)
 		_("Unlimited"),
 		_("Remove all denial of service limits"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPng, unlimited),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPng, unlimited),
 		FALSE);
 #endif
 }
@@ -757,7 +757,7 @@ vips_foreign_load_png_source_class_init(VipsForeignLoadPngSourceClass *class)
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPngSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPngSource, source),
 		VIPS_TYPE_SOURCE);
 }
 
@@ -835,7 +835,7 @@ vips_foreign_load_png_file_class_init(VipsForeignLoadPngFileClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPngFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPngFile, filename),
 		NULL);
 }
 
@@ -911,7 +911,7 @@ vips_foreign_load_png_buffer_class_init(VipsForeignLoadPngBufferClass *class)
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPngBuffer, blob),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPngBuffer, blob),
 		VIPS_TYPE_BLOB);
 }
 

@@ -507,7 +507,7 @@ vips_foreign_save_ppm_class_init(VipsForeignSavePpmClass *class)
 		_("Format"),
 		_("Format to save in"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSavePpm, format),
+		VIPS_STRUCT_OFFSET(VipsForeignSavePpm, format),
 		VIPS_TYPE_FOREIGN_PPM_FORMAT,
 		VIPS_FOREIGN_PPM_FORMAT_PPM);
 
@@ -515,14 +515,14 @@ vips_foreign_save_ppm_class_init(VipsForeignSavePpmClass *class)
 		_("ASCII"),
 		_("Save as ascii"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSavePpm, ascii),
+		VIPS_STRUCT_OFFSET(VipsForeignSavePpm, ascii),
 		FALSE);
 
 	VIPS_ARG_INT(class, "bitdepth", 15,
 		_("Bit depth"),
 		_("Set to 1 to write as a 1 bit image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSavePpm, bitdepth),
+		VIPS_STRUCT_OFFSET(VipsForeignSavePpm, bitdepth),
 		0, 1, 0);
 
 	VIPS_ARG_BOOL(class, "squash", 11,
@@ -593,7 +593,7 @@ vips_foreign_save_ppm_file_class_init(VipsForeignSavePpmFileClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSavePpmFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSavePpmFile, filename),
 		NULL);
 }
 
@@ -649,7 +649,7 @@ vips_foreign_save_ppm_target_class_init(
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSavePpmTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSavePpmTarget, target),
 		VIPS_TYPE_TARGET);
 }
 

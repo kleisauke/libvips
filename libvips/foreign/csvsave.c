@@ -223,7 +223,7 @@ vips_foreign_save_csv_class_init(VipsForeignSaveCsvClass *class)
 		_("Separator"),
 		_("Separator characters"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCsv, separator),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCsv, separator),
 		"\t");
 }
 
@@ -274,7 +274,7 @@ vips_foreign_save_csv_file_class_init(VipsForeignSaveCsvFileClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCsvFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCsvFile, filename),
 		NULL);
 }
 
@@ -325,7 +325,7 @@ vips_foreign_save_csv_target_class_init(VipsForeignSaveCsvTargetClass *class)
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveCsvTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCsvTarget, target),
 		VIPS_TYPE_TARGET);
 }
 

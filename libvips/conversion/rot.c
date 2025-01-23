@@ -365,13 +365,13 @@ vips_rot_class_init(VipsRotClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRot, in));
+		VIPS_STRUCT_OFFSET(VipsRot, in));
 
 	VIPS_ARG_ENUM(class, "angle", 6,
 		_("Angle"),
 		_("Angle to rotate image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRot, angle),
+		VIPS_STRUCT_OFFSET(VipsRot, angle),
 		VIPS_TYPE_ANGLE, VIPS_ANGLE_D90);
 }
 

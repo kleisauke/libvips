@@ -122,13 +122,13 @@ vips_merge_class_init(VipsMergeClass *class)
 		_("Reference"),
 		_("Reference image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMerge, ref));
+		VIPS_STRUCT_OFFSET(VipsMerge, ref));
 
 	VIPS_ARG_IMAGE(class, "sec", 2,
 		_("Secondary"),
 		_("Secondary image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMerge, sec));
+		VIPS_STRUCT_OFFSET(VipsMerge, sec));
 
 	VIPS_ARG_IMAGE(class, "out", 3,
 		_("Output"),
@@ -140,28 +140,28 @@ vips_merge_class_init(VipsMergeClass *class)
 		_("Direction"),
 		_("Horizontal or vertical merge"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMerge, direction),
+		VIPS_STRUCT_OFFSET(VipsMerge, direction),
 		VIPS_TYPE_DIRECTION, VIPS_DIRECTION_HORIZONTAL);
 
 	VIPS_ARG_INT(class, "dx", 5,
 		_("dx"),
 		_("Horizontal displacement from sec to ref"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMerge, dx),
+		VIPS_STRUCT_OFFSET(VipsMerge, dx),
 		-100000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "dy", 6,
 		_("dy"),
 		_("Vertical displacement from sec to ref"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMerge, dy),
+		VIPS_STRUCT_OFFSET(VipsMerge, dy),
 		-100000000, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "mblend", 7,
 		_("Max blend"),
 		_("Maximum blend size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMerge, mblend),
+		VIPS_STRUCT_OFFSET(VipsMerge, mblend),
 		0, 10000, 10);
 }
 

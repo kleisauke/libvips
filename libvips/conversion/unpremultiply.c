@@ -323,20 +323,20 @@ vips_unpremultiply_class_init(VipsUnpremultiplyClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsUnpremultiply, in));
+		VIPS_STRUCT_OFFSET(VipsUnpremultiply, in));
 
 	VIPS_ARG_DOUBLE(class, "max_alpha", 115,
 		_("Maximum alpha"),
 		_("Maximum value of alpha channel"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsUnpremultiply, max_alpha),
+		VIPS_STRUCT_OFFSET(VipsUnpremultiply, max_alpha),
 		0, 100000000, 255);
 
 	VIPS_ARG_INT(class, "alpha_band", 116,
 		_("Alpha band"),
 		_("Unpremultiply with this alpha"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsUnpremultiply, alpha_band),
+		VIPS_STRUCT_OFFSET(VipsUnpremultiply, alpha_band),
 		0, 100000000, 3);
 }
 

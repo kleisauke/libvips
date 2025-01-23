@@ -1046,35 +1046,35 @@ vips_foreign_load_openslide_class_init(VipsForeignLoadOpenslideClass *class)
 		_("Level"),
 		_("Load this level from the file"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadOpenslide, level),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadOpenslide, level),
 		0, 100000, 0);
 
 	VIPS_ARG_BOOL(class, "autocrop", 21,
 		_("Autocrop"),
 		_("Crop to image bounds"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadOpenslide, autocrop),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadOpenslide, autocrop),
 		FALSE);
 
 	VIPS_ARG_STRING(class, "associated", 22,
 		_("Associated"),
 		_("Load this associated image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadOpenslide, associated),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadOpenslide, associated),
 		NULL);
 
 	VIPS_ARG_BOOL(class, "attach_associated", 23,
 		_("Attach associated"),
 		_("Attach all associated images"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadOpenslide, attach_associated),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadOpenslide, attach_associated),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "rgb", 24,
 		_("RGB"),
 		_("Output RGB (not RGBA)"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadOpenslide, rgb),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadOpenslide, rgb),
 		FALSE);
 }
 
@@ -1152,7 +1152,7 @@ vips_foreign_load_openslide_file_class_init(
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadOpenslideFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadOpenslideFile, filename),
 		NULL);
 }
 
@@ -1230,7 +1230,7 @@ vips_foreign_load_openslide_source_class_init(
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadOpenslideSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadOpenslideSource, source),
 		VIPS_TYPE_SOURCE);
 }
 

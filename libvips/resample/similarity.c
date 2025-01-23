@@ -127,41 +127,41 @@ vips_similarity_base_class_init(VipsSimilarityBaseClass *class)
 		_("Interpolate"),
 		_("Interpolate pixels with this"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSimilarityBase, interpolate));
+		VIPS_STRUCT_OFFSET(VipsSimilarityBase, interpolate));
 
 	VIPS_ARG_BOXED(class, "background", 6,
 		_("Background"),
 		_("Background value"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSimilarityBase, background),
+		VIPS_STRUCT_OFFSET(VipsSimilarityBase, background),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_DOUBLE(class, "odx", 112,
 		_("Output offset"),
 		_("Horizontal output displacement"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSimilarityBase, odx),
+		VIPS_STRUCT_OFFSET(VipsSimilarityBase, odx),
 		-10000000, 10000000, 0);
 
 	VIPS_ARG_DOUBLE(class, "ody", 113,
 		_("Output offset"),
 		_("Vertical output displacement"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSimilarityBase, ody),
+		VIPS_STRUCT_OFFSET(VipsSimilarityBase, ody),
 		-10000000, 10000000, 0);
 
 	VIPS_ARG_DOUBLE(class, "idx", 114,
 		_("Input offset"),
 		_("Horizontal input displacement"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSimilarityBase, idx),
+		VIPS_STRUCT_OFFSET(VipsSimilarityBase, idx),
 		-10000000, 10000000, 0);
 
 	VIPS_ARG_DOUBLE(class, "idy", 115,
 		_("Input offset"),
 		_("Vertical input displacement"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSimilarityBase, idy),
+		VIPS_STRUCT_OFFSET(VipsSimilarityBase, idy),
 		-10000000, 10000000, 0);
 }
 
@@ -200,14 +200,14 @@ vips_similarity_class_init(VipsSimilarityClass *class)
 		_("Scale"),
 		_("Scale by this factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSimilarity, scale),
+		VIPS_STRUCT_OFFSET(VipsSimilarity, scale),
 		0, 10000000, 1);
 
 	VIPS_ARG_DOUBLE(class, "angle", 4,
 		_("Angle"),
 		_("Rotate clockwise by this many degrees"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSimilarity, angle),
+		VIPS_STRUCT_OFFSET(VipsSimilarity, angle),
 		-10000000, 10000000, 0);
 }
 
@@ -276,7 +276,7 @@ vips_rotate_class_init(VipsRotateClass *class)
 		_("Angle"),
 		_("Rotate clockwise by this many degrees"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSimilarity, angle),
+		VIPS_STRUCT_OFFSET(VipsSimilarity, angle),
 		-10000000, 10000000, 0);
 }
 

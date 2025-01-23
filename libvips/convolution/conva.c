@@ -1323,14 +1323,14 @@ vips_conva_class_init(VipsConvaClass *class)
 		_("Layers"),
 		_("Use this many layers in approximation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsConva, layers),
+		VIPS_STRUCT_OFFSET(VipsConva, layers),
 		1, 1000, 5);
 
 	VIPS_ARG_INT(class, "cluster", 105,
 		_("Cluster"),
 		_("Cluster lines closer than this in approximation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsConva, cluster),
+		VIPS_STRUCT_OFFSET(VipsConva, cluster),
 		1, 100, 1);
 }
 

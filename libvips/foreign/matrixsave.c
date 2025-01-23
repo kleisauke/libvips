@@ -228,7 +228,7 @@ vips_foreign_save_matrix_file_class_init(
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveMatrixFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveMatrixFile, filename),
 		NULL);
 }
 
@@ -281,7 +281,7 @@ vips_foreign_save_matrix_target_class_init(
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveMatrixTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveMatrixTarget, target),
 		VIPS_TYPE_TARGET);
 }
 

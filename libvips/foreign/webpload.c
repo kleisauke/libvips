@@ -178,21 +178,21 @@ vips_foreign_load_webp_class_init(VipsForeignLoadWebpClass *class)
 		_("Page"),
 		_("First page to load"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadWebp, page),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadWebp, page),
 		0, 100000, 0);
 
 	VIPS_ARG_INT(class, "n", 21,
 		_("n"),
 		_("Number of pages to load, -1 for all"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadWebp, n),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadWebp, n),
 		-1, 100000, 1);
 
 	VIPS_ARG_DOUBLE(class, "scale", 22,
 		_("Scale"),
 		_("Factor to scale by"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadWebp, scale),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadWebp, scale),
 		0.0, 1024.0, 1.0);
 
 	VIPS_ARG_INT(class, "shrink", 23,
@@ -266,7 +266,7 @@ vips_foreign_load_webp_source_class_init(
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadWebpSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadWebpSource, source),
 		VIPS_TYPE_SOURCE);
 }
 
@@ -346,7 +346,7 @@ vips_foreign_load_webp_file_class_init(VipsForeignLoadWebpFileClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadWebpFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadWebpFile, filename),
 		NULL);
 }
 
@@ -424,7 +424,7 @@ vips_foreign_load_webp_buffer_class_init(
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadWebpBuffer, blob),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadWebpBuffer, blob),
 		VIPS_TYPE_BLOB);
 }
 

@@ -153,7 +153,7 @@ vips_getpoint_class_init(VipsGetpointClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGetpoint, in));
+		VIPS_STRUCT_OFFSET(VipsGetpoint, in));
 
 	VIPS_ARG_BOXED(class, "out_array", 2,
 		_("Output array"),
@@ -166,21 +166,21 @@ vips_getpoint_class_init(VipsGetpointClass *class)
 		_("x"),
 		_("Point to read"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGetpoint, x),
+		VIPS_STRUCT_OFFSET(VipsGetpoint, x),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "y", 6,
 		_("y"),
 		_("Point to read"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGetpoint, y),
+		VIPS_STRUCT_OFFSET(VipsGetpoint, y),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_BOOL(class, "unpack_complex", 7,
 		_("unpack_complex"),
 		_("Complex pixels should be unpacked"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsGetpoint, unpack_complex),
+		VIPS_STRUCT_OFFSET(VipsGetpoint, unpack_complex),
 		FALSE);
 }
 

@@ -240,13 +240,13 @@ vips_flip_class_init(VipsFlipClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsFlip, in));
+		VIPS_STRUCT_OFFSET(VipsFlip, in));
 
 	VIPS_ARG_ENUM(class, "direction", 6,
 		_("Direction"),
 		_("Direction to flip image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsFlip, direction),
+		VIPS_STRUCT_OFFSET(VipsFlip, direction),
 		VIPS_TYPE_DIRECTION, VIPS_DIRECTION_HORIZONTAL);
 }
 

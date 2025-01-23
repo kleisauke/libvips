@@ -164,7 +164,7 @@ vips_remosaic_class_init(VipsRemosaicClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRemosaic, in));
+		VIPS_STRUCT_OFFSET(VipsRemosaic, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),
@@ -176,14 +176,14 @@ vips_remosaic_class_init(VipsRemosaicClass *class)
 		_("old_str"),
 		_("Search for this string"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRemosaic, old_str),
+		VIPS_STRUCT_OFFSET(VipsRemosaic, old_str),
 		"");
 
 	VIPS_ARG_STRING(class, "new_str", 6,
 		_("new_str"),
 		_("And swap for this string"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRemosaic, new_str),
+		VIPS_STRUCT_OFFSET(VipsRemosaic, new_str),
 		"");
 }
 

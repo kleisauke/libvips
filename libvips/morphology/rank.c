@@ -570,21 +570,21 @@ vips_rank_class_init(VipsRankClass *class)
 		_("Width"),
 		_("Window width in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRank, width),
+		VIPS_STRUCT_OFFSET(VipsRank, width),
 		1, 100000, 11);
 
 	VIPS_ARG_INT(class, "height", 5,
 		_("Height"),
 		_("Window height in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRank, height),
+		VIPS_STRUCT_OFFSET(VipsRank, height),
 		1, 100000, 11);
 
 	VIPS_ARG_INT(class, "index", 6,
 		_("Index"),
 		_("Select pixel at index"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsRank, index),
+		VIPS_STRUCT_OFFSET(VipsRank, index),
 		0, 100000000, 50);
 }
 

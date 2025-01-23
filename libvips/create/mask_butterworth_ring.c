@@ -106,7 +106,7 @@ vips_mask_butterworth_ring_class_init(
 		_("Ringwidth"),
 		_("Ringwidth"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskButterworthRing, ringwidth),
+		VIPS_STRUCT_OFFSET(VipsMaskButterworthRing, ringwidth),
 		0.0, 1000000.0, 0.1);
 }
 

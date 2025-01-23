@@ -194,34 +194,34 @@ vips_extract_area_class_init(VipsExtractAreaClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsExtractArea, in));
+		VIPS_STRUCT_OFFSET(VipsExtractArea, in));
 
 	VIPS_ARG_INT(class, "left", 3,
 		_("Left"),
 		_("Left edge of extract area"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsExtractArea, left),
+		VIPS_STRUCT_OFFSET(VipsExtractArea, left),
 		-VIPS_MAX_COORD, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "top", 4,
 		_("Top"),
 		_("Top edge of extract area"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsExtractArea, top),
+		VIPS_STRUCT_OFFSET(VipsExtractArea, top),
 		-VIPS_MAX_COORD, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "width", 5,
 		_("Width"),
 		_("Width of extract area"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsExtractArea, width),
+		VIPS_STRUCT_OFFSET(VipsExtractArea, width),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "height", 6,
 		_("Height"),
 		_("Height of extract area"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsExtractArea, height),
+		VIPS_STRUCT_OFFSET(VipsExtractArea, height),
 		1, VIPS_MAX_COORD, 1);
 }
 
@@ -432,20 +432,20 @@ vips_extract_band_class_init(VipsExtractBandClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsExtractBand, in));
+		VIPS_STRUCT_OFFSET(VipsExtractBand, in));
 
 	VIPS_ARG_INT(class, "band", 3,
 		_("Band"),
 		_("Band to extract"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsExtractBand, band),
+		VIPS_STRUCT_OFFSET(VipsExtractBand, band),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "n", 4,
 		_("n"),
 		_("Number of bands to extract"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsExtractBand, n),
+		VIPS_STRUCT_OFFSET(VipsExtractBand, n),
 		1, VIPS_MAX_COORD, 1);
 }
 

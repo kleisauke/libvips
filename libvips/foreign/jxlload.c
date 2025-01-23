@@ -1132,14 +1132,14 @@ vips_foreign_load_jxl_class_init(VipsForeignLoadJxlClass *class)
 		_("Page"),
 		_("First page to load"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJxl, page),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJxl, page),
 		0, 100000, 0);
 
 	VIPS_ARG_INT(class, "n", 21,
 		_("n"),
 		_("Number of pages to load, -1 for all"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJxl, n),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJxl, n),
 		-1, 100000, 1);
 }
 
@@ -1218,7 +1218,7 @@ vips_foreign_load_jxl_file_class_init(VipsForeignLoadJxlFileClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJxlFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJxlFile, filename),
 		NULL);
 }
 
@@ -1293,7 +1293,7 @@ vips_foreign_load_jxl_buffer_class_init(VipsForeignLoadJxlBufferClass *class)
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJxlBuffer, buf),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJxlBuffer, buf),
 		VIPS_TYPE_BLOB);
 }
 
@@ -1357,7 +1357,7 @@ vips_foreign_load_jxl_source_class_init(VipsForeignLoadJxlSourceClass *class)
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJxlSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJxlSource, source),
 		VIPS_TYPE_SOURCE);
 }
 

@@ -239,13 +239,13 @@ vips_case_class_init(VipsCaseClass *class)
 		_("Index"),
 		_("Index image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsCase, index));
+		VIPS_STRUCT_OFFSET(VipsCase, index));
 
 	VIPS_ARG_BOXED(class, "cases", 2,
 		_("Cases"),
 		_("Array of case images"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsCase, cases),
+		VIPS_STRUCT_OFFSET(VipsCase, cases),
 		VIPS_TYPE_ARRAY_IMAGE);
 
 	VIPS_ARG_IMAGE(class, "out", 3,

@@ -433,27 +433,27 @@ vips_smartcrop_class_init(VipsSmartcropClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSmartcrop, in));
+		VIPS_STRUCT_OFFSET(VipsSmartcrop, in));
 
 	VIPS_ARG_INT(class, "width", 4,
 		_("Width"),
 		_("Width of extract area"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSmartcrop, width),
+		VIPS_STRUCT_OFFSET(VipsSmartcrop, width),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "height", 5,
 		_("Height"),
 		_("Height of extract area"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSmartcrop, height),
+		VIPS_STRUCT_OFFSET(VipsSmartcrop, height),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_ENUM(class, "interesting", 6,
 		_("Interesting"),
 		_("How to measure interestingness"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSmartcrop, interesting),
+		VIPS_STRUCT_OFFSET(VipsSmartcrop, interesting),
 		VIPS_TYPE_INTERESTING, VIPS_INTERESTING_ATTENTION);
 
 	VIPS_ARG_INT(class, "attention_x", 2,
@@ -474,7 +474,7 @@ vips_smartcrop_class_init(VipsSmartcropClass *class)
 		_("Premultiplied"),
 		_("Input image already has premultiplied alpha"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSmartcrop, premultiplied),
+		VIPS_STRUCT_OFFSET(VipsSmartcrop, premultiplied),
 		FALSE);
 }
 

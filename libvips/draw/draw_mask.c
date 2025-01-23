@@ -332,20 +332,20 @@ vips_draw_mask_class_init(VipsDrawMaskClass *class)
 		_("Mask"),
 		_("Mask of pixels to draw"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawMask, mask));
+		VIPS_STRUCT_OFFSET(VipsDrawMask, mask));
 
 	VIPS_ARG_INT(class, "x", 6,
 		_("x"),
 		_("Draw mask here"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawMask, x),
+		VIPS_STRUCT_OFFSET(VipsDrawMask, x),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_INT(class, "y", 7,
 		_("y"),
 		_("Draw mask here"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawMask, y),
+		VIPS_STRUCT_OFFSET(VipsDrawMask, y),
 		-1000000000, 1000000000, 0);
 }
 

@@ -143,7 +143,7 @@ vips_foreign_save_fits_class_init(VipsForeignSaveFitsClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveFits, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveFits, filename),
 		NULL);
 }
 

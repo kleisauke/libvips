@@ -142,13 +142,13 @@ vips_gamma_class_init(VipsGammaClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGamma, in));
+		VIPS_STRUCT_OFFSET(VipsGamma, in));
 
 	VIPS_ARG_DOUBLE(class, "exponent", 2,
 		_("Exponent"),
 		_("Gamma factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsGamma, exponent),
+		VIPS_STRUCT_OFFSET(VipsGamma, exponent),
 		0.000001, 1000.0, 2.4);
 }
 

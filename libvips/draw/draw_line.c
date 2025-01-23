@@ -284,28 +284,28 @@ vips_draw_line_class_init(VipsDrawLineClass *class)
 		_("x1"),
 		_("Start of draw_line"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawLine, x1),
+		VIPS_STRUCT_OFFSET(VipsDrawLine, x1),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_INT(class, "y1", 4,
 		_("y1"),
 		_("Start of draw_line"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawLine, y1),
+		VIPS_STRUCT_OFFSET(VipsDrawLine, y1),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_INT(class, "x2", 5,
 		_("x2"),
 		_("End of draw_line"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawLine, x2),
+		VIPS_STRUCT_OFFSET(VipsDrawLine, x2),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_INT(class, "y2", 6,
 		_("y2"),
 		_("End of draw_line"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawLine, y2),
+		VIPS_STRUCT_OFFSET(VipsDrawLine, y2),
 		-1000000000, 1000000000, 0);
 }
 

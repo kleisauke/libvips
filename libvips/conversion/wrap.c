@@ -119,20 +119,20 @@ vips_wrap_class_init(VipsWrapClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsWrap, in));
+		VIPS_STRUCT_OFFSET(VipsWrap, in));
 
 	VIPS_ARG_INT(class, "x", 3,
 		_("x"),
 		_("Left edge of input in output"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsWrap, x),
+		VIPS_STRUCT_OFFSET(VipsWrap, x),
 		-VIPS_MAX_COORD, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "y", 4,
 		_("y"),
 		_("Top edge of input in output"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsWrap, y),
+		VIPS_STRUCT_OFFSET(VipsWrap, y),
 		-VIPS_MAX_COORD, VIPS_MAX_COORD, 0);
 }
 

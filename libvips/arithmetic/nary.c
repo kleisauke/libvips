@@ -87,7 +87,7 @@ vips_nary_class_init(VipsNaryClass *class)
 		_("Input"),
 		_("Array of input images"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsNary, in),
+		VIPS_STRUCT_OFFSET(VipsNary, in),
 		VIPS_TYPE_ARRAY_IMAGE);
 }
 

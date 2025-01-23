@@ -918,7 +918,7 @@ vips_convasep_class_init(VipsConvasepClass *class)
 		_("Layers"),
 		_("Use this many layers in approximation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsConvasep, layers),
+		VIPS_STRUCT_OFFSET(VipsConvasep, layers),
 		1, 1000, 5);
 }
 

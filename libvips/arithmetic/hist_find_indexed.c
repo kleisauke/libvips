@@ -469,7 +469,7 @@ vips_hist_find_indexed_class_init(VipsHistFindIndexedClass *class)
 		_("Index"),
 		_("Index image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsHistFindIndexed, index));
+		VIPS_STRUCT_OFFSET(VipsHistFindIndexed, index));
 
 	VIPS_ARG_IMAGE(class, "out", 100,
 		_("Output"),
@@ -481,7 +481,7 @@ vips_hist_find_indexed_class_init(VipsHistFindIndexedClass *class)
 		_("Combine"),
 		_("Combine bins like this"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsHistFindIndexed, combine),
+		VIPS_STRUCT_OFFSET(VipsHistFindIndexed, combine),
 		VIPS_TYPE_COMBINE, VIPS_COMBINE_SUM);
 }
 

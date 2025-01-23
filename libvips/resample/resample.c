@@ -140,7 +140,7 @@ vips_resample_class_init(VipsResampleClass *class)
 		_("Input"),
 		_("Input image argument"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsResample, in));
+		VIPS_STRUCT_OFFSET(VipsResample, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),

@@ -167,7 +167,7 @@ vips_statistic_class_init(VipsStatisticClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsStatistic, in));
+		VIPS_STRUCT_OFFSET(VipsStatistic, in));
 }
 
 static void

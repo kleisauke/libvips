@@ -185,21 +185,21 @@ vips_gaussmat_class_init(VipsGaussmatClass *class)
 		_("Sigma"),
 		_("Sigma of Gaussian"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGaussmat, sigma),
+		VIPS_STRUCT_OFFSET(VipsGaussmat, sigma),
 		0.000001, 10000.0, 1.0);
 
 	VIPS_ARG_DOUBLE(class, "min_ampl", 3,
 		_("Minimum amplitude"),
 		_("Minimum amplitude of Gaussian"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGaussmat, min_ampl),
+		VIPS_STRUCT_OFFSET(VipsGaussmat, min_ampl),
 		0.000001, 10000.0, 0.1);
 
 	VIPS_ARG_BOOL(class, "separable", 4,
 		_("Separable"),
 		_("Generate separable Gaussian"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsGaussmat, separable),
+		VIPS_STRUCT_OFFSET(VipsGaussmat, separable),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "integer", 5,
@@ -213,7 +213,7 @@ vips_gaussmat_class_init(VipsGaussmatClass *class)
 		_("Precision"),
 		_("Generate with this precision"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsGaussmat, precision),
+		VIPS_STRUCT_OFFSET(VipsGaussmat, precision),
 		VIPS_TYPE_PRECISION, VIPS_PRECISION_INTEGER);
 }
 

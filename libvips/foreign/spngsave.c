@@ -690,21 +690,21 @@ vips_foreign_save_spng_class_init(VipsForeignSaveSpngClass *class)
 		_("Compression"),
 		_("Compression factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveSpng, compression),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveSpng, compression),
 		0, 9, 6);
 
 	VIPS_ARG_BOOL(class, "interlace", 7,
 		_("Interlace"),
 		_("Interlace image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveSpng, interlace),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveSpng, interlace),
 		FALSE);
 
 	VIPS_ARG_FLAGS(class, "filter", 12,
 		_("Filter"),
 		_("libspng row filter flag(s)"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveSpng, filter),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveSpng, filter),
 		VIPS_TYPE_FOREIGN_PNG_FILTER,
 		VIPS_FOREIGN_PNG_FILTER_NONE);
 
@@ -712,35 +712,35 @@ vips_foreign_save_spng_class_init(VipsForeignSaveSpngClass *class)
 		_("Palette"),
 		_("Quantise to 8bpp palette"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveSpng, palette),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveSpng, palette),
 		FALSE);
 
 	VIPS_ARG_INT(class, "Q", 15,
 		_("Quality"),
 		_("Quantisation quality"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveSpng, Q),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveSpng, Q),
 		0, 100, 100);
 
 	VIPS_ARG_DOUBLE(class, "dither", 16,
 		_("Dithering"),
 		_("Amount of dithering"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveSpng, dither),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveSpng, dither),
 		0.0, 1.0, 1.0);
 
 	VIPS_ARG_INT(class, "bitdepth", 17,
 		_("Bit depth"),
 		_("Write as a 1, 2, 4, 8 or 16 bit image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveSpng, bitdepth),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveSpng, bitdepth),
 		1, 16, 8);
 
 	VIPS_ARG_INT(class, "effort", 18,
 		_("Effort"),
 		_("Quantisation CPU effort"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveSpng, effort),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveSpng, effort),
 		1, 10, 7);
 
 	VIPS_ARG_INT(class, "colours", 14,
@@ -806,7 +806,7 @@ vips_foreign_save_spng_target_class_init(VipsForeignSaveSpngTargetClass *class)
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveSpngTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveSpngTarget, target),
 		VIPS_TYPE_TARGET);
 }
 
@@ -859,7 +859,7 @@ vips_foreign_save_spng_file_class_init(VipsForeignSaveSpngFileClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveSpngFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveSpngFile, filename),
 		NULL);
 }
 

@@ -196,28 +196,28 @@ vips_foreign_load_tiff_class_init(VipsForeignLoadTiffClass *class)
 		_("Page"),
 		_("First page to load"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadTiff, page),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadTiff, page),
 		0, 100000, 0);
 
 	VIPS_ARG_INT(class, "n", 21,
 		_("n"),
 		_("Number of pages to load, -1 for all"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadTiff, n),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadTiff, n),
 		-1, 100000, 1);
 
 	VIPS_ARG_BOOL(class, "autorotate", 22,
 		_("Autorotate"),
 		_("Rotate image using orientation tag"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadTiff, autorotate),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadTiff, autorotate),
 		FALSE);
 
 	VIPS_ARG_INT(class, "subifd", 23,
 		_("subifd"),
 		_("Subifd index"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadTiff, subifd),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadTiff, subifd),
 		-1, 100000, -1);
 
 #ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
@@ -225,7 +225,7 @@ vips_foreign_load_tiff_class_init(VipsForeignLoadTiffClass *class)
 		_("Unlimited"),
 		_("Remove all denial of service limits"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadTiff, unlimited),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadTiff, unlimited),
 		FALSE);
 #endif
 }
@@ -302,7 +302,7 @@ vips_foreign_load_tiff_source_class_init(
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadTiffSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadTiffSource, source),
 		VIPS_TYPE_SOURCE);
 }
 
@@ -382,7 +382,7 @@ vips_foreign_load_tiff_file_class_init(VipsForeignLoadTiffFileClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadTiffFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadTiffFile, filename),
 		NULL);
 }
 
@@ -460,7 +460,7 @@ vips_foreign_load_tiff_buffer_class_init(
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadTiffBuffer, blob),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadTiffBuffer, blob),
 		VIPS_TYPE_BLOB);
 }
 

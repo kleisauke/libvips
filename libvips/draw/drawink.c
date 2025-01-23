@@ -90,7 +90,7 @@ vips_drawink_class_init(VipsDrawinkClass *class)
 		_("Ink"),
 		_("Color for pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsDrawink, ink),
+		VIPS_STRUCT_OFFSET(VipsDrawink, ink),
 		VIPS_TYPE_ARRAY_DOUBLE);
 }
 

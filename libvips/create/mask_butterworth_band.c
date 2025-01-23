@@ -115,35 +115,35 @@ vips_mask_butterworth_band_class_init(
 		_("Order"),
 		_("Filter order"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskButterworthBand, order),
+		VIPS_STRUCT_OFFSET(VipsMaskButterworthBand, order),
 		1.0, 1000000.0, 1.0);
 
 	VIPS_ARG_DOUBLE(class, "frequency_cutoff_x", 7,
 		_("Frequency cutoff x"),
 		_("Frequency cutoff x"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskButterworthBand, frequency_cutoff_x),
+		VIPS_STRUCT_OFFSET(VipsMaskButterworthBand, frequency_cutoff_x),
 		0.0, 1000000.0, 0.5);
 
 	VIPS_ARG_DOUBLE(class, "frequency_cutoff_y", 8,
 		_("Frequency cutoff y"),
 		_("Frequency cutoff y"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskButterworthBand, frequency_cutoff_y),
+		VIPS_STRUCT_OFFSET(VipsMaskButterworthBand, frequency_cutoff_y),
 		0.0, 1000000.0, 0.5);
 
 	VIPS_ARG_DOUBLE(class, "radius", 9,
 		_("Radius"),
 		_("Radius of circle"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskButterworthBand, radius),
+		VIPS_STRUCT_OFFSET(VipsMaskButterworthBand, radius),
 		0.0, 1000000.0, 0.1);
 
 	VIPS_ARG_DOUBLE(class, "amplitude_cutoff", 10,
 		_("Amplitude cutoff"),
 		_("Amplitude cutoff"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskButterworthBand, amplitude_cutoff),
+		VIPS_STRUCT_OFFSET(VipsMaskButterworthBand, amplitude_cutoff),
 		0.0, 1.0, 0.5);
 }
 

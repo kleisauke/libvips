@@ -974,70 +974,70 @@ vips_thumbnail_class_init(VipsThumbnailClass *class)
 		_("Target width"),
 		_("Size to this width"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnail, width),
+		VIPS_STRUCT_OFFSET(VipsThumbnail, width),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "height", 113,
 		_("Target height"),
 		_("Size to this height"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnail, height),
+		VIPS_STRUCT_OFFSET(VipsThumbnail, height),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_ENUM(class, "size", 114,
 		_("Size"),
 		_("Only upsize, only downsize, or both"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnail, size),
+		VIPS_STRUCT_OFFSET(VipsThumbnail, size),
 		VIPS_TYPE_SIZE, VIPS_SIZE_BOTH);
 
 	VIPS_ARG_BOOL(class, "no_rotate", 115,
 		_("No rotate"),
 		_("Don't use orientation tags to rotate image upright"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnail, no_rotate),
+		VIPS_STRUCT_OFFSET(VipsThumbnail, no_rotate),
 		FALSE);
 
 	VIPS_ARG_ENUM(class, "crop", 116,
 		_("Crop"),
 		_("Reduce to fill target rectangle, then crop"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnail, crop),
+		VIPS_STRUCT_OFFSET(VipsThumbnail, crop),
 		VIPS_TYPE_INTERESTING, VIPS_INTERESTING_NONE);
 
 	VIPS_ARG_BOOL(class, "linear", 117,
 		_("Linear"),
 		_("Reduce in linear light"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnail, linear),
+		VIPS_STRUCT_OFFSET(VipsThumbnail, linear),
 		FALSE);
 
 	VIPS_ARG_STRING(class, "import_profile", 118,
 		_("Import profile"),
 		_("Fallback import profile"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnail, import_profile),
+		VIPS_STRUCT_OFFSET(VipsThumbnail, import_profile),
 		NULL);
 
 	VIPS_ARG_STRING(class, "export_profile", 119,
 		_("Export profile"),
 		_("Fallback export profile"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnail, export_profile),
+		VIPS_STRUCT_OFFSET(VipsThumbnail, export_profile),
 		NULL);
 
 	VIPS_ARG_ENUM(class, "intent", 120,
 		_("Intent"),
 		_("Rendering intent"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnail, intent),
+		VIPS_STRUCT_OFFSET(VipsThumbnail, intent),
 		VIPS_TYPE_INTENT, VIPS_INTENT_RELATIVE);
 
 	VIPS_ARG_ENUM(class, "fail_on", 121,
 		_("Fail on"),
 		_("Error level to fail on"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnail, fail_on),
+		VIPS_STRUCT_OFFSET(VipsThumbnail, fail_on),
 		VIPS_TYPE_FAIL_ON, VIPS_FAIL_ON_NONE);
 
 	/* BOOL args which default TRUE arguments don't work with the
@@ -1198,7 +1198,7 @@ vips_thumbnail_file_class_init(VipsThumbnailClass *class)
 		_("Filename"),
 		_("Filename to read from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnailFile, filename),
+		VIPS_STRUCT_OFFSET(VipsThumbnailFile, filename),
 		NULL);
 }
 
@@ -1445,14 +1445,14 @@ vips_thumbnail_buffer_class_init(VipsThumbnailClass *class)
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnailBuffer, buf),
+		VIPS_STRUCT_OFFSET(VipsThumbnailBuffer, buf),
 		VIPS_TYPE_BLOB);
 
 	VIPS_ARG_STRING(class, "option_string", 20,
 		_("Extra options"),
 		_("Options that are passed on to the underlying loader"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnailBuffer, option_string),
+		VIPS_STRUCT_OFFSET(VipsThumbnailBuffer, option_string),
 		"");
 }
 
@@ -1658,14 +1658,14 @@ vips_thumbnail_source_class_init(VipsThumbnailClass *class)
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnailSource, source),
+		VIPS_STRUCT_OFFSET(VipsThumbnailSource, source),
 		VIPS_TYPE_SOURCE);
 
 	VIPS_ARG_STRING(class, "option_string", 20,
 		_("Extra options"),
 		_("Options that are passed on to the underlying loader"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnailSource, option_string),
+		VIPS_STRUCT_OFFSET(VipsThumbnailSource, option_string),
 		"");
 }
 
@@ -1782,7 +1782,7 @@ vips_thumbnail_image_class_init(VipsThumbnailClass *class)
 		_("Input"),
 		_("Input image argument"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsThumbnailImage, in));
+		VIPS_STRUCT_OFFSET(VipsThumbnailImage, in));
 }
 
 static void

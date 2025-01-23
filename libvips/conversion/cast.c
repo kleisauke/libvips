@@ -530,20 +530,20 @@ vips_cast_class_init(VipsCastClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsCast, in));
+		VIPS_STRUCT_OFFSET(VipsCast, in));
 
 	VIPS_ARG_ENUM(class, "format", 6,
 		_("Format"),
 		_("Format to cast to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsCast, format),
+		VIPS_STRUCT_OFFSET(VipsCast, format),
 		VIPS_TYPE_BAND_FORMAT, VIPS_FORMAT_UCHAR);
 
 	VIPS_ARG_BOOL(class, "shift", 7,
 		_("Shift"),
 		_("Shift integer values up and down"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCast, shift),
+		VIPS_STRUCT_OFFSET(VipsCast, shift),
 		FALSE);
 }
 

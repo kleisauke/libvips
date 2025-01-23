@@ -247,13 +247,13 @@ vips_msb_class_init(VipsMsbClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMsb, in));
+		VIPS_STRUCT_OFFSET(VipsMsb, in));
 
 	VIPS_ARG_INT(class, "band", 3,
 		_("Band"),
 		_("Band to msb"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMsb, band),
+		VIPS_STRUCT_OFFSET(VipsMsb, band),
 		0, 100000000, 0);
 }
 

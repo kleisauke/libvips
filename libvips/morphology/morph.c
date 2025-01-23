@@ -954,13 +954,13 @@ vips_morph_class_init(VipsMorphClass *class)
 		_("Mask"),
 		_("Input matrix image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMorph, mask));
+		VIPS_STRUCT_OFFSET(VipsMorph, mask));
 
 	VIPS_ARG_ENUM(class, "morph", 103,
 		_("Morphology"),
 		_("Morphological operation to perform"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMorph, morph),
+		VIPS_STRUCT_OFFSET(VipsMorph, morph),
 		VIPS_TYPE_OPERATION_MORPHOLOGY,
 		VIPS_OPERATION_MORPHOLOGY_ERODE);
 }

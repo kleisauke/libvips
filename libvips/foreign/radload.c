@@ -205,7 +205,7 @@ vips_foreign_load_rad_source_class_init(VipsForeignLoadRadSourceClass *class)
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadRadSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadRadSource, source),
 		VIPS_TYPE_SOURCE);
 }
 
@@ -281,7 +281,7 @@ vips_foreign_load_rad_file_class_init(VipsForeignLoadRadFileClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadRadFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadRadFile, filename),
 		NULL);
 }
 
@@ -356,7 +356,7 @@ vips_foreign_load_rad_buffer_class_init(VipsForeignLoadRadBufferClass *class)
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadRadBuffer, blob),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadRadBuffer, blob),
 		VIPS_TYPE_BLOB);
 }
 

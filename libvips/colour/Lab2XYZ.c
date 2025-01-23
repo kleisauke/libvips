@@ -183,7 +183,7 @@ vips_Lab2XYZ_class_init(VipsLab2XYZClass *class)
 		_("Temperature"),
 		_("Color temperature"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsLab2XYZ, temp),
+		VIPS_STRUCT_OFFSET(VipsLab2XYZ, temp),
 		VIPS_TYPE_ARRAY_DOUBLE);
 }
 

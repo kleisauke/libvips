@@ -104,21 +104,21 @@ vips_fractsurf_class_init(VipsFractsurfClass *class)
 		_("Width"),
 		_("Image width in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsFractsurf, width),
+		VIPS_STRUCT_OFFSET(VipsFractsurf, width),
 		1, VIPS_MAX_COORD, 64);
 
 	VIPS_ARG_INT(class, "height", 5,
 		_("Height"),
 		_("Image height in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsFractsurf, height),
+		VIPS_STRUCT_OFFSET(VipsFractsurf, height),
 		1, VIPS_MAX_COORD, 64);
 
 	VIPS_ARG_DOUBLE(class, "fractal_dimension", 8,
 		_("Fractal dimension"),
 		_("Fractal dimension"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsFractsurf, fractal_dimension),
+		VIPS_STRUCT_OFFSET(VipsFractsurf, fractal_dimension),
 		2.0, 3.0, 2.5);
 }
 

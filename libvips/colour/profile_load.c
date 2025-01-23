@@ -151,7 +151,7 @@ vips_profile_load_class_init(VipsProfileLoadClass *class)
 		_("Name"),
 		_("Profile name"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsProfileLoad, name),
+		VIPS_STRUCT_OFFSET(VipsProfileLoad, name),
 		NULL);
 
 	VIPS_ARG_BOXED(class, "profile", 2,

@@ -149,7 +149,7 @@ vips_foreign_load_openexr_class_init(VipsForeignLoadOpenexrClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadOpenexr, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadOpenexr, filename),
 		NULL);
 }
 

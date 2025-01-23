@@ -244,7 +244,7 @@
  *         _("Filename"),
  *         _("Filename to load from"),
  *         VIPS_ARGUMENT_REQUIRED_INPUT,
- *         G_STRUCT_OFFSET(VipsForeignLoadPng, filename),
+ *         VIPS_STRUCT_OFFSET(VipsForeignLoadPng, filename),
  *         NULL);
  * }
  *
@@ -316,14 +316,14 @@
  *         _("Filename"),
  *         _("Filename to save to"),
  *         VIPS_ARGUMENT_REQUIRED_INPUT,
- *         G_STRUCT_OFFSET(VipsForeignSaveCsv, filename),
+ *         VIPS_STRUCT_OFFSET(VipsForeignSaveCsv, filename),
  *         NULL);
  *
  *     VIPS_ARG_STRING(class, "separator", 13,
  *         _("Separator"),
  *         _("Separator characters"),
  *         VIPS_ARGUMENT_OPTIONAL_INPUT,
- *         G_STRUCT_OFFSET(VipsForeignSaveCsv, separator),
+ *         VIPS_STRUCT_OFFSET(VipsForeignSaveCsv, separator),
  *         "\t");
  * }
  *
@@ -1230,21 +1230,21 @@ vips_foreign_load_class_init(VipsForeignLoadClass *class)
 		_("Memory"),
 		_("Force open via memory"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoad, memory),
+		VIPS_STRUCT_OFFSET(VipsForeignLoad, memory),
 		FALSE);
 
 	VIPS_ARG_ENUM(class, "access", 108,
 		_("Access"),
 		_("Required access pattern for this file"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoad, access),
+		VIPS_STRUCT_OFFSET(VipsForeignLoad, access),
 		VIPS_TYPE_ACCESS, VIPS_ACCESS_RANDOM);
 
 	VIPS_ARG_ENUM(class, "fail_on", 109,
 		_("Fail on"),
 		_("Error level to fail on"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoad, fail_on),
+		VIPS_STRUCT_OFFSET(VipsForeignLoad, fail_on),
 		VIPS_TYPE_FAIL_ON, VIPS_FAIL_ON_NONE);
 
 	VIPS_ARG_BOOL(class, "revalidate", 110,
@@ -1896,13 +1896,13 @@ vips_foreign_save_class_init(VipsForeignSaveClass *class)
 		_("Input"),
 		_("Image to save"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSave, in));
+		VIPS_STRUCT_OFFSET(VipsForeignSave, in));
 
 	VIPS_ARG_FLAGS(class, "keep", 100,
 		_("Keep"),
 		_("Which metadata to retain"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSave, keep),
+		VIPS_STRUCT_OFFSET(VipsForeignSave, keep),
 		VIPS_TYPE_FOREIGN_KEEP,
 		VIPS_FOREIGN_KEEP_ALL);
 
@@ -1910,21 +1910,21 @@ vips_foreign_save_class_init(VipsForeignSaveClass *class)
 		_("Background"),
 		_("Background value"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSave, background),
+		VIPS_STRUCT_OFFSET(VipsForeignSave, background),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_INT(class, "page_height", 102,
 		_("Page height"),
 		_("Set page height for multipage save"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSave, page_height),
+		VIPS_STRUCT_OFFSET(VipsForeignSave, page_height),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_STRING(class, "profile", 103,
 		_("Profile"),
 		_("Filename of ICC profile to embed"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSave, profile),
+		VIPS_STRUCT_OFFSET(VipsForeignSave, profile),
 		NULL);
 
 	VIPS_ARG_BOOL(class, "strip", 104,

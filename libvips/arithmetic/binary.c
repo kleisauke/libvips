@@ -96,13 +96,13 @@ vips_binary_class_init(VipsBinaryClass *class)
 		_("Left"),
 		_("Left-hand image argument"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBinary, left));
+		VIPS_STRUCT_OFFSET(VipsBinary, left));
 
 	VIPS_ARG_IMAGE(class, "right", 2,
 		_("Right"),
 		_("Right-hand image argument"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBinary, right));
+		VIPS_STRUCT_OFFSET(VipsBinary, right));
 }
 
 static void

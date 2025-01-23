@@ -207,7 +207,7 @@ vips_autorot_class_init(VipsAutorotClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsAutorot, in));
+		VIPS_STRUCT_OFFSET(VipsAutorot, in));
 
 	VIPS_ARG_ENUM(class, "angle", 6,
 		_("Angle"),

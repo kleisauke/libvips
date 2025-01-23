@@ -557,7 +557,7 @@ vips_colourspace_class_init(VipsColourspaceClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsColourspace, in));
+		VIPS_STRUCT_OFFSET(VipsColourspace, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),
@@ -569,14 +569,14 @@ vips_colourspace_class_init(VipsColourspaceClass *class)
 		_("Space"),
 		_("Destination color space"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsColourspace, space),
+		VIPS_STRUCT_OFFSET(VipsColourspace, space),
 		VIPS_TYPE_INTERPRETATION, VIPS_INTERPRETATION_sRGB);
 
 	VIPS_ARG_ENUM(class, "source_space", 6,
 		_("Source space"),
 		_("Source color space"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsColourspace, source_space),
+		VIPS_STRUCT_OFFSET(VipsColourspace, source_space),
 		VIPS_TYPE_INTERPRETATION, VIPS_INTERPRETATION_sRGB);
 }
 

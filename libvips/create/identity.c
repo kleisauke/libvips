@@ -143,21 +143,21 @@ vips_identity_class_init(VipsIdentityClass *class)
 		_("Bands"),
 		_("Number of bands in LUT"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIdentity, bands),
+		VIPS_STRUCT_OFFSET(VipsIdentity, bands),
 		1, 100000, 1);
 
 	VIPS_ARG_BOOL(class, "ushort", 4,
 		_("Ushort"),
 		_("Create a 16-bit LUT"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIdentity, ushort),
+		VIPS_STRUCT_OFFSET(VipsIdentity, ushort),
 		FALSE);
 
 	VIPS_ARG_INT(class, "size", 5,
 		_("Size"),
 		_("Size of 16-bit LUT"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsIdentity, size),
+		VIPS_STRUCT_OFFSET(VipsIdentity, size),
 		1, 65536, 65536);
 }
 

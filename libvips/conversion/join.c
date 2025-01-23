@@ -237,47 +237,47 @@ vips_join_class_init(VipsJoinClass *class)
 		_("in1"),
 		_("First input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsJoin, in1));
+		VIPS_STRUCT_OFFSET(VipsJoin, in1));
 
 	VIPS_ARG_IMAGE(class, "in2", 1,
 		_("in2"),
 		_("Second input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsJoin, in2));
+		VIPS_STRUCT_OFFSET(VipsJoin, in2));
 
 	VIPS_ARG_ENUM(class, "direction", 3,
 		_("Direction"),
 		_("Join left-right or up-down"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsJoin, direction),
+		VIPS_STRUCT_OFFSET(VipsJoin, direction),
 		VIPS_TYPE_DIRECTION, VIPS_DIRECTION_HORIZONTAL);
 
 	VIPS_ARG_BOOL(class, "expand", 4,
 		_("Expand"),
 		_("Expand output to hold all of both inputs"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsJoin, expand),
+		VIPS_STRUCT_OFFSET(VipsJoin, expand),
 		FALSE);
 
 	VIPS_ARG_INT(class, "shim", 5,
 		_("Shim"),
 		_("Pixels between images"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsJoin, shim),
+		VIPS_STRUCT_OFFSET(VipsJoin, shim),
 		0, 1000000, 0);
 
 	VIPS_ARG_BOXED(class, "background", 6,
 		_("Background"),
 		_("Colour for new pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsJoin, background),
+		VIPS_STRUCT_OFFSET(VipsJoin, background),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_ENUM(class, "align", 7,
 		_("Align"),
 		_("Align on the low, centre or high coordinate edge"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsJoin, align),
+		VIPS_STRUCT_OFFSET(VipsJoin, align),
 		VIPS_TYPE_ALIGN, VIPS_ALIGN_LOW);
 }
 

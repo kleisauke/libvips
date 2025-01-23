@@ -441,7 +441,7 @@ vips_foreign_save_nifti_class_init(VipsForeignSaveNiftiClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveNifti, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveNifti, filename),
 		NULL);
 }
 

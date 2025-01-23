@@ -971,28 +971,28 @@ vips_foreign_save_jp2k_class_init(VipsForeignSaveJp2kClass *class)
 		_("Tile width"),
 		_("Tile width in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJp2k, tile_width),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJp2k, tile_width),
 		1, 32768, 512);
 
 	VIPS_ARG_INT(class, "tile_height", 12,
 		_("Tile height"),
 		_("Tile height in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJp2k, tile_height),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJp2k, tile_height),
 		1, 32768, 512);
 
 	VIPS_ARG_BOOL(class, "lossless", 13,
 		_("Lossless"),
 		_("Enable lossless compression"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJp2k, lossless),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJp2k, lossless),
 		FALSE);
 
 	VIPS_ARG_ENUM(class, "subsample_mode", 19,
 		_("Subsample mode"),
 		_("Select chroma subsample operation mode"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJp2k, subsample_mode),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJp2k, subsample_mode),
 		VIPS_TYPE_FOREIGN_SUBSAMPLE,
 		VIPS_FOREIGN_SUBSAMPLE_OFF);
 
@@ -1000,7 +1000,7 @@ vips_foreign_save_jp2k_class_init(VipsForeignSaveJp2kClass *class)
 		_("Q"),
 		_("Q factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJp2k, Q),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJp2k, Q),
 		1, 100, 48);
 }
 
@@ -1063,7 +1063,7 @@ vips_foreign_save_jp2k_file_class_init(VipsForeignSaveJp2kFileClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJp2kFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJp2kFile, filename),
 		NULL);
 }
 
@@ -1182,7 +1182,7 @@ vips_foreign_save_jp2k_target_class_init(
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJp2kTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJp2kTarget, target),
 		VIPS_TYPE_TARGET);
 }
 

@@ -568,34 +568,34 @@ vips_embed_base_class_init(VipsEmbedBaseClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsEmbedBase, in));
+		VIPS_STRUCT_OFFSET(VipsEmbedBase, in));
 
 	VIPS_ARG_INT(class, "width", 5,
 		_("Width"),
 		_("Image width in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsEmbedBase, width),
+		VIPS_STRUCT_OFFSET(VipsEmbedBase, width),
 		1, 1000000000, 1);
 
 	VIPS_ARG_INT(class, "height", 6,
 		_("Height"),
 		_("Image height in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsEmbedBase, height),
+		VIPS_STRUCT_OFFSET(VipsEmbedBase, height),
 		1, 1000000000, 1);
 
 	VIPS_ARG_ENUM(class, "extend", 7,
 		_("Extend"),
 		_("How to generate the extra pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsEmbedBase, extend),
+		VIPS_STRUCT_OFFSET(VipsEmbedBase, extend),
 		VIPS_TYPE_EXTEND, VIPS_EXTEND_BLACK);
 
 	VIPS_ARG_BOXED(class, "background", 12,
 		_("Background"),
 		_("Color for background pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsEmbedBase, background),
+		VIPS_STRUCT_OFFSET(VipsEmbedBase, background),
 		VIPS_TYPE_ARRAY_DOUBLE);
 }
 
@@ -656,14 +656,14 @@ vips_embed_class_init(VipsEmbedClass *class)
 		_("x"),
 		_("Left edge of input in output"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsEmbed, x),
+		VIPS_STRUCT_OFFSET(VipsEmbed, x),
 		-1000000000, 1000000000, 0);
 
 	VIPS_ARG_INT(class, "y", 4,
 		_("y"),
 		_("Top edge of input in output"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsEmbed, y),
+		VIPS_STRUCT_OFFSET(VipsEmbed, y),
 		-1000000000, 1000000000, 0);
 }
 
@@ -811,7 +811,7 @@ vips_gravity_class_init(VipsGravityClass *class)
 		_("Direction"),
 		_("Direction to place image within width/height"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGravity, direction),
+		VIPS_STRUCT_OFFSET(VipsGravity, direction),
 		VIPS_TYPE_COMPASS_DIRECTION, VIPS_COMPASS_DIRECTION_CENTRE);
 }
 

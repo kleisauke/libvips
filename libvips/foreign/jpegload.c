@@ -191,14 +191,14 @@ vips_foreign_load_jpeg_class_init(VipsForeignLoadJpegClass *class)
 		_("Shrink"),
 		_("Shrink factor on load"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJpeg, shrink),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJpeg, shrink),
 		1, 8, 1);
 
 	VIPS_ARG_BOOL(class, "autorotate", 21,
 		_("Autorotate"),
 		_("Rotate image using exif orientation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJpeg, autorotate),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJpeg, autorotate),
 		FALSE);
 
 #ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
@@ -206,7 +206,7 @@ vips_foreign_load_jpeg_class_init(VipsForeignLoadJpegClass *class)
 		_("Unlimited"),
 		_("Remove all denial of service limits"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJpeg, unlimited),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJpeg, unlimited),
 		FALSE);
 #endif
 }
@@ -278,7 +278,7 @@ vips_foreign_load_jpeg_source_class_init(
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJpegSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJpegSource, source),
 		VIPS_TYPE_SOURCE);
 }
 
@@ -354,7 +354,7 @@ vips_foreign_load_jpeg_file_class_init(VipsForeignLoadJpegFileClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJpegFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJpegFile, filename),
 		NULL);
 }
 
@@ -430,7 +430,7 @@ vips_foreign_load_jpeg_buffer_class_init(
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJpegBuffer, blob),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJpegBuffer, blob),
 		VIPS_TYPE_BLOB);
 }
 

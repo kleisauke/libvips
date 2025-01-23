@@ -826,21 +826,21 @@ vips_foreign_save_webp_class_init(VipsForeignSaveWebpClass *class)
 		_("Q"),
 		_("Q factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, Q),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, Q),
 		0, 100, 75);
 
 	VIPS_ARG_BOOL(class, "lossless", 11,
 		_("Lossless"),
 		_("Enable lossless compression"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, lossless),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, lossless),
 		FALSE);
 
 	VIPS_ARG_ENUM(class, "preset", 12,
 		_("Preset"),
 		_("Preset for lossy compression"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, preset),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, preset),
 		VIPS_TYPE_FOREIGN_WEBP_PRESET,
 		VIPS_FOREIGN_WEBP_PRESET_DEFAULT);
 
@@ -848,63 +848,63 @@ vips_foreign_save_webp_class_init(VipsForeignSaveWebpClass *class)
 		_("Smart subsampling"),
 		_("Enable high quality chroma subsampling"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, smart_subsample),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, smart_subsample),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "near_lossless", 14,
 		_("Near lossless"),
 		_("Enable preprocessing in lossless mode (uses Q)"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, near_lossless),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, near_lossless),
 		FALSE);
 
 	VIPS_ARG_INT(class, "alpha_q", 15,
 		_("Alpha quality"),
 		_("Change alpha plane fidelity for lossy compression"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, alpha_q),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, alpha_q),
 		0, 100, 100);
 
 	VIPS_ARG_BOOL(class, "min_size", 16,
 		_("Minimise size"),
 		_("Optimise for minimum size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, min_size),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, min_size),
 		FALSE);
 
 	VIPS_ARG_INT(class, "kmin", 17,
 		_("Minimum keyframe spacing"),
 		_("Minimum number of frames between key frames"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, kmin),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, kmin),
 		0, INT_MAX, INT_MAX - 1);
 
 	VIPS_ARG_INT(class, "kmax", 18,
 		_("Maximum keyframe spacing"),
 		_("Maximum number of frames between key frames"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, kmax),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, kmax),
 		0, INT_MAX, INT_MAX);
 
 	VIPS_ARG_INT(class, "effort", 19,
 		_("Effort"),
 		_("Level of CPU effort to reduce file size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, effort),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, effort),
 		0, 6, 4);
 
 	VIPS_ARG_INT(class, "target_size", 20,
 		_("Target size"),
 		_("Desired target size in bytes"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, target_size),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, target_size),
 		0, INT_MAX, 0);
 
 	VIPS_ARG_INT(class, "passes", 23,
 		_("Passes"),
 		_("Number of entropy-analysis passes (in [1..10])"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, passes),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, passes),
 		1, 10, 1);
 
 	VIPS_ARG_INT(class, "reduction_effort", 21,
@@ -918,14 +918,14 @@ vips_foreign_save_webp_class_init(VipsForeignSaveWebpClass *class)
 		_("Mixed encoding"),
 		_("Allow mixed encoding (might reduce file size)"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, mixed),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, mixed),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "smart_deblock", 23,
 		_("Smart deblocking"),
 		_("Enable auto-adjusting of the deblocking filter"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, smart_deblock),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, smart_deblock),
 		FALSE);
 }
 
@@ -987,7 +987,7 @@ vips_foreign_save_webp_target_class_init(
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebpTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebpTarget, target),
 		VIPS_TYPE_TARGET);
 }
 
@@ -1038,7 +1038,7 @@ vips_foreign_save_webp_file_class_init(VipsForeignSaveWebpFileClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveWebpFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebpFile, filename),
 		NULL);
 }
 

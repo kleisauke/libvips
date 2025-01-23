@@ -644,69 +644,69 @@ vips_affine_class_init(VipsAffineClass *class)
 		_("Matrix"),
 		_("Transformation matrix"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsAffine, matrix),
+		VIPS_STRUCT_OFFSET(VipsAffine, matrix),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_INTERPOLATE(class, "interpolate", 2,
 		_("Interpolate"),
 		_("Interpolate pixels with this"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsAffine, interpolate));
+		VIPS_STRUCT_OFFSET(VipsAffine, interpolate));
 
 	VIPS_ARG_BOXED(class, "oarea", 111,
 		_("Output rect"),
 		_("Area of output to generate"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsAffine, oarea),
+		VIPS_STRUCT_OFFSET(VipsAffine, oarea),
 		VIPS_TYPE_ARRAY_INT);
 
 	VIPS_ARG_DOUBLE(class, "odx", 112,
 		_("Output offset"),
 		_("Horizontal output displacement"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsAffine, odx),
+		VIPS_STRUCT_OFFSET(VipsAffine, odx),
 		-10000000, 10000000, 0);
 
 	VIPS_ARG_DOUBLE(class, "ody", 113,
 		_("Output offset"),
 		_("Vertical output displacement"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsAffine, ody),
+		VIPS_STRUCT_OFFSET(VipsAffine, ody),
 		-10000000, 10000000, 0);
 
 	VIPS_ARG_DOUBLE(class, "idx", 114,
 		_("Input offset"),
 		_("Horizontal input displacement"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsAffine, idx),
+		VIPS_STRUCT_OFFSET(VipsAffine, idx),
 		-10000000, 10000000, 0);
 
 	VIPS_ARG_DOUBLE(class, "idy", 115,
 		_("Input offset"),
 		_("Vertical input displacement"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsAffine, idy),
+		VIPS_STRUCT_OFFSET(VipsAffine, idy),
 		-10000000, 10000000, 0);
 
 	VIPS_ARG_ENUM(class, "extend", 117,
 		_("Extend"),
 		_("How to generate the extra pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsAffine, extend),
+		VIPS_STRUCT_OFFSET(VipsAffine, extend),
 		VIPS_TYPE_EXTEND, VIPS_EXTEND_BACKGROUND);
 
 	VIPS_ARG_BOXED(class, "background", 116,
 		_("Background"),
 		_("Background value"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsAffine, background),
+		VIPS_STRUCT_OFFSET(VipsAffine, background),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_BOOL(class, "premultiplied", 117,
 		_("Premultiplied"),
 		_("Images have premultiplied alpha"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsAffine, premultiplied),
+		VIPS_STRUCT_OFFSET(VipsAffine, premultiplied),
 		FALSE);
 }
 

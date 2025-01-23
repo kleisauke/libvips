@@ -141,21 +141,21 @@ vips_point_class_init(VipsPointClass *class)
 		_("Width"),
 		_("Image width in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsPoint, width),
+		VIPS_STRUCT_OFFSET(VipsPoint, width),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "height", 3,
 		_("Height"),
 		_("Image height in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsPoint, height),
+		VIPS_STRUCT_OFFSET(VipsPoint, height),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_BOOL(class, "uchar", 4,
 		_("Uchar"),
 		_("Output an unsigned char image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsPoint, uchar),
+		VIPS_STRUCT_OFFSET(VipsPoint, uchar),
 		FALSE);
 }
 

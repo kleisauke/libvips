@@ -257,7 +257,7 @@ vips_foreign_save_tiff_class_init(VipsForeignSaveTiffClass *class)
 		_("Compression"),
 		_("Compression for this file"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, compression),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, compression),
 		VIPS_TYPE_FOREIGN_TIFF_COMPRESSION,
 		VIPS_FOREIGN_TIFF_COMPRESSION_NONE);
 
@@ -265,14 +265,14 @@ vips_foreign_save_tiff_class_init(VipsForeignSaveTiffClass *class)
 		_("Q"),
 		_("Q factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, Q),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, Q),
 		1, 100, 75);
 
 	VIPS_ARG_ENUM(class, "predictor", 8,
 		_("Predictor"),
 		_("Compression prediction"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, predictor),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, predictor),
 		VIPS_TYPE_FOREIGN_TIFF_PREDICTOR,
 		VIPS_FOREIGN_TIFF_PREDICTOR_HORIZONTAL);
 
@@ -280,119 +280,119 @@ vips_foreign_save_tiff_class_init(VipsForeignSaveTiffClass *class)
 		_("Tile"),
 		_("Write a tiled tiff"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, tile),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, tile),
 		FALSE);
 
 	VIPS_ARG_INT(class, "tile_width", 11,
 		_("Tile width"),
 		_("Tile width in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, tile_width),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, tile_width),
 		1, 32768, 128);
 
 	VIPS_ARG_INT(class, "tile_height", 12,
 		_("Tile height"),
 		_("Tile height in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, tile_height),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, tile_height),
 		1, 32768, 128);
 
 	VIPS_ARG_BOOL(class, "pyramid", 13,
 		_("Pyramid"),
 		_("Write a pyramidal tiff"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, pyramid),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, pyramid),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "miniswhite", 14,
 		_("Miniswhite"),
 		_("Use 0 for white in 1-bit images"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, miniswhite),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, miniswhite),
 		FALSE);
 
 	VIPS_ARG_INT(class, "bitdepth", 15,
 		_("Bit depth"),
 		_("Write as a 1, 2, 4 or 8 bit image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, bitdepth),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, bitdepth),
 		0, 8, 0);
 
 	VIPS_ARG_ENUM(class, "resunit", 16,
 		_("Resolution unit"),
 		_("Resolution unit"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, resunit),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, resunit),
 		VIPS_TYPE_FOREIGN_TIFF_RESUNIT, VIPS_FOREIGN_TIFF_RESUNIT_CM);
 
 	VIPS_ARG_DOUBLE(class, "xres", 17,
 		_("Xres"),
 		_("Horizontal resolution in pixels/mm"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, xres),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, xres),
 		0.001, 1000000, 1);
 
 	VIPS_ARG_DOUBLE(class, "yres", 18,
 		_("Yres"),
 		_("Vertical resolution in pixels/mm"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, yres),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, yres),
 		0.001, 1000000, 1);
 
 	VIPS_ARG_BOOL(class, "bigtiff", 19,
 		_("Bigtiff"),
 		_("Write a bigtiff image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, bigtiff),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, bigtiff),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "properties", 21,
 		_("Properties"),
 		_("Write a properties document to IMAGEDESCRIPTION"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, properties),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, properties),
 		FALSE);
 
 	VIPS_ARG_ENUM(class, "region_shrink", 22,
 		_("Region shrink"),
 		_("Method to shrink regions"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, region_shrink),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, region_shrink),
 		VIPS_TYPE_REGION_SHRINK, VIPS_REGION_SHRINK_MEAN);
 
 	VIPS_ARG_INT(class, "level", 23,
 		_("Level"),
 		_("Deflate (1-9, default 6) or ZSTD (1-22, default 9) compression level"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, level),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, level),
 		1, 22, 6);
 
 	VIPS_ARG_BOOL(class, "lossless", 24,
 		_("Lossless"),
 		_("Enable WEBP lossless mode"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, lossless),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, lossless),
 		FALSE);
 
 	VIPS_ARG_ENUM(class, "depth", 25,
 		_("Depth"),
 		_("Pyramid depth"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, depth),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, depth),
 		VIPS_TYPE_FOREIGN_DZ_DEPTH, VIPS_FOREIGN_DZ_DEPTH_ONETILE);
 
 	VIPS_ARG_BOOL(class, "subifd", 26,
 		_("Sub-IFD"),
 		_("Save pyr layers as sub-IFDs"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, subifd),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, subifd),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "premultiply", 27,
 		_("Premultiply"),
 		_("Save with premultiplied alpha"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, premultiply),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, premultiply),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "rgbjpeg", 28,
@@ -474,7 +474,7 @@ vips_foreign_save_tiff_target_class_init(
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiffTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiffTarget, target),
 		VIPS_TYPE_TARGET);
 }
 
@@ -527,7 +527,7 @@ vips_foreign_save_tiff_file_class_init(VipsForeignSaveTiffFileClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveTiffFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiffFile, filename),
 		NULL);
 }
 

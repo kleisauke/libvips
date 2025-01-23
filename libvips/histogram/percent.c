@@ -109,13 +109,13 @@ vips_percent_class_init(VipsPercentClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsPercent, in));
+		VIPS_STRUCT_OFFSET(VipsPercent, in));
 
 	VIPS_ARG_DOUBLE(class, "percent", 2,
 		_("Percent"),
 		_("Percent of pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsPercent, percent),
+		VIPS_STRUCT_OFFSET(VipsPercent, percent),
 		0, 100, 50);
 
 	VIPS_ARG_INT(class, "threshold", 3,

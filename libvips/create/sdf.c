@@ -304,49 +304,49 @@ vips_sdf_class_init(VipsSdfClass *class)
 		_("Width"),
 		_("Image width in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSdf, width),
+		VIPS_STRUCT_OFFSET(VipsSdf, width),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "height", 3,
 		_("Height"),
 		_("Image height in pixels"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSdf, height),
+		VIPS_STRUCT_OFFSET(VipsSdf, height),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_ENUM(class, "shape", 8,
 		_("Shape"),
 		_("SDF shape to create"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSdf, shape),
+		VIPS_STRUCT_OFFSET(VipsSdf, shape),
 		VIPS_TYPE_SDF_SHAPE, VIPS_SDF_SHAPE_CIRCLE);
 
 	VIPS_ARG_DOUBLE(class, "r", 9,
 		_("r"),
 		_("Radius"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSdf, r),
+		VIPS_STRUCT_OFFSET(VipsSdf, r),
 		0.0, VIPS_MAX_COORD, 50);
 
 	VIPS_ARG_BOXED(class, "a", 13,
 		_("a"),
 		_("Point a"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSdf, a_area),
+		VIPS_STRUCT_OFFSET(VipsSdf, a_area),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_BOXED(class, "b", 14,
 		_("b"),
 		_("Point b"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSdf, b_area),
+		VIPS_STRUCT_OFFSET(VipsSdf, b_area),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_BOXED(class, "corners", 15,
 		_("corners"),
 		_("Corner radii"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSdf, corners_area),
+		VIPS_STRUCT_OFFSET(VipsSdf, corners_area),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 }

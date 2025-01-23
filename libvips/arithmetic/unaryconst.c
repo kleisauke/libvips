@@ -142,7 +142,7 @@ vips_unary_const_class_init(VipsUnaryConstClass *class)
 		_("c"),
 		_("Array of constants"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsUnaryConst, c),
+		VIPS_STRUCT_OFFSET(VipsUnaryConst, c),
 		VIPS_TYPE_ARRAY_DOUBLE);
 }
 

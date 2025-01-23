@@ -1484,14 +1484,14 @@ vips_composite_base_class_init(VipsCompositeBaseClass *klass)
 		_("Compositing space"),
 		_("Composite images in this colour space"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCompositeBase, compositing_space),
+		VIPS_STRUCT_OFFSET(VipsCompositeBase, compositing_space),
 		VIPS_TYPE_INTERPRETATION, VIPS_INTERPRETATION_sRGB);
 
 	VIPS_ARG_BOOL(klass, "premultiplied", 11,
 		_("Premultiplied"),
 		_("Images have premultiplied alpha"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCompositeBase, premultiplied),
+		VIPS_STRUCT_OFFSET(VipsCompositeBase, premultiplied),
 		FALSE);
 }
 
@@ -1580,28 +1580,28 @@ vips_composite_class_init(VipsCompositeClass *klass)
 		_("Inputs"),
 		_("Array of input images"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsCompositeBase, in),
+		VIPS_STRUCT_OFFSET(VipsCompositeBase, in),
 		VIPS_TYPE_ARRAY_IMAGE);
 
 	VIPS_ARG_BOXED(klass, "mode", 3,
 		_("Blend modes"),
 		_("Array of VipsBlendMode to join with"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsCompositeBase, mode),
+		VIPS_STRUCT_OFFSET(VipsCompositeBase, mode),
 		VIPS_TYPE_ARRAY_INT);
 
 	VIPS_ARG_BOXED(klass, "x", 4,
 		_("x coordinates"),
 		_("Array of x coordinates to join at"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsComposite, x),
+		VIPS_STRUCT_OFFSET(VipsComposite, x),
 		VIPS_TYPE_ARRAY_INT);
 
 	VIPS_ARG_BOXED(klass, "y", 5,
 		_("y coordinates"),
 		_("Array of y coordinates to join at"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsComposite, y),
+		VIPS_STRUCT_OFFSET(VipsComposite, y),
 		VIPS_TYPE_ARRAY_INT);
 }
 
@@ -1714,33 +1714,33 @@ vips_composite2_class_init(VipsCompositeClass *klass)
 		_("Base"),
 		_("Base image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsComposite2, base));
+		VIPS_STRUCT_OFFSET(VipsComposite2, base));
 
 	VIPS_ARG_IMAGE(klass, "overlay", 1,
 		_("Overlay"),
 		_("Overlay image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsComposite2, overlay));
+		VIPS_STRUCT_OFFSET(VipsComposite2, overlay));
 
 	VIPS_ARG_ENUM(klass, "mode", 3,
 		_("Blend mode"),
 		_("VipsBlendMode to join with"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsComposite2, mode),
+		VIPS_STRUCT_OFFSET(VipsComposite2, mode),
 		VIPS_TYPE_BLEND_MODE, VIPS_BLEND_MODE_OVER);
 
 	VIPS_ARG_INT(klass, "x", 4,
 		_("x"),
 		_("x position of overlay"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsComposite2, x),
+		VIPS_STRUCT_OFFSET(VipsComposite2, x),
 		-VIPS_MAX_COORD, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(klass, "y", 5,
 		_("y"),
 		_("y position of overlay"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsComposite2, y),
+		VIPS_STRUCT_OFFSET(VipsComposite2, y),
 		-VIPS_MAX_COORD, VIPS_MAX_COORD, 0);
 }
 

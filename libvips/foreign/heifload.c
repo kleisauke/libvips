@@ -1083,21 +1083,21 @@ vips_foreign_load_heif_class_init(VipsForeignLoadHeifClass *class)
 		_("Page"),
 		_("First page to load"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadHeif, page),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadHeif, page),
 		0, 100000, 0);
 
 	VIPS_ARG_INT(class, "n", 3,
 		_("n"),
 		_("Number of pages to load, -1 for all"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadHeif, n),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadHeif, n),
 		-1, 100000, 1);
 
 	VIPS_ARG_BOOL(class, "thumbnail", 4,
 		_("Thumbnail"),
 		_("Fetch thumbnail image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadHeif, thumbnail),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadHeif, thumbnail),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "autorotate", 21,
@@ -1112,7 +1112,7 @@ vips_foreign_load_heif_class_init(VipsForeignLoadHeifClass *class)
 		_("Unlimited"),
 		_("Remove all denial of service limits"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadHeif, unlimited),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadHeif, unlimited),
 		FALSE);
 #endif
 }
@@ -1271,7 +1271,7 @@ vips_foreign_load_heif_file_class_init(VipsForeignLoadHeifFileClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadHeifFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadHeifFile, filename),
 		NULL);
 }
 
@@ -1340,7 +1340,7 @@ vips_foreign_load_heif_buffer_class_init(
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadHeifBuffer, buf),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadHeifBuffer, buf),
 		VIPS_TYPE_BLOB);
 }
 
@@ -1414,7 +1414,7 @@ vips_foreign_load_heif_source_class_init(
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadHeifSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadHeifSource, source),
 		VIPS_TYPE_SOURCE);
 }
 

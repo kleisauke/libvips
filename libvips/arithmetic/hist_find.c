@@ -437,7 +437,7 @@ vips_hist_find_class_init(VipsHistFindClass *class)
 		_("Band"),
 		_("Find histogram of band"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsHistFind, band),
+		VIPS_STRUCT_OFFSET(VipsHistFind, band),
 		-1, 100000, -1);
 }
 

@@ -101,7 +101,7 @@ vips_mask_gaussian_ring_class_init(VipsMaskGaussianRingClass *class)
 		_("Ringwidth"),
 		_("Ringwidth"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaskGaussianRing, ringwidth),
+		VIPS_STRUCT_OFFSET(VipsMaskGaussianRing, ringwidth),
 		0.0, 1000000.0, 0.5);
 }
 

@@ -201,7 +201,7 @@ vips_bandjoin_class_init(VipsBandjoinClass *class)
 		_("Input"),
 		_("Array of input images"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBandjoin, in),
+		VIPS_STRUCT_OFFSET(VipsBandjoin, in),
 		VIPS_TYPE_ARRAY_IMAGE);
 }
 
@@ -436,13 +436,13 @@ vips_bandjoin_const_class_init(VipsBandjoinConstClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBandjoinConst, in));
+		VIPS_STRUCT_OFFSET(VipsBandjoinConst, in));
 
 	VIPS_ARG_BOXED(class, "c", 12,
 		_("Constants"),
 		_("Array of constants to add"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBandjoinConst, c),
+		VIPS_STRUCT_OFFSET(VipsBandjoinConst, c),
 		VIPS_TYPE_ARRAY_DOUBLE);
 }
 

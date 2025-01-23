@@ -199,27 +199,27 @@ vips_grid_class_init(VipsGridClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGrid, in));
+		VIPS_STRUCT_OFFSET(VipsGrid, in));
 
 	VIPS_ARG_INT(class, "tile_height", 3,
 		_("Tile height"),
 		_("Chop into tiles this high"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGrid, tile_height),
+		VIPS_STRUCT_OFFSET(VipsGrid, tile_height),
 		1, 10000000, 128);
 
 	VIPS_ARG_INT(class, "across", 4,
 		_("Across"),
 		_("Number of tiles across"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGrid, across),
+		VIPS_STRUCT_OFFSET(VipsGrid, across),
 		1, 10000000, 1);
 
 	VIPS_ARG_INT(class, "down", 5,
 		_("Down"),
 		_("Number of tiles down"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsGrid, down),
+		VIPS_STRUCT_OFFSET(VipsGrid, down),
 		1, 10000000, 1);
 }
 

@@ -744,7 +744,7 @@ vips_maplut_class_init(VipsMaplutClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaplut, in));
+		VIPS_STRUCT_OFFSET(VipsMaplut, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),
@@ -756,13 +756,13 @@ vips_maplut_class_init(VipsMaplutClass *class)
 		_("LUT"),
 		_("Look-up table image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMaplut, lut));
+		VIPS_STRUCT_OFFSET(VipsMaplut, lut));
 
 	VIPS_ARG_INT(class, "band", 4,
 		_("Band"),
 		_("Apply one-band lut to this band of in"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMaplut, band),
+		VIPS_STRUCT_OFFSET(VipsMaplut, band),
 		-1, 10000, -1);
 }
 

@@ -829,7 +829,7 @@ vips_foreign_load_ppm_file_class_init(VipsForeignLoadPpmClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPpmFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPpmFile, filename),
 		NULL);
 }
 
@@ -890,7 +890,7 @@ vips_foreign_load_ppm_source_class_init(VipsForeignLoadPpmFileClass *class)
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadPpmSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadPpmSource, source),
 		VIPS_TYPE_SOURCE);
 }
 

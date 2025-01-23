@@ -263,7 +263,7 @@ vips_buildlut_class_init(VipsBuildlutClass *class)
 		_("Input"),
 		_("Matrix of XY coordinates"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBuildlut, in));
+		VIPS_STRUCT_OFFSET(VipsBuildlut, in));
 }
 
 static void

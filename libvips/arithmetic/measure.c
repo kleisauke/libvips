@@ -195,7 +195,7 @@ vips_measure_class_init(VipsMeasureClass *class)
 		_("Input"),
 		_("Image to measure"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMeasure, in));
+		VIPS_STRUCT_OFFSET(VipsMeasure, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),
@@ -207,42 +207,42 @@ vips_measure_class_init(VipsMeasureClass *class)
 		_("Across"),
 		_("Number of patches across chart"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMeasure, h),
+		VIPS_STRUCT_OFFSET(VipsMeasure, h),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "v", 6,
 		_("Down"),
 		_("Number of patches down chart"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMeasure, v),
+		VIPS_STRUCT_OFFSET(VipsMeasure, v),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "left", 10,
 		_("Left"),
 		_("Left edge of extract area"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMeasure, left),
+		VIPS_STRUCT_OFFSET(VipsMeasure, left),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "top", 11,
 		_("Top"),
 		_("Top edge of extract area"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMeasure, top),
+		VIPS_STRUCT_OFFSET(VipsMeasure, top),
 		0, VIPS_MAX_COORD, 0);
 
 	VIPS_ARG_INT(class, "width", 12,
 		_("Width"),
 		_("Width of extract area"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMeasure, width),
+		VIPS_STRUCT_OFFSET(VipsMeasure, width),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "height", 13,
 		_("Height"),
 		_("Height of extract area"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMeasure, height),
+		VIPS_STRUCT_OFFSET(VipsMeasure, height),
 		1, VIPS_MAX_COORD, 1);
 }
 

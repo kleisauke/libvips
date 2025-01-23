@@ -333,7 +333,7 @@ vips_hist_plot_class_init(VipsHistPlotClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsHistPlot, in));
+		VIPS_STRUCT_OFFSET(VipsHistPlot, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),

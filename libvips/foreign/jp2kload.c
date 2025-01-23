@@ -1229,7 +1229,7 @@ vips_foreign_load_jp2k_class_init(VipsForeignLoadJp2kClass *class)
 		_("Page"),
 		_("Load this page from the image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJp2k, page),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJp2k, page),
 		0, 100000, 0);
 }
 
@@ -1309,7 +1309,7 @@ vips_foreign_load_jp2k_file_class_init(VipsForeignLoadJp2kFileClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJp2kFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJp2kFile, filename),
 		NULL);
 }
 
@@ -1385,7 +1385,7 @@ vips_foreign_load_jp2k_buffer_class_init(
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJp2kBuffer, buf),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJp2kBuffer, buf),
 		VIPS_TYPE_BLOB);
 }
 
@@ -1448,7 +1448,7 @@ vips_foreign_load_jp2k_source_class_init(VipsForeignLoadJp2kSourceClass *class)
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadJp2kSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadJp2kSource, source),
 		VIPS_TYPE_SOURCE);
 }
 

@@ -237,7 +237,7 @@ vips_scRGB2BW_class_init(VipsscRGB2BWClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsscRGB2BW, in));
+		VIPS_STRUCT_OFFSET(VipsscRGB2BW, in));
 
 	VIPS_ARG_IMAGE(class, "out", 100,
 		_("Output"),
@@ -249,7 +249,7 @@ vips_scRGB2BW_class_init(VipsscRGB2BWClass *class)
 		_("Depth"),
 		_("Output device space depth in bits"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsscRGB2BW, depth),
+		VIPS_STRUCT_OFFSET(VipsscRGB2BW, depth),
 		8, 16, 8);
 }
 

@@ -122,21 +122,21 @@ vips_mask_class_init(VipsMaskClass *class)
 		_("Optical"),
 		_("Rotate quadrants to optical space"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMask, optical),
+		VIPS_STRUCT_OFFSET(VipsMask, optical),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "reject", 5,
 		_("Reject"),
 		_("Invert the sense of the filter"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMask, reject),
+		VIPS_STRUCT_OFFSET(VipsMask, reject),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "nodc", 5,
 		_("Nodc"),
 		_("Remove DC component"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsMask, nodc),
+		VIPS_STRUCT_OFFSET(VipsMask, nodc),
 		FALSE);
 }
 

@@ -134,21 +134,21 @@ vips_foreign_load_magick_class_init(VipsForeignLoadMagickClass *class)
 		_("Density"),
 		_("Canvas resolution for rendering vector formats like SVG"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadMagick, density),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadMagick, density),
 		NULL);
 
 	VIPS_ARG_INT(class, "page", 22,
 		_("Page"),
 		_("First page to load"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadMagick, page),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadMagick, page),
 		0, 100000, 0);
 
 	VIPS_ARG_INT(class, "n", 23,
 		_("n"),
 		_("Number of pages to load, -1 for all"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadMagick, n),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadMagick, n),
 		-1, 100000, 1);
 
 	VIPS_ARG_BOOL(class, "all_frames", 20,
@@ -238,7 +238,7 @@ vips_foreign_load_magick_file_class_init(
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadMagickFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadMagickFile, filename),
 		NULL);
 }
 
@@ -313,7 +313,7 @@ vips_foreign_load_magick_buffer_class_init(
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadMagickBuffer, buf),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadMagickBuffer, buf),
 		VIPS_TYPE_BLOB);
 }
 

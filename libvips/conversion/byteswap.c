@@ -238,7 +238,7 @@ vips_byteswap_class_init(VipsByteswapClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsByteswap, in));
+		VIPS_STRUCT_OFFSET(VipsByteswap, in));
 }
 
 static void

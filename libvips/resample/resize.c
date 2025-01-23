@@ -329,28 +329,28 @@ vips_resize_class_init(VipsResizeClass *class)
 		_("Scale factor"),
 		_("Scale image by this factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsResize, scale),
+		VIPS_STRUCT_OFFSET(VipsResize, scale),
 		0.0, 10000000.0, 0.0);
 
 	VIPS_ARG_DOUBLE(class, "vscale", 113,
 		_("Vertical scale factor"),
 		_("Vertical scale image by this factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsResize, vscale),
+		VIPS_STRUCT_OFFSET(VipsResize, vscale),
 		0.0, 10000000.0, 0.0);
 
 	VIPS_ARG_ENUM(class, "kernel", 3,
 		_("Kernel"),
 		_("Resampling kernel"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsResize, kernel),
+		VIPS_STRUCT_OFFSET(VipsResize, kernel),
 		VIPS_TYPE_KERNEL, VIPS_KERNEL_LANCZOS3);
 
 	VIPS_ARG_DOUBLE(class, "gap", 4,
 		_("Gap"),
 		_("Reducing gap"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsResize, gap),
+		VIPS_STRUCT_OFFSET(VipsResize, gap),
 		0.0, 1000000.0, 2.0);
 
 	/* We used to let people set the input offset so you could pick centre

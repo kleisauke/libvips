@@ -267,27 +267,27 @@ vips_subsample_class_init(VipsSubsampleClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSubsample, in));
+		VIPS_STRUCT_OFFSET(VipsSubsample, in));
 
 	VIPS_ARG_INT(class, "xfac", 3,
 		_("Xfac"),
 		_("Horizontal subsample factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSubsample, xfac),
+		VIPS_STRUCT_OFFSET(VipsSubsample, xfac),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_INT(class, "yfac", 4,
 		_("Yfac"),
 		_("Vertical subsample factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSubsample, yfac),
+		VIPS_STRUCT_OFFSET(VipsSubsample, yfac),
 		1, VIPS_MAX_COORD, 1);
 
 	VIPS_ARG_BOOL(class, "point", 5,
 		_("Point"),
 		_("Point sample"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSubsample, point),
+		VIPS_STRUCT_OFFSET(VipsSubsample, point),
 		FALSE);
 }
 

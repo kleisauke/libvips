@@ -277,7 +277,7 @@ vips_system_class_init(VipsSystemClass *class)
 		_("Input"),
 		_("Array of input images"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSystem, in),
+		VIPS_STRUCT_OFFSET(VipsSystem, in),
 		VIPS_TYPE_ARRAY_IMAGE);
 
 	VIPS_ARG_IMAGE(class, "out", 1,
@@ -290,21 +290,21 @@ vips_system_class_init(VipsSystemClass *class)
 		_("Command"),
 		_("Command to run"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSystem, cmd_format),
+		VIPS_STRUCT_OFFSET(VipsSystem, cmd_format),
 		NULL);
 
 	VIPS_ARG_STRING(class, "in_format", 2,
 		_("Input format"),
 		_("Format for input filename"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSystem, in_format),
+		VIPS_STRUCT_OFFSET(VipsSystem, in_format),
 		NULL);
 
 	VIPS_ARG_STRING(class, "out_format", 2,
 		_("Output format"),
 		_("Format for output filename"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsSystem, out_format),
+		VIPS_STRUCT_OFFSET(VipsSystem, out_format),
 		NULL);
 
 	VIPS_ARG_STRING(class, "log", 2,

@@ -232,13 +232,13 @@ vips_bandbool_class_init(VipsBandboolClass *class)
 		_("Input"),
 		_("Input image argument"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBandbool, in));
+		VIPS_STRUCT_OFFSET(VipsBandbool, in));
 
 	VIPS_ARG_ENUM(class, "boolean", 200,
 		_("Operation"),
 		_("Boolean to perform"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsBandbool, operation),
+		VIPS_STRUCT_OFFSET(VipsBandbool, operation),
 		VIPS_TYPE_OPERATION_BOOLEAN,
 		VIPS_OPERATION_BOOLEAN_AND);
 }

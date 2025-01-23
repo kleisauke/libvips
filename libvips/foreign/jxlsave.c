@@ -810,35 +810,35 @@ vips_foreign_save_jxl_class_init(VipsForeignSaveJxlClass *class)
 		_("Tier"),
 		_("Decode speed tier"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJxl, tier),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJxl, tier),
 		0, 4, 0);
 
 	VIPS_ARG_DOUBLE(class, "distance", 11,
 		_("Distance"),
 		_("Target butteraugli distance"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJxl, distance),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJxl, distance),
 		0.0, 25.0, 1.0);
 
 	VIPS_ARG_INT(class, "effort", 12,
 		_("Effort"),
 		_("Encoding effort"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJxl, effort),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJxl, effort),
 		1, 9, 7);
 
 	VIPS_ARG_BOOL(class, "lossless", 13,
 		_("Lossless"),
 		_("Enable lossless compression"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJxl, lossless),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJxl, lossless),
 		FALSE);
 
 	VIPS_ARG_INT(class, "Q", 14,
 		_("Q"),
 		_("Quality factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJxl, Q),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJxl, Q),
 		0, 100, 75);
 }
 
@@ -897,7 +897,7 @@ vips_foreign_save_jxl_file_class_init(VipsForeignSaveJxlFileClass *class)
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJxlFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJxlFile, filename),
 		NULL);
 }
 
@@ -1016,7 +1016,7 @@ vips_foreign_save_jxl_target_class_init(
 		_("Target"),
 		_("Target to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveJxlTarget, target),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJxlTarget, target),
 		VIPS_TYPE_TARGET);
 }
 

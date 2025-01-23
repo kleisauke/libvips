@@ -163,42 +163,42 @@ vips_compass_class_init(VipsCompassClass *class)
 		_("Times"),
 		_("Rotate and convolve this many times"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCompass, times),
+		VIPS_STRUCT_OFFSET(VipsCompass, times),
 		1, 1000, 2);
 
 	VIPS_ARG_ENUM(class, "angle", 103,
 		_("Angle"),
 		_("Rotate mask by this much between convolutions"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCompass, angle),
+		VIPS_STRUCT_OFFSET(VipsCompass, angle),
 		VIPS_TYPE_ANGLE45, VIPS_ANGLE45_D90);
 
 	VIPS_ARG_ENUM(class, "combine", 104,
 		_("Combine"),
 		_("Combine convolution results like this"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCompass, combine),
+		VIPS_STRUCT_OFFSET(VipsCompass, combine),
 		VIPS_TYPE_COMBINE, VIPS_COMBINE_MAX);
 
 	VIPS_ARG_ENUM(class, "precision", 203,
 		_("Precision"),
 		_("Convolve with this precision"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCompass, precision),
+		VIPS_STRUCT_OFFSET(VipsCompass, precision),
 		VIPS_TYPE_PRECISION, VIPS_PRECISION_FLOAT);
 
 	VIPS_ARG_INT(class, "layers", 204,
 		_("Layers"),
 		_("Use this many layers in approximation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCompass, layers),
+		VIPS_STRUCT_OFFSET(VipsCompass, layers),
 		1, 1000, 5);
 
 	VIPS_ARG_INT(class, "cluster", 205,
 		_("Cluster"),
 		_("Cluster lines closer than this in approximation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsCompass, cluster),
+		VIPS_STRUCT_OFFSET(VipsCompass, cluster),
 		1, 100, 1);
 }
 

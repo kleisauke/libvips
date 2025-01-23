@@ -114,7 +114,7 @@ vips_hist_equal_class_init(VipsHistEqualClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsHistEqual, in));
+		VIPS_STRUCT_OFFSET(VipsHistEqual, in));
 
 	VIPS_ARG_IMAGE(class, "out", 2,
 		_("Output"),
@@ -126,7 +126,7 @@ vips_hist_equal_class_init(VipsHistEqualClass *class)
 		_("Band"),
 		_("Equalise with this band"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsHistEqual, which),
+		VIPS_STRUCT_OFFSET(VipsHistEqual, which),
 		-1, 100000, -1);
 }
 

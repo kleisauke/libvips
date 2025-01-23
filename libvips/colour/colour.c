@@ -480,7 +480,7 @@ vips_colour_transform_class_init(VipsColourTransformClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsColourTransform, in));
+		VIPS_STRUCT_OFFSET(VipsColourTransform, in));
 }
 
 static void
@@ -573,7 +573,7 @@ vips_colour_code_class_init(VipsColourCodeClass *class)
 		_("Input"),
 		_("Input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsColourCode, in));
+		VIPS_STRUCT_OFFSET(VipsColourCode, in));
 }
 
 static void
@@ -684,13 +684,13 @@ vips_colour_difference_class_init(VipsColourDifferenceClass *class)
 		_("Left"),
 		_("Left-hand input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsColourDifference, left));
+		VIPS_STRUCT_OFFSET(VipsColourDifference, left));
 
 	VIPS_ARG_IMAGE(class, "right", 2,
 		_("Right"),
 		_("Right-hand input image"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsColourDifference, right));
+		VIPS_STRUCT_OFFSET(VipsColourDifference, right));
 }
 
 static void

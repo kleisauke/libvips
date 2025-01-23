@@ -717,14 +717,14 @@ vips_foreign_load_svg_class_init(VipsForeignLoadSvgClass *class)
 		_("DPI"),
 		_("Render at this DPI"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadSvg, dpi),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadSvg, dpi),
 		0.001, 100000.0, 72.0);
 
 	VIPS_ARG_DOUBLE(class, "scale", 22,
 		_("Scale"),
 		_("Scale output by this factor"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadSvg, scale),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadSvg, scale),
 		0.0, 100000.0, 1.0);
 
 #ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
@@ -732,7 +732,7 @@ vips_foreign_load_svg_class_init(VipsForeignLoadSvgClass *class)
 		_("Unlimited"),
 		_("Allow SVG of any size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadSvg, unlimited),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadSvg, unlimited),
 		FALSE);
 #endif
 }
@@ -836,7 +836,7 @@ vips_foreign_load_svg_source_class_init(VipsForeignLoadSvgSourceClass *class)
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadSvgSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadSvgSource, source),
 		VIPS_TYPE_SOURCE);
 }
 
@@ -929,7 +929,7 @@ vips_foreign_load_svg_file_class_init(
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadSvgFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadSvgFile, filename),
 		NULL);
 }
 
@@ -997,7 +997,7 @@ vips_foreign_load_svg_buffer_class_init(
 		_("Buffer"),
 		_("Buffer to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadSvgBuffer, buf),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadSvgBuffer, buf),
 		VIPS_TYPE_BLOB);
 }
 

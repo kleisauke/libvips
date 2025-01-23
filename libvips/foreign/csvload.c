@@ -492,28 +492,28 @@ vips_foreign_load_csv_class_init(VipsForeignLoadCsvClass *class)
 		_("Skip"),
 		_("Skip this many lines at the start of the file"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadCsv, skip),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadCsv, skip),
 		0, 10000000, 0);
 
 	VIPS_ARG_INT(class, "lines", 21,
 		_("Lines"),
 		_("Read this many lines from the file"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadCsv, lines),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadCsv, lines),
 		-1, 10000000, 0);
 
 	VIPS_ARG_STRING(class, "whitespace", 22,
 		_("Whitespace"),
 		_("Set of whitespace characters"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadCsv, whitespace),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadCsv, whitespace),
 		" ");
 
 	VIPS_ARG_STRING(class, "separator", 23,
 		_("Separator"),
 		_("Set of separator characters"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadCsv, separator),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadCsv, separator),
 		";,\t");
 }
 
@@ -590,7 +590,7 @@ vips_foreign_load_csv_file_class_init(VipsForeignLoadCsvFileClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadCsvFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadCsvFile, filename),
 		NULL);
 }
 
@@ -661,7 +661,7 @@ vips_foreign_load_csv_source_class_init(VipsForeignLoadCsvFileClass *class)
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadCsvSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadCsvSource, source),
 		VIPS_TYPE_SOURCE);
 }
 

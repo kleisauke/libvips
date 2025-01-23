@@ -121,7 +121,7 @@ vips_morphology_class_init(VipsMorphologyClass *class)
 		_("Input"),
 		_("Input image argument"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsMorphology, in));
+		VIPS_STRUCT_OFFSET(VipsMorphology, in));
 }
 
 static void

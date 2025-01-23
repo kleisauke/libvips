@@ -454,21 +454,21 @@ vips_linear_class_init(VipsLinearClass *class)
 		_("a"),
 		_("Multiply by this"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsLinear, a),
+		VIPS_STRUCT_OFFSET(VipsLinear, a),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_BOXED(class, "b", 111,
 		_("b"),
 		_("Add this"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsLinear, b),
+		VIPS_STRUCT_OFFSET(VipsLinear, b),
 		VIPS_TYPE_ARRAY_DOUBLE);
 
 	VIPS_ARG_BOOL(class, "uchar", 112,
 		_("uchar"),
 		_("Output should be uchar"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsLinear, uchar),
+		VIPS_STRUCT_OFFSET(VipsLinear, uchar),
 		FALSE);
 }
 

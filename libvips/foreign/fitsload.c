@@ -259,7 +259,7 @@ vips_foreign_load_fits_file_class_init(VipsForeignLoadFitsFileClass *class)
 		_("Filename"),
 		_("Filename to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadFitsFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadFitsFile, filename),
 		NULL);
 }
 
@@ -338,7 +338,7 @@ vips_foreign_load_fits_source_class_init(
 		_("Source"),
 		_("Source to load from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignLoadFitsSource, source),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadFitsSource, source),
 		VIPS_TYPE_SOURCE);
 }
 

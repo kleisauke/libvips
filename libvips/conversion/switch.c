@@ -195,7 +195,7 @@ vips_switch_class_init(VipsSwitchClass *class)
 		_("Tests"),
 		_("Table of images to test"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSwitch, tests),
+		VIPS_STRUCT_OFFSET(VipsSwitch, tests),
 		VIPS_TYPE_ARRAY_IMAGE);
 
 	VIPS_ARG_IMAGE(class, "out", 2,

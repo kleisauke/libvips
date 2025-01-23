@@ -227,7 +227,7 @@ vips_source_g_input_stream_class_init(VipsSourceGInputStreamClass *class)
 		_("Stream"),
 		_("GInputStream to read from"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsSourceGInputStream, stream),
+		VIPS_STRUCT_OFFSET(VipsSourceGInputStream, stream),
 		G_TYPE_INPUT_STREAM);
 }
 

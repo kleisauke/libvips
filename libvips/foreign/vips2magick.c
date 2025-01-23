@@ -482,35 +482,35 @@ vips_foreign_save_magick_class_init(VipsForeignSaveMagickClass *class)
 		_("Format"),
 		_("Format to save in"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveMagick, format),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveMagick, format),
 		NULL);
 
 	VIPS_ARG_INT(class, "quality", 3,
 		_("Quality"),
 		_("Quality to use"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveMagick, quality),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveMagick, quality),
 		0, 100, 0);
 
 	VIPS_ARG_BOOL(class, "optimize_gif_frames", 4,
 		_("Optimize_gif_frames"),
 		_("Apply GIF frames optimization"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveMagick, optimize_gif_frames),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveMagick, optimize_gif_frames),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "optimize_gif_transparency", 5,
 		_("Optimize_gif_transparency"),
 		_("Apply GIF transparency optimization"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveMagick, optimize_gif_transparency),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveMagick, optimize_gif_transparency),
 		FALSE);
 
 	VIPS_ARG_INT(class, "bitdepth", 6,
 		_("Bit depth"),
 		_("Number of bits per pixel"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveMagick, bitdepth),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveMagick, bitdepth),
 		0, 8, 0);
 }
 
@@ -578,7 +578,7 @@ vips_foreign_save_magick_file_class_init(
 		_("Filename"),
 		_("Filename to save to"),
 		VIPS_ARGUMENT_REQUIRED_INPUT,
-		G_STRUCT_OFFSET(VipsForeignSaveMagickFile, filename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveMagickFile, filename),
 		NULL);
 }
 
