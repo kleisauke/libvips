@@ -1050,7 +1050,7 @@ vips_thumbnail_class_init(VipsThumbnailClass *class)
 		_("Auto rotate"),
 		_("Use orientation tags to rotate image upright"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsThumbnail, auto_rotate),
+		VIPS_STRUCT_OFFSET(VipsThumbnail, auto_rotate),
 		TRUE);
 }
 

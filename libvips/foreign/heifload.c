@@ -1104,7 +1104,7 @@ vips_foreign_load_heif_class_init(VipsForeignLoadHeifClass *class)
 		_("Autorotate"),
 		_("Rotate image using exif orientation"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignLoadHeif, autorotate),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadHeif, autorotate),
 		FALSE);
 
 #ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION

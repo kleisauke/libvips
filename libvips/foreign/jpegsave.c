@@ -185,7 +185,7 @@ vips_foreign_save_jpeg_class_init(VipsForeignSaveJpegClass *class)
 		_("No subsample"),
 		_("Disable chroma subsample"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveJpeg, no_subsample),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveJpeg, no_subsample),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "trellis_quant", 15,

@@ -2430,42 +2430,42 @@ vips_foreign_save_dz_class_init(VipsForeignSaveDzClass *class)
 		_("No strip"),
 		_("Don't strip tile metadata"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, no_strip),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, no_strip),
 		FALSE);
 
 	VIPS_ARG_STRING(class, "basename", 23,
 		_("Base name"),
 		_("Base name to save to"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, imagename),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, imagename),
 		NULL);
 
 	VIPS_ARG_STRING(class, "dirname", 1,
 		_("Directory name"),
 		_("Directory name to save to"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, dirname),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, dirname),
 		NULL);
 
 	VIPS_ARG_INT(class, "tile_width", 12,
 		_("Tile width"),
 		_("Tile width in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, tile_size),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, tile_size),
 		1, 8192, 254);
 
 	VIPS_ARG_INT(class, "tile_height", 12,
 		_("Tile height"),
 		_("Tile height in pixels"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, tile_size),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, tile_size),
 		1, 8192, 254);
 
 	VIPS_ARG_BOOL(class, "properties", 16,
 		_("Properties"),
 		_("Write a properties file to the output directory"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveDz, properties),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveDz, properties),
 		FALSE);
 }
 

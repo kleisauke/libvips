@@ -165,14 +165,14 @@ vips_shrink_class_init(VipsShrinkClass *class)
 		_("Xshrink"),
 		_("Horizontal shrink factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsShrink, hshrink),
+		VIPS_STRUCT_OFFSET(VipsShrink, hshrink),
 		1.0, 1000000.0, 1.0);
 
 	VIPS_ARG_DOUBLE(class, "yshrink", 9,
 		_("Yshrink"),
 		_("Vertical shrink factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsShrink, vshrink),
+		VIPS_STRUCT_OFFSET(VipsShrink, vshrink),
 		1.0, 1000000.0, 1.0);
 }
 

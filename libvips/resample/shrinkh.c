@@ -369,7 +369,7 @@ vips_shrinkh_class_init(VipsShrinkhClass *class)
 		_("Xshrink"),
 		_("Horizontal shrink factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsShrinkh, hshrink),
+		VIPS_STRUCT_OFFSET(VipsShrinkh, hshrink),
 		1, 1000000, 1);
 }
 

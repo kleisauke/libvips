@@ -1258,21 +1258,21 @@ vips_foreign_load_class_init(VipsForeignLoadClass *class)
 		_("Sequential"),
 		_("Sequential read only"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignLoad, sequential),
+		VIPS_STRUCT_OFFSET(VipsForeignLoad, sequential),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "fail", 112,
 		_("Fail"),
 		_("Fail on first warning"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignLoad, fail),
+		VIPS_STRUCT_OFFSET(VipsForeignLoad, fail),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "disc", 113,
 		_("Disc"),
 		_("Open to disc"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignLoad, disc),
+		VIPS_STRUCT_OFFSET(VipsForeignLoad, disc),
 		TRUE);
 }
 
@@ -1931,7 +1931,7 @@ vips_foreign_save_class_init(VipsForeignSaveClass *class)
 		_("Strip"),
 		_("Strip all metadata from image"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSave, strip),
+		VIPS_STRUCT_OFFSET(VipsForeignSave, strip),
 		FALSE);
 }
 

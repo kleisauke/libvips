@@ -399,14 +399,14 @@ vips_foreign_save_tiff_class_init(VipsForeignSaveTiffClass *class)
 		_("RGB JPEG"),
 		_("Output RGB JPEG rather than YCbCr"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, rgbjpeg),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, rgbjpeg),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "squash", 29,
 		_("Squash"),
 		_("Squash images down to 1 bit"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveTiff, squash),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveTiff, squash),
 		FALSE);
 }
 

@@ -1093,7 +1093,7 @@ vips_reducev_class_init(VipsReducevClass *reducev_class)
 		_("Yshrink"),
 		_("Vertical shrink factor"),
 		VIPS_ARGUMENT_REQUIRED_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsReducev, vshrink),
+		VIPS_STRUCT_OFFSET(VipsReducev, vshrink),
 		1.0, 1000000.0, 1.0);
 
 	/* We used to let people pick centre or corner, but it's automatic now.
@@ -1102,7 +1102,7 @@ vips_reducev_class_init(VipsReducevClass *reducev_class)
 		_("Centre"),
 		_("Use centre sampling convention"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsReducev, centre),
+		VIPS_STRUCT_OFFSET(VipsReducev, centre),
 		FALSE);
 }
 

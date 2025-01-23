@@ -360,14 +360,14 @@ vips_resize_class_init(VipsResizeClass *class)
 		_("Input offset"),
 		_("Horizontal input displacement"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsResize, idx),
+		VIPS_STRUCT_OFFSET(VipsResize, idx),
 		-10000000.0, 10000000.0, 0.0);
 
 	VIPS_ARG_DOUBLE(class, "idy", 116,
 		_("Input offset"),
 		_("Vertical input displacement"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsResize, idy),
+		VIPS_STRUCT_OFFSET(VipsResize, idy),
 		-10000000.0, 10000000.0, 0.0);
 
 	/* It's a kernel now we use vips_reduce() not vips_affine().
@@ -376,7 +376,7 @@ vips_resize_class_init(VipsResizeClass *class)
 		_("Interpolate"),
 		_("Interpolate pixels with this"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsResize, interpolate));
+		VIPS_STRUCT_OFFSET(VipsResize, interpolate));
 
 	/* We used to let people pick centre or corner, but it's automatic now.
 	 */
@@ -384,7 +384,7 @@ vips_resize_class_init(VipsResizeClass *class)
 		_("Centre"),
 		_("Use centre sampling convention"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsResize, centre),
+		VIPS_STRUCT_OFFSET(VipsResize, centre),
 		FALSE);
 }
 

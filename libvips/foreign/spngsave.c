@@ -747,7 +747,7 @@ vips_foreign_save_spng_class_init(VipsForeignSaveSpngClass *class)
 		_("Colours"),
 		_("Max number of palette colours"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveSpng, colours),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveSpng, colours),
 		2, 256, 256);
 }
 

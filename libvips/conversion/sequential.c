@@ -256,14 +256,14 @@ vips_sequential_class_init(VipsSequentialClass *class)
 		_("Strategy"),
 		_("Expected access pattern"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsSequential, access),
+		VIPS_STRUCT_OFFSET(VipsSequential, access),
 		VIPS_TYPE_ACCESS, VIPS_ACCESS_SEQUENTIAL);
 
 	VIPS_ARG_BOOL(class, "trace", 2,
 		_("Trace"),
 		_("Trace pixel requests"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsSequential, trace),
+		VIPS_STRUCT_OFFSET(VipsSequential, trace),
 		TRUE);
 }
 

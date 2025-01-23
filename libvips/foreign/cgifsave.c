@@ -946,7 +946,7 @@ vips_foreign_save_cgif_class_init(VipsForeignSaveCgifClass *class)
 		_("Reoptimise palettes"),
 		_("Reoptimise colour palettes"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveCgif, reoptimise),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveCgif, reoptimise),
 		FALSE);
 
 	VIPS_ARG_BOOL(class, "keep_duplicate_frames", 18,

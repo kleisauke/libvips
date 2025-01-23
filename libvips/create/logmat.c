@@ -222,7 +222,7 @@ vips_logmat_class_init(VipsLogmatClass *class)
 		_("Integer"),
 		_("Generate integer Gaussian"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsLogmat, integer),
+		VIPS_STRUCT_OFFSET(VipsLogmat, integer),
 		FALSE);
 
 	VIPS_ARG_ENUM(class, "precision", 6,

@@ -199,7 +199,7 @@ vips_foreign_load_webp_class_init(VipsForeignLoadWebpClass *class)
 		_("Shrink"),
 		_("Shrink factor on load"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignLoadWebp, shrink),
+		VIPS_STRUCT_OFFSET(VipsForeignLoadWebp, shrink),
 		1, 1024, 1);
 }
 

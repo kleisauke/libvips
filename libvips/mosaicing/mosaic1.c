@@ -613,7 +613,7 @@ vips_mosaic1_class_init(VipsMosaic1Class *class)
 		_("Search band"),
 		_("Band to search for features on"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsMosaic1, bandno),
+		VIPS_STRUCT_OFFSET(VipsMosaic1, bandno),
 		0, 10000, 0);
 }
 

@@ -911,7 +911,7 @@ vips_foreign_save_webp_class_init(VipsForeignSaveWebpClass *class)
 		_("Reduction effort"),
 		_("Level of CPU effort to reduce file size"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveWebp, effort),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveWebp, effort),
 		0, 6, 4);
 
 	VIPS_ARG_BOOL(class, "mixed", 22,

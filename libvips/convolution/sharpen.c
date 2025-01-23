@@ -378,7 +378,7 @@ vips_sharpen_class_init(VipsSharpenClass *class)
 		_("Radius"),
 		_("Radius of Gaussian"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsSharpen, radius),
+		VIPS_STRUCT_OFFSET(VipsSharpen, radius),
 		1, 100, 1);
 }
 

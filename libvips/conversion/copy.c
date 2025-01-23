@@ -278,7 +278,7 @@ vips_copy_class_init(VipsCopyClass *class)
 		_("Swap"),
 		_("Swap bytes in image between little and big-endian"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsCopy, swap),
+		VIPS_STRUCT_OFFSET(VipsCopy, swap),
 		FALSE);
 
 	VIPS_ARG_INT(class, "width", 3,

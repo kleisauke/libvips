@@ -206,7 +206,7 @@ vips_gaussmat_class_init(VipsGaussmatClass *class)
 		_("Integer"),
 		_("Generate integer Gaussian"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsGaussmat, integer),
+		VIPS_STRUCT_OFFSET(VipsGaussmat, integer),
 		FALSE);
 
 	VIPS_ARG_ENUM(class, "precision", 6,

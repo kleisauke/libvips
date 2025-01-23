@@ -818,7 +818,7 @@ vips_foreign_save_heif_class_init(VipsForeignSaveHeifClass *class)
 		_("Speed"),
 		_("CPU effort"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSaveHeif, speed),
+		VIPS_STRUCT_OFFSET(VipsForeignSaveHeif, speed),
 		0, 9, 5);
 
 	VIPS_ARG_ENUM(class, "encoder", 18,

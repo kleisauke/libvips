@@ -529,7 +529,7 @@ vips_foreign_save_ppm_class_init(VipsForeignSavePpmClass *class)
 		_("Squash"),
 		_("Save as one bit"),
 		VIPS_ARGUMENT_OPTIONAL_INPUT | VIPS_ARGUMENT_DEPRECATED,
-		G_STRUCT_OFFSET(VipsForeignSavePpm, squash),
+		VIPS_STRUCT_OFFSET(VipsForeignSavePpm, squash),
 		FALSE);
 }
 
