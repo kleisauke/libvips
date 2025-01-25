@@ -69,9 +69,9 @@
 typedef struct _VipsBlack {
 	VipsCreate parent_instance;
 
-	int width;
-	int height;
-	int bands;
+	const int width;
+	const int height;
+	const int bands;
 
 } VipsBlack;
 

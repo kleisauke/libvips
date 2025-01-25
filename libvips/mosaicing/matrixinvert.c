@@ -52,7 +52,7 @@
 typedef struct _VipsMatrixinvert {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 
 	/* .. and cast to a matrix.

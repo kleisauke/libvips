@@ -73,7 +73,7 @@
 typedef struct _VipsComplex {
 	VipsUnary parent_instance;
 
-	VipsOperationComplex cmplx;
+	const VipsOperationComplex cmplx;
 
 } VipsComplex;
 
@@ -373,7 +373,7 @@ vips_conj(VipsImage *in, VipsImage **out, ...)
 typedef struct _VipsComplex2 {
 	VipsBinary parent_instance;
 
-	VipsOperationComplex2 cmplx;
+	const VipsOperationComplex2 cmplx;
 
 } VipsComplex2;
 
@@ -613,7 +613,7 @@ vips_cross_phase(VipsImage *left, VipsImage *right, VipsImage **out, ...)
 typedef struct _VipsComplexget {
 	VipsUnary parent_instance;
 
-	VipsOperationComplexget get;
+	const VipsOperationComplexget get;
 
 } VipsComplexget;
 

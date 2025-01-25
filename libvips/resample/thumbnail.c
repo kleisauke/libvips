@@ -108,18 +108,18 @@ typedef struct _VipsThumbnail {
 	VipsOperation parent_instance;
 
 	VipsImage *out;
-	int width;
-	int height;
-	VipsSize size;
+	const int width;
+	const int height;
+	const VipsSize size;
 
-	gboolean auto_rotate;
-	gboolean no_rotate;
-	VipsInteresting crop;
-	gboolean linear;
-	char *export_profile;
-	char *import_profile;
-	VipsIntent intent;
-	VipsFailOn fail_on;
+	const gboolean auto_rotate;
+	const gboolean no_rotate;
+	const VipsInteresting crop;
+	const gboolean linear;
+	const char *const export_profile;
+	const char *const import_profile;
+	const VipsIntent intent;
+	const VipsFailOn fail_on;
 
 	/* Bits of info we read from the input image when we get the header of
 	 * the original.
@@ -1067,7 +1067,7 @@ vips_thumbnail_init(VipsThumbnail *thumbnail)
 typedef struct _VipsThumbnailFile {
 	VipsThumbnail parent_object;
 
-	char *filename;
+	const char *const filename;
 } VipsThumbnailFile;
 
 typedef VipsThumbnailClass VipsThumbnailFileClass;
@@ -1298,8 +1298,8 @@ vips_thumbnail(const char *filename, VipsImage **out, int width, ...)
 typedef struct _VipsThumbnailBuffer {
 	VipsThumbnail parent_object;
 
-	VipsArea *buf;
-	char *option_string;
+	const VipsArea *const buf;
+	const char *const option_string;
 } VipsThumbnailBuffer;
 
 typedef VipsThumbnailClass VipsThumbnailBufferClass;
@@ -1513,8 +1513,8 @@ vips_thumbnail_buffer(void *buf, size_t len, VipsImage **out, int width, ...)
 typedef struct _VipsThumbnailSource {
 	VipsThumbnail parent_object;
 
-	VipsSource *source;
-	char *option_string;
+	const VipsSource *const source;
+	const char *const option_string;
 } VipsThumbnailSource;
 
 typedef VipsThumbnailClass VipsThumbnailSourceClass;
@@ -1718,7 +1718,7 @@ vips_thumbnail_source(VipsSource *source, VipsImage **out, int width, ...)
 typedef struct _VipsThumbnailImage {
 	VipsThumbnail parent_object;
 
-	VipsImage *in;
+	const VipsImage *const in;
 } VipsThumbnailImage;
 
 typedef VipsThumbnailClass VipsThumbnailImageClass;

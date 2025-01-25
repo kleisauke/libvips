@@ -617,7 +617,7 @@ typedef struct _VipsForeignLoadNiftiFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadNiftiFile;
 
@@ -727,7 +727,7 @@ typedef struct _VipsForeignLoadNiftiSource {
 
 	/* Load from a source.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadNiftiSource;
 

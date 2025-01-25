@@ -46,7 +46,7 @@
 typedef struct _VipsSwitch {
 	VipsOperation parent_instance;
 
-	VipsArrayImage *tests;
+	const VipsArrayImage *const tests;
 	VipsImage *out;
 
 	int n;

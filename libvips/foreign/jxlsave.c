@@ -81,11 +81,11 @@ typedef struct _VipsForeignSaveJxl {
 
 	/* Encoder options.
 	 */
-	int tier;
-	double distance;
-	int effort;
-	gboolean lossless;
-	int Q;
+	const int tier;
+	const double distance;
+	const int effort;
+	const gboolean lossless;
+	const int Q;
 
 	/* JXL multipage and animated images are the same, but multipage has
 	 * all the frame delays set to -1 (duration 0xffffffff).
@@ -857,7 +857,7 @@ typedef struct _VipsForeignSaveJxlFile {
 
 	/* Filename for save.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignSaveJxlFile;
 
@@ -972,7 +972,7 @@ vips_foreign_save_jxl_buffer_init(VipsForeignSaveJxlBuffer *buffer)
 typedef struct _VipsForeignSaveJxlTarget {
 	VipsForeignSaveJxl parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 } VipsForeignSaveJxlTarget;
 
 typedef VipsForeignSaveJxlClass VipsForeignSaveJxlTargetClass;

@@ -110,12 +110,12 @@ typedef struct {
 typedef struct _VipsReducev {
 	VipsResample parent_instance;
 
-	double vshrink; /* Reduce factor */
-	double gap;		/* Reduce gap */
+	const double vshrink; /* Reduce factor */
+	const double gap;		/* Reduce gap */
 
 	/* The thing we use to make the kernel.
 	 */
-	VipsKernel kernel;
+	const VipsKernel kernel;
 
 	/* Number of points in kernel.
 	 */
@@ -149,7 +149,7 @@ typedef struct _VipsReducev {
 
 	/* Deprecated.
 	 */
-	gboolean centre;
+	const gboolean centre;
 
 } VipsReducev;
 

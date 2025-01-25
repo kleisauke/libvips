@@ -57,8 +57,8 @@
 typedef struct _VipsPercent {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
-	double percent;
+	const VipsImage *const in;
+	const double percent;
 	int threshold;
 
 } VipsPercent;

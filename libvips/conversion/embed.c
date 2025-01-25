@@ -81,12 +81,12 @@ typedef struct _VipsEmbedBase {
 
 	/* The input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
-	VipsExtend extend;
-	VipsArrayDouble *background;
-	int width;
-	int height;
+	const VipsExtend extend;
+	const VipsArrayDouble *const background;
+	const int width;
+	const int height;
 
 	/* Pixel we paint calculated from background.
 	 */
@@ -612,8 +612,8 @@ vips_embed_base_init(VipsEmbedBase *base)
 typedef struct _VipsEmbed {
 	VipsEmbedBase parent_instance;
 
-	int x;
-	int y;
+	const int x;
+	const int y;
 } VipsEmbed;
 
 typedef VipsConversionClass VipsEmbedClass;
@@ -717,7 +717,7 @@ vips_embed(VipsImage *in, VipsImage **out,
 typedef struct _VipsGravity {
 	VipsEmbedBase parent_instance;
 
-	VipsCompassDirection direction;
+	const VipsCompassDirection direction;
 } VipsGravity;
 
 typedef VipsConversionClass VipsGravityClass;

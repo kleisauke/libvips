@@ -55,8 +55,8 @@ typedef struct {
 
 	/* Params.
 	 */
-	VipsImage *in;
-	VipsImage *ref;
+	const VipsImage *const in;
+	const VipsImage *const ref;
 	VipsImage *out;
 
 	/* The two input images, upcast to the smallest common format. ref is

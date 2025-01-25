@@ -149,11 +149,11 @@ typedef struct _VipsForeignLoad {
 
 	/* Set TRUE to force open via memory.
 	 */
-	gboolean memory;
+	const gboolean memory;
 
 	/* Type of access upstream wants and the loader must supply.
 	 */
-	VipsAccess access;
+	const VipsAccess access;
 
 	/* Flags for this load operation.
 	 */
@@ -161,12 +161,12 @@ typedef struct _VipsForeignLoad {
 
 	/* Behaviour on error.
 	 */
-	VipsFailOn fail_on;
+	const VipsFailOn fail_on;
 
 	/* Deprecated and unused. Just here for compat.
 	 */
-	gboolean fail;
-	gboolean sequential;
+	const gboolean fail;
+	const gboolean sequential;
 
 	/*< public >*/
 
@@ -186,7 +186,7 @@ typedef struct _VipsForeignLoad {
 	/* Deprecated: the memory option used to be called disc and default
 	 * TRUE.
 	 */
-	gboolean disc;
+	const gboolean disc;
 
 	/* Set if a start function fails. We want to prevent the other starts
 	 * from also triggering the load.
@@ -362,30 +362,30 @@ typedef struct _VipsForeignSave {
 
 	/* Deprecated in favor of [keep=none]
 	 */
-	gboolean strip;
+	const gboolean strip;
 
 	/* Which metadata to retain.
 	 */
-	VipsForeignKeep keep;
+	const VipsForeignKeep keep;
 
 	/* Filename of profile to embed.
 	 */
-	char *profile;
+	const char *const profile;
 
 	/* If flattening out alpha, the background colour to use. Default to
 	 * 0 (black).
 	 */
-	VipsArrayDouble *background;
+	const VipsArrayDouble *const background;
 
 	/* Set to non-zero to set the page size for multi-page save.
 	 */
-	int page_height;
+	const int page_height;
 
 	/*< public >*/
 
 	/* The image we are to save, as supplied by our caller.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
 	/* @in converted to a saveable format (eg. 8-bit RGB) according to the
 	 * instructions you give in the class fields below.

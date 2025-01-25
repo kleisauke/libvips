@@ -57,11 +57,11 @@
 typedef struct _VipsXyz {
 	VipsCreate parent_instance;
 
-	int width;
-	int height;
-	int csize;
-	int dsize;
-	int esize;
+	const int width;
+	const int height;
+	const int csize;
+	const int dsize;
+	const int esize;
 
 	int dimensions;
 

@@ -63,11 +63,11 @@
 typedef struct _VipsFlatten {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
 	/* Background colour.
 	 */
-	VipsArrayDouble *background;
+	const VipsArrayDouble *const background;
 
 	/* The [double] background converted to the input image format.
 	 */
@@ -75,7 +75,7 @@ typedef struct _VipsFlatten {
 
 	/* Use this to scale alpha to 0 - 1.
 	 */
-	double max_alpha;
+	const double max_alpha;
 
 } VipsFlatten;
 

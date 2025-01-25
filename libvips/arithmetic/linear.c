@@ -96,12 +96,12 @@ typedef struct _VipsLinear {
 
 	/* Our constants: multiply by a, add b.
 	 */
-	VipsArea *a;
-	VipsArea *b;
+	const VipsArea *const a;
+	const VipsArea *const b;
 
 	/* uchar output.
 	 */
-	gboolean uchar;
+	const gboolean uchar;
 
 	/* Our constants expanded to match arith->ready in size.
 	 */

@@ -51,10 +51,10 @@
 typedef struct _VipsWrap {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
-	int x;
-	int y;
+	const int x;
+	const int y;
 
 } VipsWrap;
 

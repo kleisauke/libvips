@@ -73,7 +73,7 @@
 typedef struct _VipsHistPlot {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 } VipsHistPlot;
 

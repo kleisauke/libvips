@@ -105,11 +105,11 @@ typedef struct _VipsForeignLoadSvg {
 
 	/* Render at this DPI.
 	 */
-	double dpi;
+	const double dpi;
 
 	/* Calculate this from DPI. At 72 DPI, we render 1:1 with cairo.
 	 */
-	double scale;
+	const double scale;
 
 	/* Scale using cairo when SVG has no width and height attributes.
 	 */
@@ -117,7 +117,7 @@ typedef struct _VipsForeignLoadSvg {
 
 	/* Allow SVGs of any size.
 	 */
-	gboolean unlimited;
+	const gboolean unlimited;
 
 	RsvgHandle *page;
 
@@ -750,7 +750,7 @@ typedef struct _VipsForeignLoadSvgSource {
 
 	/* Load from a source.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadSvgSource;
 
@@ -850,7 +850,7 @@ typedef struct _VipsForeignLoadSvgFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadSvgFile;
 
@@ -943,7 +943,7 @@ typedef struct _VipsForeignLoadSvgBuffer {
 
 	/* Load from a buffer.
 	 */
-	VipsArea *buf;
+	const VipsArea *const buf;
 
 } VipsForeignLoadSvgBuffer;
 

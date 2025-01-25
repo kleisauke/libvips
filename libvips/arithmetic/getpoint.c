@@ -76,10 +76,10 @@
 typedef struct _VipsGetpoint {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
-	int x;
-	int y;
-	gboolean unpack_complex;
+	const VipsImage *const in;
+	const int x;
+	const int y;
+	const gboolean unpack_complex;
 
 	VipsArrayDouble *out_array;
 } VipsGetpoint;

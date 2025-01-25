@@ -149,7 +149,7 @@ typedef struct _VipsForeignLoadRadSource {
 
 	/* Load from a source.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadRadSource;
 
@@ -219,7 +219,7 @@ typedef struct _VipsForeignLoadRadFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadRadFile;
 
@@ -295,7 +295,7 @@ typedef struct _VipsForeignLoadRadBuffer {
 
 	/* Load from a buffer.
 	 */
-	VipsBlob *blob;
+	const VipsBlob *const blob;
 
 } VipsForeignLoadRadBuffer;
 

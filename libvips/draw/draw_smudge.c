@@ -67,10 +67,10 @@ typedef struct _VipsDrawSmudge {
 
 	/* Parameters.
 	 */
-	int left;
-	int top;
-	int width;
-	int height;
+	const int left;
+	const int top;
+	const int width;
+	const int height;
 
 } VipsDrawSmudge;
 

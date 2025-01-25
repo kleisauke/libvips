@@ -59,9 +59,9 @@
 typedef struct _VipsIdentity {
 	VipsCreate parent_instance;
 
-	int bands;
-	gboolean ushort;
-	int size;
+	const int bands;
+	const gboolean ushort;
+	const int size;
 
 } VipsIdentity;
 

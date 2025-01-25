@@ -858,23 +858,23 @@ typedef struct _VipsForeignLoadOpenslide {
 
 	/* Load this level.
 	 */
-	int level;
+	const int level;
 
 	/* Crop to image bounds.
 	 */
-	gboolean autocrop;
+	const gboolean autocrop;
 
 	/* Load just this associated image.
 	 */
-	char *associated;
+	const char *const associated;
 
 	/* Attach all associated images as metadata items.
 	 */
-	gboolean attach_associated;
+	const gboolean attach_associated;
 
 	/* Read as RGB, not RGBA.
 	 */
-	gboolean rgb;
+	const gboolean rgb;
 
 } VipsForeignLoadOpenslide;
 
@@ -1088,7 +1088,7 @@ typedef struct _VipsForeignLoadOpenslideFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadOpenslideFile;
 
@@ -1166,7 +1166,7 @@ typedef struct _VipsForeignLoadOpenslideSource {
 
 	/* Load from a source.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadOpenslideSource;
 

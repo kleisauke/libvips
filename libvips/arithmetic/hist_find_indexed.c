@@ -68,7 +68,7 @@ typedef struct {
 typedef struct _VipsHistFindIndexed {
 	VipsStatistic parent_instance;
 
-	VipsImage *index;
+	const VipsImage *const index;
 
 	/* Index image, cast to uchar/ushort.
 	 */
@@ -84,7 +84,7 @@ typedef struct _VipsHistFindIndexed {
 
 	/* Combine bins with this.
 	 */
-	VipsCombine combine;
+	const VipsCombine combine;
 
 } VipsHistFindIndexed;
 

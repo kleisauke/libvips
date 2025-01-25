@@ -62,8 +62,8 @@ typedef struct _VipsBandrank {
 
 	/* The input images.
 	 */
-	VipsArrayImage *in;
-	int index; /* Pick out this one */
+	const VipsArrayImage *const in;
+	const int index; /* Pick out this one */
 } VipsBandrank;
 
 typedef VipsBandaryClass VipsBandrankClass;

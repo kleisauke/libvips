@@ -53,7 +53,7 @@ extern "C" {
 typedef struct _VipsResample {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 
 } VipsResample;

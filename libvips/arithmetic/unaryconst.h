@@ -57,7 +57,7 @@ typedef struct _VipsUnaryConst {
 
 	/* Our constants.
 	 */
-	VipsArea *c;
+	const VipsArea *const c;
 
 	/* Our constant expanded to match arith->ready in size. We need int
 	 * and double versions.

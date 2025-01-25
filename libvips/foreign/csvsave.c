@@ -56,7 +56,7 @@ typedef struct _VipsForeignSaveCsv {
 
 	VipsTarget *target;
 
-	const char *separator;
+	const char *const separator;
 } VipsForeignSaveCsv;
 
 typedef VipsForeignSaveClass VipsForeignSaveCsvClass;
@@ -236,7 +236,7 @@ vips_foreign_save_csv_init(VipsForeignSaveCsv *csv)
 typedef struct _VipsForeignSaveCsvFile {
 	VipsForeignSaveCsv parent_object;
 
-	char *filename;
+	const char *const filename;
 } VipsForeignSaveCsvFile;
 
 typedef VipsForeignSaveCsvClass VipsForeignSaveCsvFileClass;
@@ -286,7 +286,7 @@ vips_foreign_save_csv_file_init(VipsForeignSaveCsvFile *file)
 typedef struct _VipsForeignSaveCsvTarget {
 	VipsForeignSaveCsv parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 } VipsForeignSaveCsvTarget;
 
 typedef VipsForeignSaveCsvClass VipsForeignSaveCsvTargetClass;

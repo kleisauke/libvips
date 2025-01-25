@@ -54,16 +54,16 @@
 typedef struct _VipsWorley {
 	VipsCreate parent_instance;
 
-	int width;
-	int height;
-	int cell_size;
+	const int width;
+	const int height;
+	const int cell_size;
 
 	int cells_across;
 	int cells_down;
 
 	/* Use this to seed this call of our rng.
 	 */
-	guint32 seed;
+	const guint32 seed;
 } VipsWorley;
 
 typedef struct _VipsWorleyClass {

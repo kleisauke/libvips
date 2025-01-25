@@ -101,17 +101,17 @@
 typedef struct _VipsText {
 	VipsCreate parent_instance;
 
-	char *text;
-	char *font;
-	int width;
-	int height;
-	int spacing;
-	VipsAlign align;
-	gboolean justify;
-	int dpi;
-	char *fontfile;
-	gboolean rgba;
-	VipsTextWrap wrap;
+	const char *const text;
+	const char *const font;
+	const int width;
+	const int height;
+	const int spacing;
+	const VipsAlign align;
+	const gboolean justify;
+	const int dpi;
+	const char *const fontfile;
+	const gboolean rgba;
+	const VipsTextWrap wrap;
 
 	PangoContext *context;
 	PangoLayout *layout;

@@ -58,7 +58,7 @@
 typedef struct _VipsFreqmult {
 	VipsFreqfilt parent_instance;
 
-	VipsImage *mask;
+	const VipsImage *const mask;
 } VipsFreqmult;
 
 typedef VipsFreqfiltClass VipsFreqmultClass;

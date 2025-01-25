@@ -54,10 +54,10 @@
 typedef struct _VipsFindTrim {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
-	double threshold;
-	VipsArrayDouble *background;
-	gboolean line_art;
+	const VipsImage *const in;
+	const double threshold;
+	const VipsArrayDouble *const background;
+	const gboolean line_art;
 
 	int left;
 	int top;

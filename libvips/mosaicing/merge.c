@@ -46,13 +46,13 @@
 typedef struct {
 	VipsOperation parent_instance;
 
-	VipsImage *ref;
-	VipsImage *sec;
+	const VipsImage *const ref;
+	const VipsImage *const sec;
 	VipsImage *out;
-	VipsDirection direction;
-	int dx;
-	int dy;
-	int mblend;
+	const VipsDirection direction;
+	const int dx;
+	const int dy;
+	const int mblend;
 
 } VipsMerge;
 

@@ -50,9 +50,9 @@
 typedef struct _VipsBandbool {
 	VipsBandary parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
-	VipsOperationBoolean operation;
+	const VipsOperationBoolean operation;
 
 } VipsBandbool;
 

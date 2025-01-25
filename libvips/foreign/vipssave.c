@@ -156,7 +156,7 @@ vips_foreign_save_vips_init(VipsForeignSaveVips *vips)
 typedef struct _VipsForeignSaveVipsFile {
 	VipsForeignSaveVips parent_object;
 
-	char *filename;
+	const char *const filename;
 } VipsForeignSaveVipsFile;
 
 typedef VipsForeignSaveVipsClass VipsForeignSaveVipsFileClass;
@@ -209,7 +209,7 @@ vips_foreign_save_vips_file_init(VipsForeignSaveVipsFile *file)
 typedef struct _VipsForeignSaveVipsTarget {
 	VipsForeignSaveVips parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 
 } VipsForeignSaveVipsTarget;
 

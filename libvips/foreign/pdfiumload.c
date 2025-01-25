@@ -122,27 +122,27 @@ typedef struct _VipsForeignLoadPdf {
 
 	/* Load this page.
 	 */
-	int page_no;
+	const int page_no;
 
 	/* Load this many pages.
 	 */
-	int n;
+	const int n;
 
 	/* Render at this DPI.
 	 */
-	double dpi;
+	const double dpi;
 
 	/* Calculate this from DPI. At 72 DPI, we render 1:1.
 	 */
-	double scale;
+	const double scale;
 
 	/* Background colour.
 	 */
-	VipsArrayDouble *background;
+	const VipsArrayDouble *const background;
 
 	/* Decrypt with this.
 	 */
-	const char *password;
+	const char *const password;
 
 	FPDF_FILEACCESS file_access;
 	FPDF_DOCUMENT doc;
@@ -764,7 +764,7 @@ typedef struct _VipsForeignLoadPdfFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadPdfFile;
 
@@ -841,7 +841,7 @@ typedef struct _VipsForeignLoadPdfBuffer {
 
 	/* Load from a buffer.
 	 */
-	VipsArea *buf;
+	const VipsArea *const buf;
 
 } VipsForeignLoadPdfBuffer;
 
@@ -899,7 +899,7 @@ vips_foreign_load_pdf_buffer_init(VipsForeignLoadPdfBuffer *buffer)
 typedef struct _VipsForeignLoadPdfSource {
 	VipsForeignLoadPdf parent_object;
 
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadPdfSource;
 

@@ -58,7 +58,7 @@ typedef struct _VipsForeignSaveFits {
 
 	/* Filename for save.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignSaveFits;
 

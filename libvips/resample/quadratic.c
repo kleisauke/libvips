@@ -88,8 +88,8 @@ matrix height may be 1, 3, 4, 6
 typedef struct _VipsQuadratic {
 	VipsResample parent_instance;
 
-	VipsImage *coeff;
-	VipsInterpolate *interpolate;
+	const VipsImage *const coeff;
+	const VipsInterpolate *const interpolate;
 
 	/* The coeff array argument, made into an in-memory double.
 	 */

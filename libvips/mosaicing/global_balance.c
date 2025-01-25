@@ -1867,11 +1867,11 @@ transformf(JoinNode *node, double *gamma)
 typedef struct {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 
-	gboolean int_output;
-	double gamma;
+	const gboolean int_output;
+	const double gamma;
 
 } VipsGlobalbalance;
 

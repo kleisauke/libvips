@@ -83,7 +83,7 @@ typedef struct _VipsHistFind {
 
 	/* -1 for all bands, or the band we scan.
 	 */
-	int band;
+	const int band;
 
 	/* Main image histogram. Subhists accumulate to this.
 	 */

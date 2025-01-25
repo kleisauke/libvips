@@ -54,12 +54,12 @@
 typedef struct _VipsGaussblur {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 
-	gdouble sigma;
-	gdouble min_ampl;
-	VipsPrecision precision;
+	const gdouble sigma;
+	const gdouble min_ampl;
+	const VipsPrecision precision;
 
 } VipsGaussblur;
 

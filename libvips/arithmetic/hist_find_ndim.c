@@ -67,7 +67,7 @@ typedef struct _VipsHistFindNDim {
 
 	/* Number of bins on each axis.
 	 */
-	int bins;
+	const int bins;
 
 	/* Max pixel value for this format.
 	 */

@@ -61,9 +61,9 @@
 typedef struct _VipsPremultiply {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
-	double max_alpha;
+	const double max_alpha;
 
 } VipsPremultiply;
 

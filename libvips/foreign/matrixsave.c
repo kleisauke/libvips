@@ -189,7 +189,7 @@ vips_foreign_save_matrix_init(VipsForeignSaveMatrix *matrix)
 typedef struct _VipsForeignSaveMatrixFile {
 	VipsForeignSaveMatrix parent_object;
 
-	char *filename;
+	const char *const filename;
 } VipsForeignSaveMatrixFile;
 
 typedef VipsForeignSaveMatrixClass VipsForeignSaveMatrixFileClass;
@@ -240,7 +240,7 @@ vips_foreign_save_matrix_file_init(VipsForeignSaveMatrixFile *file)
 typedef struct _VipsForeignSaveMatrixTarget {
 	VipsForeignSaveMatrix parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 } VipsForeignSaveMatrixTarget;
 
 typedef VipsForeignSaveMatrixClass VipsForeignSaveMatrixTargetClass;

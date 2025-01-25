@@ -58,12 +58,12 @@
 typedef struct _VipsHistEqual {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 
 	/* -1 for all bands, or the band we scan.
 	 */
-	int which;
+	const int which;
 } VipsHistEqual;
 
 typedef VipsOperationClass VipsHistEqualClass;

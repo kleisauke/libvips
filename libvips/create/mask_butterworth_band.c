@@ -54,11 +54,11 @@
 typedef struct _VipsMaskButterworthBand {
 	VipsMask parent_instance;
 
-	double order;
-	double frequency_cutoff_x;
-	double frequency_cutoff_y;
-	double radius;
-	double amplitude_cutoff;
+	const double order;
+	const double frequency_cutoff_x;
+	const double frequency_cutoff_y;
+	const double radius;
+	const double amplitude_cutoff;
 
 } VipsMaskButterworthBand;
 

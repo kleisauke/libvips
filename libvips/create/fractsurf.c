@@ -54,9 +54,9 @@
 typedef struct _VipsFractsurf {
 	VipsCreate parent_instance;
 
-	int width;
-	int height;
-	double fractal_dimension;
+	const int width;
+	const int height;
+	const double fractal_dimension;
 
 } VipsFractsurf;
 

@@ -59,9 +59,9 @@ extern "C" {
 typedef struct _VipsMask {
 	VipsPoint parent_instance;
 
-	gboolean optical;
-	gboolean reject;
-	gboolean nodc;
+	const gboolean optical;
+	const gboolean reject;
+	const gboolean nodc;
 
 } VipsMask;
 
@@ -92,7 +92,7 @@ GType vips_mask_get_type(void);
 typedef struct _VipsMaskIdeal {
 	VipsMask parent_instance;
 
-	double frequency_cutoff;
+	const double frequency_cutoff;
 
 } VipsMaskIdeal;
 
@@ -118,9 +118,9 @@ GType vips_mask_ideal_get_type(void);
 typedef struct _VipsMaskButterworth {
 	VipsMask parent_instance;
 
-	double order;
-	double frequency_cutoff;
-	double amplitude_cutoff;
+	const double order;
+	const double frequency_cutoff;
+	const double amplitude_cutoff;
 
 } VipsMaskButterworth;
 
@@ -146,8 +146,8 @@ GType vips_mask_butterworth_get_type(void);
 typedef struct _VipsMaskGaussian {
 	VipsMask parent_instance;
 
-	double frequency_cutoff;
-	double amplitude_cutoff;
+	const double frequency_cutoff;
+	const double amplitude_cutoff;
 
 } VipsMaskGaussian;
 

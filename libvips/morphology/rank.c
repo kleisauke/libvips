@@ -77,9 +77,9 @@ typedef struct _VipsRank {
 
 	VipsImage *out;
 
-	int width;
-	int height;
-	int index;
+	const int width;
+	const int height;
+	const int index;
 
 	int n;
 

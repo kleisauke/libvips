@@ -57,7 +57,7 @@ typedef struct _VipsForeignLoadOpenexr {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadOpenexr;
 

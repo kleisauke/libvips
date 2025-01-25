@@ -75,20 +75,20 @@ typedef struct _VipsForeignSaveJp2k {
 	 */
 	VipsTarget *target;
 
-	int tile_width;
-	int tile_height;
+	const int tile_width;
+	const int tile_height;
 
 	/* Lossless mode.
 	 */
-	gboolean lossless;
+	const gboolean lossless;
 
 	/* Quality factor.
 	 */
-	int Q;
+	const int Q;
 
 	/* Chroma subsample mode.
 	 */
-	VipsForeignSubsample subsample_mode;
+	const VipsForeignSubsample subsample_mode;
 
 	/* Encoder state.
 	 */
@@ -1022,7 +1022,7 @@ typedef struct _VipsForeignSaveJp2kFile {
 
 	/* Filename for save.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignSaveJp2kFile;
 
@@ -1138,7 +1138,7 @@ vips_foreign_save_jp2k_buffer_init(VipsForeignSaveJp2kBuffer *buffer)
 typedef struct _VipsForeignSaveJp2kTarget {
 	VipsForeignSaveJp2k parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 } VipsForeignSaveJp2kTarget;
 
 typedef VipsForeignSaveJp2kClass VipsForeignSaveJp2kTargetClass;

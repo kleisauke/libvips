@@ -102,8 +102,8 @@
 typedef struct _VipsShrinkv {
 	VipsResample parent_instance;
 
-	int vshrink;   /* Shrink factor */
-	gboolean ceil; /* Round operation */
+	const int vshrink;   /* Shrink factor */
+	const gboolean ceil; /* Round operation */
 
 } VipsShrinkv;
 

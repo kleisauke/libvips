@@ -81,7 +81,7 @@
 typedef struct _VipsRelational {
 	VipsBinary parent_instance;
 
-	VipsOperationRelational relational;
+	const VipsOperationRelational relational;
 
 } VipsRelational;
 
@@ -471,7 +471,7 @@ vips_lesseq(VipsImage *left, VipsImage *right, VipsImage **out, ...)
 typedef struct _VipsRelationalConst {
 	VipsUnaryConst parent_instance;
 
-	VipsOperationRelational relational;
+	const VipsOperationRelational relational;
 } VipsRelationalConst;
 
 typedef VipsUnaryConstClass VipsRelationalConstClass;

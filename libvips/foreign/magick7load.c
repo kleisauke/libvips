@@ -71,11 +71,11 @@ typedef struct _VipsForeignLoadMagick7 {
 
 	/* Deprecated. Just sets n = -1.
 	 */
-	gboolean all_frames;
+	const gboolean all_frames;
 
-	char *density; /* Load at this resolution */
-	int page;	   /* Load this page (frame) */
-	int n;		   /* Load this many pages */
+	const char *const density; /* Load at this resolution */
+	const int page;	   /* Load this page (frame) */
+	const int n;		   /* Load this many pages */
 
 	Image *image;
 	ImageInfo *image_info;
@@ -774,7 +774,7 @@ vips_foreign_load_magick7_load(VipsForeignLoadMagick7 *magick7)
 typedef struct _VipsForeignLoadMagick7File {
 	VipsForeignLoadMagick7 parent_object;
 
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadMagick7File;
 
@@ -863,7 +863,7 @@ vips_foreign_load_magick7_file_init(VipsForeignLoadMagick7File *magick7_file)
 typedef struct _VipsForeignLoadMagick7Buffer {
 	VipsForeignLoadMagick7 parent_object;
 
-	VipsArea *buf;
+	const VipsArea *const buf;
 
 } VipsForeignLoadMagick7Buffer;
 

@@ -69,16 +69,16 @@
 typedef struct _VipsStdif {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 
-	int width;
-	int height;
+	const int width;
+	const int height;
 
-	double a;
-	double m0;
-	double b;
-	double s0;
+	const double a;
+	const double m0;
+	const double b;
+	const double s0;
 
 } VipsStdif;
 

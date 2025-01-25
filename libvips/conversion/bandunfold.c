@@ -58,9 +58,9 @@ typedef struct _VipsBandunfold {
 
 	/* The input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
-	int factor;
+	const int factor;
 
 } VipsBandunfold;
 

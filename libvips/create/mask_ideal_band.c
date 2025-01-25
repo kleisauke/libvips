@@ -54,9 +54,9 @@
 typedef struct _VipsMaskIdealBand {
 	VipsMask parent_instance;
 
-	double frequency_cutoff_x;
-	double frequency_cutoff_y;
-	double radius;
+	const double frequency_cutoff_x;
+	const double frequency_cutoff_y;
+	const double radius;
 
 } VipsMaskIdealBand;
 

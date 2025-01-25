@@ -54,7 +54,7 @@
 typedef struct _VipsMaskButterworthRing {
 	VipsMaskButterworth parent_instance;
 
-	double ringwidth;
+	const double ringwidth;
 
 } VipsMaskButterworthRing;
 

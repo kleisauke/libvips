@@ -65,13 +65,13 @@ typedef struct _VipsInvertlut {
 
 	/* Input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
 	/* .. and cast to a matrix.
 	 */
 	VipsImage *mat;
 
-	int size; /* Number of output elements to generate */
+	const int size; /* Number of output elements to generate */
 
 	double **data; /* Rows of unpacked matrix */
 	double *buf;   /* Output buffer */

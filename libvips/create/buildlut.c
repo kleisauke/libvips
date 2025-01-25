@@ -67,7 +67,7 @@ typedef struct _VipsBuildlut {
 
 	/* Input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
 	/* .. and cast to a matrix.
 	 */

@@ -50,9 +50,9 @@
 typedef struct _VipsscRGB2BW {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
-	int depth;
+	const int depth;
 } VipsscRGB2BW;
 
 typedef VipsOperationClass VipsscRGB2BWClass;

@@ -59,7 +59,7 @@ typedef struct _VipsForeignLoadMat {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadMat;
 

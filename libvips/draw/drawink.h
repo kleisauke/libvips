@@ -55,7 +55,7 @@ extern "C" {
 typedef struct _VipsDrawink {
 	VipsDraw parent_instance;
 
-	VipsArrayDouble *ink;
+	const VipsArrayDouble *const ink;
 
 	/* Ink cast to pixel type.
 	 */

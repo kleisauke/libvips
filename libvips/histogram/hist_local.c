@@ -71,13 +71,13 @@
 typedef struct _VipsHistLocal {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 
-	int width;
-	int height;
+	const int width;
+	const int height;
 
-	int max_slope;
+	const int max_slope;
 
 } VipsHistLocal;
 

@@ -416,24 +416,24 @@ old_lrmosaic1(VipsImage *ref, VipsImage *sec, VipsImage *out,
 typedef struct {
 	VipsOperation parent_instance;
 
-	VipsImage *ref;
-	VipsImage *sec;
+	const VipsImage *const ref;
+	const VipsImage *const sec;
 	VipsImage *out;
-	VipsDirection direction;
-	int xr1;
-	int yr1;
-	int xs1;
-	int ys1;
-	int xr2;
-	int yr2;
-	int xs2;
-	int ys2;
-	int hwindow;
-	int harea;
-	gboolean search;
-	VipsInterpolate *interpolate;
-	int mblend;
-	int bandno;
+	const VipsDirection direction;
+	const int xr1;
+	const int yr1;
+	const int xs1;
+	const int ys1;
+	const int xr2;
+	const int yr2;
+	const int xs2;
+	const int ys2;
+	const int hwindow;
+	const int harea;
+	const gboolean search;
+	const VipsInterpolate *const interpolate;
+	const int mblend;
+	const int bandno;
 
 } VipsMosaic1;
 

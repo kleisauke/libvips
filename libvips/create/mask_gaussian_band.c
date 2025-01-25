@@ -54,10 +54,10 @@
 typedef struct _VipsMaskGaussianBand {
 	VipsMask parent_instance;
 
-	double frequency_cutoff_x;
-	double frequency_cutoff_y;
-	double radius;
-	double amplitude_cutoff;
+	const double frequency_cutoff_x;
+	const double frequency_cutoff_y;
+	const double radius;
+	const double amplitude_cutoff;
 
 } VipsMaskGaussianBand;
 

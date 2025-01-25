@@ -58,8 +58,8 @@
 typedef struct _VipsGamma {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
-	double exponent;
+	const VipsImage *const in;
+	const double exponent;
 } VipsGamma;
 
 typedef VipsConversionClass VipsGammaClass;

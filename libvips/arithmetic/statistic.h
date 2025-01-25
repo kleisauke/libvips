@@ -63,7 +63,7 @@ struct _VipsStatistic {
 
 	/* All have an input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
 	/* The input image cast and ready for processing.
 	 */

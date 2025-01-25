@@ -67,11 +67,11 @@ typedef struct _VipsForeignSaveMagick {
 	/* Parameters.
 	 */
 	char *filename; /* NULL during buffer output */
-	char *format;
-	int quality;
-	int bitdepth;
-	gboolean optimize_gif_frames;
-	gboolean optimize_gif_transparency;
+	const char *const format;
+	const int quality;
+	const int bitdepth;
+	const gboolean optimize_gif_frames;
+	const gboolean optimize_gif_transparency;
 
 	ImageInfo *image_info;
 	ExceptionInfo *exception;
@@ -527,7 +527,7 @@ vips_foreign_save_magick_init(VipsForeignSaveMagick *magick)
 typedef struct _VipsForeignSaveMagickFile {
 	VipsForeignSaveMagick parent_object;
 
-	char *filename;
+	const char *const filename;
 
 } VipsForeignSaveMagickFile;
 

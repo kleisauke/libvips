@@ -110,19 +110,19 @@ typedef struct _VipsForeignLoadPdf {
 
 	/* Load this page.
 	 */
-	int page_no;
+	const int page_no;
 
 	/* Load this many pages.
 	 */
-	int n;
+	const int n;
 
 	/* Render at this DPI.
 	 */
-	double dpi;
+	const double dpi;
 
 	/* Scale by this factor.
 	 */
-	double scale;
+	const double scale;
 
 	/* The total scale factor we render with.
 	 */
@@ -130,11 +130,11 @@ typedef struct _VipsForeignLoadPdf {
 
 	/* Background colour.
 	 */
-	VipsArrayDouble *background;
+	const VipsArrayDouble *const background;
 
 	/* Decrypt with this.
 	 */
-	const char *password;
+	const char *const password;
 
 	/* Poppler is not thread-safe, so we run inside a single-threaded
 	 * cache. On the plus side, this means we only need one @page pointer,
@@ -599,7 +599,7 @@ typedef struct _VipsForeignLoadPdfFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 	char *uri;
 
@@ -703,7 +703,7 @@ typedef struct _VipsForeignLoadPdfBuffer {
 
 	/* Load from a buffer.
 	 */
-	VipsArea *buf;
+	const VipsArea *const buf;
 
 } VipsForeignLoadPdfBuffer;
 
@@ -761,7 +761,7 @@ vips_foreign_load_pdf_buffer_init(VipsForeignLoadPdfBuffer *buffer)
 typedef struct _VipsForeignLoadPdfSource {
 	VipsForeignLoadPdf parent_object;
 
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadPdfSource;
 

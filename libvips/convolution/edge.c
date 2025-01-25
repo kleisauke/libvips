@@ -49,7 +49,7 @@
 typedef struct _VipsEdge {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 	VipsImage *mask;
 

@@ -70,15 +70,15 @@
 typedef struct _VipsGaussnoise {
 	VipsCreate parent_instance;
 
-	int width;
-	int height;
-	double mean;
-	double sigma;
+	const int width;
+	const int height;
+	const double mean;
+	const double sigma;
 
 	/* Per-image seed. Each pixel is seeded by this plus the (x,
 	 * y) coordinate.
 	 */
-	guint32 seed;
+	const guint32 seed;
 } VipsGaussnoise;
 
 typedef VipsCreateClass VipsGaussnoiseClass;

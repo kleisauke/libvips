@@ -53,7 +53,7 @@ extern "C" {
 typedef struct _VipsHistUnary {
 	VipsHistogram parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
 } VipsHistUnary;
 

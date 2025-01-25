@@ -81,7 +81,7 @@
 typedef struct _VipsBoolean {
 	VipsBinary parent_instance;
 
-	VipsOperationBoolean operation;
+	const VipsOperationBoolean operation;
 
 } VipsBoolean;
 
@@ -471,7 +471,7 @@ vips_rshift(VipsImage *left, VipsImage *right, VipsImage **out, ...)
 typedef struct _VipsBooleanConst {
 	VipsUnaryConst parent_instance;
 
-	VipsOperationBoolean operation;
+	const VipsOperationBoolean operation;
 } VipsBooleanConst;
 
 typedef VipsUnaryConstClass VipsBooleanConstClass;

@@ -74,7 +74,7 @@
 typedef struct _VipsMath {
 	VipsUnary parent_instance;
 
-	VipsOperationMath math;
+	const VipsOperationMath math;
 
 } VipsMath;
 

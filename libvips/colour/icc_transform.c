@@ -154,10 +154,10 @@ vips_icc_present(void)
 typedef struct _VipsIcc {
 	VipsColourCode parent_instance;
 
-	VipsIntent intent;
-	VipsPCS pcs;
-	int depth;
-	gboolean black_point_compensation;
+	const VipsIntent intent;
+	const VipsPCS pcs;
+	const int depth;
+	const gboolean black_point_compensation;
 
 	VipsBlob *in_blob;
 	cmsHPROFILE in_profile;
@@ -793,8 +793,8 @@ vips_icc_init(VipsIcc *icc)
 typedef struct _VipsIccImport {
 	VipsIcc parent_instance;
 
-	gboolean embedded;
-	char *input_profile_filename;
+	const gboolean embedded;
+	const char *const input_profile_filename;
 
 } VipsIccImport;
 
@@ -977,7 +977,7 @@ vips_icc_import_init(VipsIccImport *import)
 typedef struct _VipsIccExport {
 	VipsIcc parent_instance;
 
-	char *output_profile_filename;
+	const char *const output_profile_filename;
 
 } VipsIccExport;
 
@@ -1149,9 +1149,9 @@ vips_icc_export_init(VipsIccExport *export)
 typedef struct _VipsIccTransform {
 	VipsIcc parent_instance;
 
-	gboolean embedded;
-	char *input_profile_filename;
-	char *output_profile_filename;
+	const gboolean embedded;
+	const char *const input_profile_filename;
+	const char *const output_profile_filename ;
 
 } VipsIccTransform;
 

@@ -70,10 +70,10 @@ typedef struct _VipsForeignLoadCsv {
 
 	/* Load options.
 	 */
-	int skip;
-	int lines;
-	const char *whitespace;
-	const char *separator;
+	const int skip;
+	const int lines;
+	const char *const whitespace;
+	const char *const separator;
 
 	/* Current position in file for error messages.
 	 */
@@ -530,7 +530,7 @@ typedef struct _VipsForeignLoadCsvFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadCsvFile;
 
@@ -602,7 +602,7 @@ vips_foreign_load_csv_file_init(VipsForeignLoadCsvFile *file)
 typedef struct _VipsForeignLoadCsvSource {
 	VipsForeignLoadCsv parent_object;
 
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadCsvSource;
 

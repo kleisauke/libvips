@@ -168,8 +168,8 @@ typedef struct {
 
 	VipsImage *iM;
 
-	int layers;
-	int cluster;
+	const int layers;
+	const int cluster;
 
 	int divisor;
 	int rounding;

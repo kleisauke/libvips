@@ -78,11 +78,11 @@ typedef struct _VipsIfthenelse {
 
 	/* Params.
 	 */
-	VipsImage *cond;
-	VipsImage *in1;
-	VipsImage *in2;
+	const VipsImage *const cond;
+	const VipsImage *const in1;
+	const VipsImage *const in2;
 
-	gboolean blend;
+	const gboolean blend;
 
 } VipsIfthenelse;
 

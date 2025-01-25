@@ -69,10 +69,10 @@
 typedef struct _VipsScale {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
-	gboolean log;
-	double exp;
+	const gboolean log;
+	const double exp;
 
 } VipsScale;
 

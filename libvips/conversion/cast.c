@@ -108,9 +108,9 @@
 typedef struct _VipsCast {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
-	VipsBandFormat format;
-	gboolean shift;
+	const VipsImage *const in;
+	const VipsBandFormat format;
+	const gboolean shift;
 
 } VipsCast;
 

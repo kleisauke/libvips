@@ -54,7 +54,7 @@
 typedef struct _VipsMaskIdealRing {
 	VipsMaskIdeal parent_instance;
 
-	double ringwidth;
+	const double ringwidth;
 
 } VipsMaskIdealRing;
 

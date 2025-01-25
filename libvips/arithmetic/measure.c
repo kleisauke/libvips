@@ -73,14 +73,14 @@
 typedef struct _VipsMeasure {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
-	int left;
-	int top;
-	int width;
-	int height;
-	int h;
-	int v;
+	const int left;
+	const int top;
+	const int width;
+	const int height;
+	const int h;
+	const int v;
 } VipsMeasure;
 
 typedef VipsOperationClass VipsMeasureClass;

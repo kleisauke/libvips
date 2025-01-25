@@ -57,13 +57,13 @@ typedef float (*PointFn)(VipsSdf *, int x, int y);
 struct _VipsSdf {
 	VipsCreate parent_instance;
 
-	int width;
-	int height;
-	VipsSdfShape shape;
+	const int width;
+	const int height;
+	const VipsSdfShape shape;
 
 	double *a;					// two vec2
 	double *b;
-	double r;
+	const double r;
 	double *corners;			// corner radii
 
 	float cx;					// centre
@@ -73,9 +73,9 @@ struct _VipsSdf {
 	float sx;					// half size
 	float sy;
 
-	VipsArea *corners_area;
-	VipsArea *a_area;
-	VipsArea *b_area;
+	const VipsArea *const corners_area;
+	const VipsArea *const a_area;
+	const VipsArea *const b_area;
 
 	PointFn point;
 };

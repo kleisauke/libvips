@@ -84,12 +84,12 @@ typedef struct _VipsInsert {
 
 	/* Params.
 	 */
-	VipsImage *main;
-	VipsImage *sub;
-	int x;
-	int y;
-	gboolean expand;
-	VipsArrayDouble *background;
+	const VipsImage *const main;
+	const VipsImage *const sub;
+	const int x;
+	const int y;
+	const gboolean expand;
+	const VipsArrayDouble *const background;
 
 	/* Pixel we paint calculated from background.
 	 */

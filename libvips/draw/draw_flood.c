@@ -447,10 +447,10 @@ typedef struct _VipsDrawFlood {
 
 	/* Parameters.
 	 */
-	int x;
-	int y;
-	VipsImage *test;
-	gboolean equal;
+	const int x;
+	const int y;
+	const VipsImage *const test;
+	const gboolean equal;
 	int left;
 	int top;
 	int width;

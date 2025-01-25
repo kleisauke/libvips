@@ -68,7 +68,7 @@ typedef struct _VipsConnection {
 	/* Read/write this fd if connected to a system pipe/socket. Override
 	 * ::read() and ::write() to do something else.
 	 */
-	int descriptor;
+	const int descriptor;
 
 	/* A descriptor we close with vips_tracked_close().
 	 */
@@ -81,7 +81,7 @@ typedef struct _VipsConnection {
 	/* If descriptor is a file, the filename we opened. Handy for error
 	 * messages.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsConnection;
 
@@ -179,7 +179,7 @@ struct _VipsSource {
 
 	/* For a memory source, the blob we read from.
 	 */
-	VipsBlob *blob;
+	const VipsBlob *const blob;
 
 	/* If we mmaped the file, what we need to unmmap on finalize.
 	 */
@@ -362,7 +362,7 @@ typedef struct _VipsSourceGInputStream {
 
 	/* The GInputStream we wrap.
 	 */
-	GInputStream *stream;
+	const GInputStream *const stream;
 
 	GSeekable *seekable;
 	GFileInfo *info;
@@ -405,7 +405,7 @@ struct _VipsTarget {
 
 	/* This target should write to memory.
 	 */
-	gboolean memory;
+	const gboolean memory;
 
 	/* The target has been ended and can no longer be written.
 	 */

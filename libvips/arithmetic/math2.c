@@ -76,7 +76,7 @@
 typedef struct _VipsMath2 {
 	VipsBinary parent_instance;
 
-	VipsOperationMath2 math2;
+	const VipsOperationMath2 math2;
 
 } VipsMath2;
 
@@ -382,7 +382,7 @@ vips_atan2(VipsImage *left, VipsImage *right, VipsImage **out, ...)
 typedef struct _VipsMath2Const {
 	VipsUnaryConst parent_instance;
 
-	VipsOperationMath2 math2;
+	const VipsOperationMath2 math2;
 
 } VipsMath2Const;
 

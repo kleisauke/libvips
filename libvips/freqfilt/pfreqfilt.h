@@ -59,7 +59,7 @@ void vips__fft_init(void);
 typedef struct _VipsFreqfilt {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 
 } VipsFreqfilt;

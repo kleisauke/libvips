@@ -61,8 +61,8 @@ typedef struct _VipsMsb {
 
 	/* Params.
 	 */
-	VipsImage *in;
-	int band;
+	const VipsImage *const in;
+	const int band;
 
 	/* Initial input offset.
 	 */

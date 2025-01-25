@@ -70,11 +70,11 @@ typedef struct _VipsFlip {
 
 	/* The input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
 	/* Left-right or up-down.
 	 */
-	VipsDirection direction;
+	const VipsDirection direction;
 
 } VipsFlip;
 

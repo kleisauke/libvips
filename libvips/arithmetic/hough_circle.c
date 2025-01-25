@@ -54,9 +54,9 @@
 typedef struct _VipsHoughCircle {
 	VipsHough parent_instance;
 
-	int scale;
-	int min_radius;
-	int max_radius;
+	const int scale;
+	const int min_radius;
+	const int max_radius;
 
 	int width;
 	int height;

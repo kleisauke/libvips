@@ -451,10 +451,10 @@ vips_colourspace_issupported(const VipsImage *image)
 typedef struct _VipsColourspace {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
-	VipsInterpretation space;
-	VipsInterpretation source_space;
+	const VipsInterpretation space;
+	const VipsInterpretation source_space;
 } VipsColourspace;
 
 typedef VipsOperationClass VipsColourspaceClass;

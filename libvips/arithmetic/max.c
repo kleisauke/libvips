@@ -103,7 +103,7 @@ typedef struct _VipsMax {
 
 	/* Max number of values we track.
 	 */
-	int size;
+	const int size;
 
 	/* The single max. Can be unset if, for example, the whole image is
 	 * NaN.

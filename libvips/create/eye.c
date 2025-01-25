@@ -64,7 +64,7 @@
 typedef struct _VipsEye {
 	VipsPoint parent_instance;
 
-	double factor;
+	const double factor;
 
 } VipsEye;
 

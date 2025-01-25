@@ -47,7 +47,7 @@
 typedef struct _VipsHistEntropy {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
 	double out;
 } VipsHistEntropy;

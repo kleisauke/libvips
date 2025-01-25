@@ -53,11 +53,11 @@
 typedef struct _VipsGrid {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
-	int tile_height;
-	int across;
-	int down;
+	const int tile_height;
+	const int across;
+	const int down;
 
 } VipsGrid;
 

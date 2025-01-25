@@ -56,7 +56,7 @@ typedef struct _VipsNary {
 
 	/* The input images.
 	 */
-	VipsArea *in;
+	const VipsArea *const in;
 
 } VipsNary;
 

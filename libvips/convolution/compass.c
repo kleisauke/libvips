@@ -50,12 +50,12 @@
 typedef struct {
 	VipsConvolution parent_instance;
 
-	int times;
-	VipsAngle45 angle;
-	VipsCombine combine;
-	VipsPrecision precision;
-	int layers;
-	int cluster;
+	const int times;
+	const VipsAngle45 angle;
+	const VipsCombine combine;
+	const VipsPrecision precision;
+	const int layers;
+	const int cluster;
 } VipsCompass;
 
 typedef VipsConvolutionClass VipsCompassClass;

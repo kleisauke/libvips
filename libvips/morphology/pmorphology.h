@@ -55,7 +55,7 @@ typedef struct _VipsMorphology VipsMorphology;
 struct _VipsMorphology {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 };
 
 typedef struct _VipsMorphologyClass {

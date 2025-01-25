@@ -210,7 +210,7 @@ typedef struct _VipsForeignLoadFitsFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadFitsFile;
 
@@ -273,7 +273,7 @@ typedef struct _VipsForeignLoadFitsSource {
 
 	/* Load from a source.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadFitsSource;
 

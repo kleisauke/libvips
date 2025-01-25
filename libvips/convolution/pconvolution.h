@@ -55,9 +55,9 @@ typedef struct _VipsConvolution VipsConvolution;
 struct _VipsConvolution {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
-	VipsImage *mask;
+	const VipsImage *const mask;
 
 	/* @mask cast ready for processing.
 	 */

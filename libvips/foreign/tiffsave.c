@@ -91,28 +91,28 @@ typedef struct _VipsForeignSaveTiff {
 
 	/* Many options argh.
 	 */
-	VipsForeignTiffCompression compression;
-	int Q;
-	VipsForeignTiffPredictor predictor;
-	gboolean tile;
-	int tile_width;
-	int tile_height;
-	gboolean pyramid;
-	gboolean squash;
-	int bitdepth;
-	gboolean miniswhite;
-	VipsForeignTiffResunit resunit;
-	double xres;
-	double yres;
-	gboolean bigtiff;
-	gboolean rgbjpeg;
-	gboolean properties;
-	VipsRegionShrink region_shrink;
-	int level;
-	gboolean lossless;
-	VipsForeignDzDepth depth;
-	gboolean subifd;
-	gboolean premultiply;
+	const VipsForeignTiffCompression compression;
+	const int Q;
+	const VipsForeignTiffPredictor predictor;
+	const gboolean tile;
+	const int tile_width;
+	const int tile_height;
+	const gboolean pyramid;
+	const gboolean squash;
+	const int bitdepth;
+	const gboolean miniswhite;
+	const VipsForeignTiffResunit resunit;
+	const double xres;
+	const double yres;
+	const gboolean bigtiff;
+	const gboolean rgbjpeg;
+	const gboolean properties;
+	const VipsRegionShrink region_shrink;
+	const int level;
+	const gboolean lossless;
+	const VipsForeignDzDepth depth;
+	const gboolean subifd;
+	const gboolean premultiply;
 
 } VipsForeignSaveTiff;
 
@@ -431,7 +431,7 @@ vips_foreign_save_tiff_init(VipsForeignSaveTiff *tiff)
 typedef struct _VipsForeignSaveTiffTarget {
 	VipsForeignSaveTiff parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 } VipsForeignSaveTiffTarget;
 
 typedef VipsForeignSaveTiffClass VipsForeignSaveTiffTargetClass;
@@ -486,7 +486,7 @@ vips_foreign_save_tiff_target_init(VipsForeignSaveTiffTarget *target)
 typedef struct _VipsForeignSaveTiffFile {
 	VipsForeignSaveTiff parent_object;
 
-	char *filename;
+	const char *const filename;
 } VipsForeignSaveTiffFile;
 
 typedef VipsForeignSaveTiffClass VipsForeignSaveTiffFileClass;

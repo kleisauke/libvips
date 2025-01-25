@@ -80,7 +80,7 @@ typedef struct _VipsBandjoin {
 
 	/* The input images.
 	 */
-	VipsArrayImage *in;
+	const VipsArrayImage *const in;
 } VipsBandjoin;
 
 typedef VipsBandaryClass VipsBandjoinClass;
@@ -294,8 +294,8 @@ vips_bandjoin2(VipsImage *in1, VipsImage *in2, VipsImage **out, ...)
 typedef struct _VipsBandjoinConst {
 	VipsBandary parent_instance;
 
-	VipsImage *in;
-	VipsArrayDouble *c;
+	const VipsImage *const in;
+	const VipsArrayDouble *const c;
 
 	/* The constant expanded to in's format, ready to be appended to each
 	 * pixel.

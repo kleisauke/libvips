@@ -53,10 +53,10 @@ extern "C" {
 typedef struct _VipsPoint {
 	VipsCreate parent_instance;
 
-	int width;
-	int height;
+	const int width;
+	const int height;
 
-	gboolean uchar;
+	const gboolean uchar;
 
 } VipsPoint;
 

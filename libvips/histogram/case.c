@@ -46,8 +46,8 @@
 typedef struct _VipsCase {
 	VipsOperation parent_instance;
 
-	VipsImage *index;
-	VipsArrayImage *cases;
+	const VipsImage *const index;
+	const VipsArrayImage *const cases;
 	VipsImage *out;
 	int n;
 

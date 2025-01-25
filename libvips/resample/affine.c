@@ -146,13 +146,13 @@
 typedef struct _VipsAffine {
 	VipsResample parent_instance;
 
-	VipsArea *matrix;
-	VipsInterpolate *interpolate;
-	VipsArea *oarea;
-	double odx;
-	double ody;
-	double idx;
-	double idy;
+	const VipsArea *const matrix;
+	const VipsInterpolate *const interpolate;
+	const VipsArea *const oarea;
+	const double odx;
+	const double ody;
+	const double idx;
+	const double idy;
 
 	VipsTransformation trn;
 
@@ -162,11 +162,11 @@ typedef struct _VipsAffine {
 
 	/* How to generate extra edge pixels.
 	 */
-	VipsExtend extend;
+	const VipsExtend extend;
 
 	/* Background colour.
 	 */
-	VipsArrayDouble *background;
+	const VipsArrayDouble *const background;
 
 	/* The [double] converted to the input image format.
 	 */
@@ -174,7 +174,7 @@ typedef struct _VipsAffine {
 
 	/* True if the input is already premultiplied (and we don't need to).
 	 */
-	gboolean premultiplied;
+	const gboolean premultiplied;
 
 } VipsAffine;
 

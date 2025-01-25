@@ -59,10 +59,10 @@
 typedef struct _VipsSubsample {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
-	int xfac;
-	int yfac;
-	gboolean point;
+	const VipsImage *const in;
+	const int xfac;
+	const int yfac;
+	const gboolean point;
 
 } VipsSubsample;
 

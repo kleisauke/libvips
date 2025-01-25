@@ -103,7 +103,7 @@ typedef struct _VipsMin {
 
 	/* Number of values we track.
 	 */
-	int size;
+	const int size;
 
 	/* The single min. Can be unset if, for example, the whole image is
 	 * NaN.

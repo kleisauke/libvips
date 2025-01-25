@@ -106,7 +106,7 @@ gcd(int a, int b)
 typedef struct {
 	VipsConvolution parent_instance;
 
-	int layers;
+	const int layers;
 
 	int divisor;
 	int rounding;

@@ -140,17 +140,17 @@
 typedef struct _VipsReduce {
 	VipsResample parent_instance;
 
-	double hshrink; /* Shrink factors */
-	double vshrink;
-	double gap; /* Reduce gap */
+	const double hshrink; /* Shrink factors */
+	const double vshrink;
+	const double gap; /* Reduce gap */
 
 	/* The thing we use to make the kernel.
 	 */
-	VipsKernel kernel;
+	const VipsKernel kernel;
 
 	/* Deprecated.
 	 */
-	gboolean centre;
+	const gboolean centre;
 
 } VipsReduce;
 

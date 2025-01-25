@@ -72,7 +72,7 @@ typedef struct _VipsXYZ2Lab {
 
 	/* The colour temperature -- default to D65.
 	 */
-	VipsArea *temp;
+	const VipsArea *const temp;
 
 	/* Broken out as xyz.
 	 */

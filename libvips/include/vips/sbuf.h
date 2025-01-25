@@ -71,7 +71,7 @@ typedef struct _VipsSbuf {
 
 	/* The VipsSource we wrap.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 	/* The +1 means there's always a \0 byte at the end.
 	 *

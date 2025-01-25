@@ -56,8 +56,8 @@ typedef struct _VipsBinary {
 
 	/* Original left and right image args.
 	 */
-	VipsImage *left;
-	VipsImage *right;
+	const VipsImage *const left;
+	const VipsImage *const right;
 
 } VipsBinary;
 

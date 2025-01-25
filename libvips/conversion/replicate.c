@@ -61,10 +61,10 @@ typedef struct _VipsReplicate {
 
 	/* The input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
-	int across;
-	int down;
+	const int across;
+	const int down;
 
 } VipsReplicate;
 

@@ -47,9 +47,9 @@
 typedef struct _VipsTranspose3d {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
-	int page_height;
+	const int page_height;
 
 } VipsTranspose3d;
 

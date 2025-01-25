@@ -246,21 +246,21 @@ struct _VipsForeignSaveDz {
 	 */
 	char *filename;
 
-	char *suffix;
-	int overlap;
-	int tile_size;
-	VipsForeignDzLayout layout;
-	VipsForeignDzDepth depth;
-	gboolean centre;
-	gboolean properties;
-	VipsAngle angle;
-	VipsForeignDzContainer container;
-	int compression;
-	VipsRegionShrink region_shrink;
-	int skip_blanks;
-	gboolean no_strip;
-	char *id;
-	int Q;
+	const char *const suffix;
+	const int overlap;
+	const int tile_size;
+	const VipsForeignDzLayout layout;
+	const VipsForeignDzDepth depth;
+	const gboolean centre;
+	const gboolean properties;
+	const VipsAngle angle;
+	const VipsForeignDzContainer container;
+	const int compression;
+	const VipsRegionShrink region_shrink;
+	const int skip_blanks;
+	const gboolean no_strip;
+	const char *const id;
+	const int Q;
 
 	/* In direct save mode, we write regions of pixels to the output and
 	 * avoid creating a pipeline for each tile. This must be disabled if
@@ -312,11 +312,11 @@ struct _VipsForeignSaveDz {
 	/* The name to save as, eg. deepzoom tiles go into ${imagename}_files.
 	 * No suffix, no path at the start.
 	 */
-	char *imagename;
+	const char *const imagename;
 
 	/* The directory we write the output to.
 	 */
-	char *dirname;
+	const char *const dirname;
 
 	/* The name of the directory containing the levels ... eg. perhaps
 	 * $(imagename)_files, etc.
@@ -2495,7 +2495,7 @@ vips_foreign_save_dz_init(VipsForeignSaveDz *dz)
 typedef struct _VipsForeignSaveDzTarget {
 	VipsForeignSaveDz parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 
 } VipsForeignSaveDzTarget;
 
@@ -2556,7 +2556,7 @@ typedef struct _VipsForeignSaveDzFile {
 
 	/* Filename for save.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignSaveDzFile;
 

@@ -60,7 +60,7 @@ typedef struct _VipsByteswap {
 
 	/* The input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
 } VipsByteswap;
 

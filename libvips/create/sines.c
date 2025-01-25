@@ -63,8 +63,8 @@
 typedef struct _VipsSines {
 	VipsPoint parent_instance;
 
-	double hfreq;
-	double vfreq;
+	const double hfreq;
+	const double vfreq;
 
 	double c;
 	double sintheta;

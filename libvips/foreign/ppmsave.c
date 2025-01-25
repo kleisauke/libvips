@@ -77,15 +77,15 @@ struct _VipsForeignSavePpm {
 	VipsForeignSave parent_object;
 
 	VipsTarget *target;
-	VipsForeignPpmFormat format;
-	gboolean ascii;
-	int bitdepth;
+	const VipsForeignPpmFormat format;
+	const gboolean ascii;
+	const int bitdepth;
 
 	VipsSavePpmFn fn;
 
 	/* Deprecated.
 	 */
-	gboolean squash;
+	const gboolean squash;
 };
 
 typedef VipsForeignSaveClass VipsForeignSavePpmClass;
@@ -542,7 +542,7 @@ vips_foreign_save_ppm_init(VipsForeignSavePpm *ppm)
 typedef struct _VipsForeignSavePpmFile {
 	VipsForeignSavePpm parent_object;
 
-	char *filename;
+	const char *const filename;
 } VipsForeignSavePpmFile;
 
 typedef VipsForeignSavePpmClass VipsForeignSavePpmFileClass;
@@ -605,7 +605,7 @@ vips_foreign_save_ppm_file_init(VipsForeignSavePpmFile *file)
 typedef struct _VipsForeignSavePpmTarget {
 	VipsForeignSavePpm parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 } VipsForeignSavePpmTarget;
 
 typedef VipsForeignSavePpmClass VipsForeignSavePpmTargetClass;

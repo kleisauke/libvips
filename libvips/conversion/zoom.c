@@ -76,10 +76,10 @@ typedef struct _VipsZoom {
 
 	/* The input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
-	int xfac; /* Scale factors */
-	int yfac;
+	const int xfac; /* Scale factors */
+	const int yfac;
 
 } VipsZoom;
 

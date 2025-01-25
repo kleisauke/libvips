@@ -51,8 +51,8 @@ typedef struct _VipsHoughLine {
 
 	/* Size of parameter space.
 	 */
-	int width;
-	int height;
+	const int width;
+	const int height;
 
 	/* LUT for this transform.
 	 */

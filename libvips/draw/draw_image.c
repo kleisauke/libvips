@@ -77,10 +77,10 @@ typedef struct _VipsDrawImage {
 
 	/* Parameters.
 	 */
-	VipsImage *sub;
-	int x;
-	int y;
-	VipsCombineMode mode;
+	const VipsImage *const sub;
+	const int x;
+	const int y;
+	const VipsCombineMode mode;
 
 } VipsDrawImage;
 

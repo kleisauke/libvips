@@ -58,7 +58,7 @@
 typedef struct _VipsRound {
 	VipsUnary parent_instance;
 
-	VipsOperationRound round;
+	const VipsOperationRound round;
 
 } VipsRound;
 

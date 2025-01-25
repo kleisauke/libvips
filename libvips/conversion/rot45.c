@@ -67,11 +67,11 @@ typedef struct _VipsRot45 {
 
 	/* The input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
 	/* Rotate by ...
 	 */
-	VipsAngle45 angle;
+	const VipsAngle45 angle;
 
 } VipsRot45;
 

@@ -63,7 +63,7 @@ typedef struct _VipsForeignLoadPng {
 
 	/* remove all denial of service limits.
 	 */
-	gboolean unlimited;
+	const gboolean unlimited;
 
 } VipsForeignLoadPng;
 
@@ -186,7 +186,7 @@ typedef struct _VipsForeignLoadPngSource {
 
 	/* Load from a source.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadPngSource;
 
@@ -256,7 +256,7 @@ typedef struct _VipsForeignLoadPngFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadPngFile;
 
@@ -332,7 +332,7 @@ typedef struct _VipsForeignLoadPngBuffer {
 
 	/* Load from a buffer.
 	 */
-	VipsBlob *blob;
+	const VipsBlob *const blob;
 
 } VipsForeignLoadPngBuffer;
 

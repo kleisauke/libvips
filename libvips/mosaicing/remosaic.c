@@ -61,10 +61,10 @@
 typedef struct {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
-	char *old_str;
-	char *new_str;
+	const char *const old_str;
+	const char *const new_str;
 
 	int new_len;
 	int old_len;

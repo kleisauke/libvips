@@ -77,31 +77,31 @@ typedef struct _VipsForeignSaveHeif {
 
 	/* Coding quality factor (1 - 100).
 	 */
-	int Q;
+	const int Q;
 
 	/* bitdepth to save at for >8 bit images.
 	 */
-	int bitdepth;
+	const int bitdepth;
 
 	/* Lossless compression.
 	 */
-	gboolean lossless;
+	const gboolean lossless;
 
 	/* Compression format
 	 */
-	VipsForeignHeifCompression compression;
+	const VipsForeignHeifCompression compression;
 
 	/* CPU effort (0 - 9).
 	 */
-	int effort;
+	const int effort;
 
 	/* Chroma subsampling.
 	 */
-	VipsForeignSubsample subsample_mode;
+	const VipsForeignSubsample subsample_mode;
 
 	/* Encoder to use. For instance: aom, svt etc.
 	 */
-	VipsForeignHeifEncoder selected_encoder;
+	const VipsForeignHeifEncoder selected_encoder;
 
 	int page_width;
 	int page_height;
@@ -128,7 +128,7 @@ typedef struct _VipsForeignSaveHeif {
 	/* Deprecated ... this is now called effort for consistency with the
 	 * other encoders.
 	 */
-	int speed;
+	const int speed;
 
 } VipsForeignSaveHeif;
 
@@ -850,7 +850,7 @@ typedef struct _VipsForeignSaveHeifFile {
 
 	/* Filename for save.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignSaveHeifFile;
 
@@ -974,7 +974,7 @@ vips_foreign_save_heif_buffer_init(VipsForeignSaveHeifBuffer *buffer)
 typedef struct _VipsForeignSaveHeifTarget {
 	VipsForeignSaveHeif parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 } VipsForeignSaveHeifTarget;
 
 typedef VipsForeignSaveHeifClass VipsForeignSaveHeifTargetClass;

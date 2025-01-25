@@ -60,7 +60,7 @@ typedef struct _VipsForeignSaveNifti {
 
 	/* Filename for save.
 	 */
-	char *filename;
+	const char *const filename;
 
 	nifti_image *nim;
 

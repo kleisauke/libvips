@@ -59,7 +59,7 @@
 typedef struct _VipsAutorot {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
 	VipsAngle angle;
 	gboolean flip;

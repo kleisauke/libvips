@@ -77,10 +77,10 @@
 typedef struct _VipsSequential {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
-	int tile_height;
-	VipsAccess access;
-	gboolean trace;
+	const VipsImage *const in;
+	const int tile_height;
+	const VipsAccess access;
+	const gboolean trace;
 
 	/* Lock access to y_pos with this.
 	 */

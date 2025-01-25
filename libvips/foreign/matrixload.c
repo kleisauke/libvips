@@ -288,7 +288,7 @@ typedef struct _VipsForeignLoadMatrixFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadMatrixFile;
 
@@ -386,7 +386,7 @@ vips_foreign_load_matrix_file_init(VipsForeignLoadMatrixFile *file)
 typedef struct _VipsForeignLoadMatrixSource {
 	VipsForeignLoadMatrix parent_object;
 
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadMatrixSource;
 

@@ -53,10 +53,10 @@
 typedef struct _VipsCache {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
-	int tile_width;
-	int tile_height;
-	int max_tiles;
+	const VipsImage *const in;
+	const int tile_width;
+	const int tile_height;
+	const int max_tiles;
 } VipsCache;
 
 typedef VipsConversionClass VipsCacheClass;

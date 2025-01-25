@@ -50,13 +50,13 @@
 typedef struct _VipsForeignLoadRaw {
 	VipsForeignLoad parent_object;
 
-	char *filename;
-	int width;
-	int height;
-	int bands;
-	guint64 offset;
-	VipsBandFormat format;
-	VipsInterpretation interpretation;
+	const char *const filename;
+	const int width;
+	const int height;
+	const int bands;
+	const guint64 offset;
+	const VipsBandFormat format;
+	const VipsInterpretation interpretation;
 } VipsForeignLoadRaw;
 
 typedef VipsForeignLoadClass VipsForeignLoadRawClass;

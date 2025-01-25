@@ -770,7 +770,7 @@ vips_foreign_load_ppm_init(VipsForeignLoadPpm *ppm)
 typedef struct _VipsForeignLoadPpmFile {
 	VipsForeignLoadPpm parent_object;
 
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadPpmFile;
 
@@ -841,7 +841,7 @@ vips_foreign_load_ppm_file_init(VipsForeignLoadPpmFile *file)
 typedef struct _VipsForeignLoadPpmSource {
 	VipsForeignLoadPpm parent_object;
 
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadPpmSource;
 

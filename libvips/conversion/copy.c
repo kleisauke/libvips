@@ -108,21 +108,21 @@ typedef struct _VipsCopy {
 
 	/* The input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
 	/* Fields we can optionally set on the way through.
 	 */
-	gboolean swap;
-	VipsInterpretation interpretation;
-	double xres;
-	double yres;
-	int xoffset;
-	int yoffset;
-	int bands;
-	VipsBandFormat format;
-	VipsCoding coding;
-	int width;
-	int height;
+	const gboolean swap;
+	const VipsInterpretation interpretation;
+	const double xres;
+	const double yres;
+	const int xoffset;
+	const int yoffset;
+	const int bands;
+	const VipsBandFormat format;
+	const VipsCoding coding;
+	const int width;
+	const int height;
 
 } VipsCopy;
 

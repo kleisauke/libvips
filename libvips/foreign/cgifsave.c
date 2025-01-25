@@ -81,14 +81,14 @@ typedef enum _VipsForeignSaveCgifMode {
 typedef struct _VipsForeignSaveCgif {
 	VipsForeignSave parent_object;
 
-	double dither;
-	int effort;
-	int bitdepth;
-	double interframe_maxerror;
-	gboolean reuse;
-	gboolean interlace;
-	gboolean keep_duplicate_frames;
-	double interpalette_maxerror;
+	const double dither;
+	const int effort;
+	const int bitdepth;
+	const double interframe_maxerror;
+	const gboolean reuse;
+	const gboolean interlace;
+	const gboolean keep_duplicate_frames;
+	const double interpalette_maxerror;
 	VipsTarget *target;
 
 	/* Derived write params.
@@ -144,7 +144,7 @@ typedef struct _VipsForeignSaveCgif {
 
 	/* Deprecated.
 	 */
-	gboolean reoptimise;
+	const gboolean reoptimise;
 } VipsForeignSaveCgif;
 
 typedef VipsForeignSaveClass VipsForeignSaveCgifClass;
@@ -973,7 +973,7 @@ vips_foreign_save_cgif_init(VipsForeignSaveCgif *gif)
 typedef struct _VipsForeignSaveCgifTarget {
 	VipsForeignSaveCgif parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 } VipsForeignSaveCgifTarget;
 
 typedef VipsForeignSaveCgifClass VipsForeignSaveCgifTargetClass;
@@ -1022,7 +1022,7 @@ vips_foreign_save_cgif_target_init(VipsForeignSaveCgifTarget *target)
 
 typedef struct _VipsForeignSaveCgifFile {
 	VipsForeignSaveCgif parent_object;
-	char *filename;
+	const char *const filename;
 } VipsForeignSaveCgifFile;
 
 typedef VipsForeignSaveCgifClass VipsForeignSaveCgifFileClass;

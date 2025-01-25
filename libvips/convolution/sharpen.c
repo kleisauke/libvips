@@ -88,15 +88,15 @@
 typedef struct _VipsSharpen {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 
-	double sigma;
-	double x1;
-	double y2;
-	double y3;
-	double m1;
-	double m2;
+	const double sigma;
+	const double x1;
+	const double y2;
+	const double y3;
+	const double m1;
+	const double m2;
 
 	/* The lut we build.
 	 */
@@ -104,7 +104,7 @@ typedef struct _VipsSharpen {
 
 	/* We used to have a radius control.
 	 */
-	int radius;
+	const int radius;
 
 } VipsSharpen;
 

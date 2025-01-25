@@ -49,18 +49,18 @@
 typedef struct {
 	VipsOperation parent_instance;
 
-	VipsImage *ref;
-	VipsImage *sec;
+	const VipsImage *const ref;
+	const VipsImage *const sec;
 	VipsImage *out;
-	VipsDirection direction;
-	int xref;
-	int yref;
-	int xsec;
-	int ysec;
-	int mblend;
-	int bandno;
-	int hwindow;
-	int harea;
+	const VipsDirection direction;
+	const int xref;
+	const int yref;
+	const int xsec;
+	const int ysec;
+	const int mblend;
+	const int bandno;
+	const int hwindow;
+	const int harea;
 	int dx0;
 	int dy0;
 	double scale1;

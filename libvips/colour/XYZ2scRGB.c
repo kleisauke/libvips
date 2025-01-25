@@ -54,7 +54,7 @@
 typedef struct _VipsXYZ2scRGB {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 } VipsXYZ2scRGB;
 

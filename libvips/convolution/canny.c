@@ -46,11 +46,11 @@
 typedef struct _VipsCanny {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
 
-	double sigma;
-	VipsPrecision precision;
+	const double sigma;
+	const VipsPrecision precision;
 
 	/* Need an image vector for start_many.
 	 */

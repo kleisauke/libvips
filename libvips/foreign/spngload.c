@@ -69,7 +69,7 @@ typedef struct _VipsForeignLoadPng {
 
 	/* Remove DoS limits.
 	 */
-	gboolean unlimited;
+	const gboolean unlimited;
 
 	spng_ctx *ctx;
 	struct spng_ihdr ihdr;
@@ -693,7 +693,7 @@ typedef struct _VipsForeignLoadPngSource {
 
 	/* Load from a source.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadPngSource;
 
@@ -771,7 +771,7 @@ typedef struct _VipsForeignLoadPngFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadPngFile;
 
@@ -849,7 +849,7 @@ typedef struct _VipsForeignLoadPngBuffer {
 
 	/* Load from a buffer.
 	 */
-	VipsBlob *blob;
+	const VipsBlob *const blob;
 
 } VipsForeignLoadPngBuffer;
 

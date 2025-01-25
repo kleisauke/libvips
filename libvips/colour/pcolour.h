@@ -116,7 +116,7 @@ GType vips_colour_get_type(void);
 typedef struct _VipsColourTransform {
 	VipsColour parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
 } VipsColourTransform;
 
@@ -148,7 +148,7 @@ GType vips_colour_transform_get_type(void);
 typedef struct _VipsColourCode {
 	VipsColour parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
 	/* Test in against these.
 	 */
@@ -186,8 +186,8 @@ GType vips_colour_code_get_type(void);
 typedef struct _VipsColourDifference {
 	VipsColour parent_instance;
 
-	VipsImage *left;
-	VipsImage *right;
+	const VipsImage *const left;
+	const VipsImage *const right;
 
 	/* Both get converted to this space.
 	 */

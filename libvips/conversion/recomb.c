@@ -57,8 +57,8 @@
 typedef struct _VipsRecomb {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
-	VipsImage *m;
+	const VipsImage *const in;
+	const VipsImage *const m;
 
 	/* Our input matrix as a one-band double.
 	 */

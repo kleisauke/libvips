@@ -61,7 +61,7 @@
 typedef struct _VipsFalsecolour {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 } VipsFalsecolour;
 
 typedef VipsConversionClass VipsFalsecolourClass;

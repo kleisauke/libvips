@@ -58,7 +58,7 @@
 typedef struct _VipsBandmean {
 	VipsBandary parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
 } VipsBandmean;
 

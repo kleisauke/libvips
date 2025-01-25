@@ -48,9 +48,9 @@
 typedef struct {
 	VipsConvolution parent_instance;
 
-	VipsPrecision precision;
-	int layers;
-	int cluster;
+	const VipsPrecision precision;
+	const int layers;
+	const int cluster;
 } VipsConvsep;
 
 typedef VipsConvolutionClass VipsConvsepClass;

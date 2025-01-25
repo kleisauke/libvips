@@ -92,12 +92,12 @@ typedef struct _VipsExtractArea {
 
 	/* The input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
-	int left;
-	int top;
-	int width;
-	int height;
+	const int left;
+	const int top;
+	const int width;
+	const int height;
 
 } VipsExtractArea;
 
@@ -332,10 +332,10 @@ typedef struct _VipsExtractBand {
 
 	/* The input image.
 	 */
-	VipsImage *in;
+	const VipsImage *const in;
 
-	int band;
-	int n;
+	const int band;
+	const int n;
 } VipsExtractBand;
 
 typedef VipsBandaryClass VipsExtractBandClass;

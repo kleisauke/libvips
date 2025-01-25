@@ -64,7 +64,7 @@ typedef struct _VipsCountlines {
 	VipsMorphology parent_instance;
 
 	double nolines;
-	VipsDirection direction;
+	const VipsDirection direction;
 } VipsCountlines;
 
 typedef VipsMorphologyClass VipsCountlinesClass;

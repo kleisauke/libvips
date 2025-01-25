@@ -93,20 +93,20 @@ typedef struct _VipsCompositeBase {
 
 	/* The input images.
 	 */
-	VipsArrayImage *in;
+	const VipsArrayImage *const in;
 
 	/* For N input images, 1 blend mode or N - 1 blend modes.
 	 */
-	VipsArrayInt *mode;
+	const VipsArrayInt *const mode;
 
 	/* Compositing space. This defaults to RGB, or B_W if we only have
 	 * G and GA inputs.
 	 */
-	VipsInterpretation compositing_space;
+	const VipsInterpretation compositing_space;
 
 	/* Set if the input images have already been premultiplied.
 	 */
-	gboolean premultiplied;
+	const gboolean premultiplied;
 
 	/* The x and y positions for each image in the stack. There are n - 1
 	 * of these, since image 0 is always positioned at (0, 0). Set by
@@ -1506,11 +1506,11 @@ typedef struct _VipsComposite {
 
 	/* For N input images, N - 1 x coordinates.
 	 */
-	VipsArrayInt *x;
+	const VipsArrayInt *const x;
 
 	/* For N input images, N - 1 y coordinates.
 	 */
-	VipsArrayInt *y;
+	const VipsArrayInt *const y;
 
 } VipsComposite;
 
@@ -1646,11 +1646,11 @@ vips_composite(VipsImage **in, VipsImage **out, int n, int *mode, ...)
 typedef struct _VipsComposite2 {
 	VipsCompositeBase parent_instance;
 
-	VipsImage *base;
-	VipsImage *overlay;
-	VipsBlendMode mode;
-	int x;
-	int y;
+	const VipsImage *const base;
+	const VipsImage *const overlay;
+	const VipsBlendMode mode;
+	const int x;
+	const int y;
 
 } VipsComposite2;
 

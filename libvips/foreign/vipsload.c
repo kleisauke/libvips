@@ -179,7 +179,7 @@ vips_foreign_load_vips_init(VipsForeignLoadVips *vips)
 typedef struct _VipsForeignLoadVipsFile {
 	VipsForeignLoadVips parent_object;
 
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadVipsFile;
 
@@ -248,7 +248,7 @@ vips_foreign_load_vips_file_init(VipsForeignLoadVipsFile *file)
 typedef struct _VipsForeignLoadVipsSource {
 	VipsForeignLoadVips parent_object;
 
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadVipsSource;
 

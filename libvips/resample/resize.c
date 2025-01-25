@@ -92,17 +92,17 @@
 typedef struct _VipsResize {
 	VipsResample parent_instance;
 
-	double scale;
-	double vscale;
-	double gap;
-	VipsKernel kernel;
+	const double scale;
+	const double vscale;
+	const double gap;
+	const VipsKernel kernel;
 
 	/* Deprecated.
 	 */
-	VipsInterpolate *interpolate;
-	double idx;
-	double idy;
-	gboolean centre;
+	const VipsInterpolate *const interpolate;
+	const double idx;
+	const double idy;
+	const gboolean centre;
 
 } VipsResize;
 

@@ -67,16 +67,16 @@
 typedef struct _VipsMapim {
 	VipsResample parent_instance;
 
-	VipsImage *index;
-	VipsInterpolate *interpolate;
+	const VipsImage *const index;
+	const VipsInterpolate *const interpolate;
 
 	/* How to generate extra edge pixels.
 	 */
-	VipsExtend extend;
+	const VipsExtend extend;
 
 	/* Background colour.
 	 */
-	VipsArrayDouble *background;
+	const VipsArrayDouble *const background;
 
 	/* The [double] converted to the input image format.
 	 */
@@ -84,7 +84,7 @@ typedef struct _VipsMapim {
 
 	/* True if the input is already premultiplied (and we don't need to).
 	 */
-	gboolean premultiplied;
+	const gboolean premultiplied;
 
 	/* Need an image vector for start_many / stop_many
 	 */

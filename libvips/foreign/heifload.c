@@ -122,13 +122,13 @@ typedef struct _VipsForeignLoadHeif {
 
 	/* Pages to load.
 	 */
-	int page;
-	int n;
+	const int page;
+	const int n;
 
 	/* Fetch the thumbnail instead of the image. If there is no thumbnail,
 	 * just fetch the image.
 	 */
-	gboolean thumbnail;
+	const gboolean thumbnail;
 
 	/* Apply any orientation tags in the header.
 	 *
@@ -137,11 +137,11 @@ typedef struct _VipsForeignLoadHeif {
 	 * be represented in several different ways in HEIC files and devices
 	 * vary in how they do this.
 	 */
-	gboolean autorotate;
+	const gboolean autorotate;
 
 	/* remove all denial of service limits.
 	 */
-	gboolean unlimited;
+	const gboolean unlimited;
 
 	/* Context for this image.
 	 */
@@ -1212,7 +1212,7 @@ typedef struct _VipsForeignLoadHeifFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadHeifFile;
 
@@ -1285,7 +1285,7 @@ typedef struct _VipsForeignLoadHeifBuffer {
 
 	/* Load from a buffer.
 	 */
-	VipsArea *buf;
+	const VipsArea *const buf;
 
 } VipsForeignLoadHeifBuffer;
 
@@ -1354,7 +1354,7 @@ typedef struct _VipsForeignLoadHeifSource {
 
 	/* Load from a source.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadHeifSource;
 

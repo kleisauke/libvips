@@ -76,7 +76,7 @@
 typedef struct _VipsInvfft {
 	VipsFreqfilt parent_instance;
 
-	gboolean real;
+	const gboolean real;
 
 } VipsInvfft;
 

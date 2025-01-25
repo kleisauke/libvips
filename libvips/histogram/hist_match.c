@@ -65,8 +65,8 @@
 typedef struct _VipsHistMatch {
 	VipsHistogram parent_instance;
 
-	VipsImage *in;
-	VipsImage *ref;
+	const VipsImage *const in;
+	const VipsImage *const ref;
 
 } VipsHistMatch;
 

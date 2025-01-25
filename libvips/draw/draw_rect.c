@@ -67,11 +67,11 @@ typedef struct _VipsDrawRect {
 
 	/* Parameters.
 	 */
-	int left;
-	int top;
-	int width;
-	int height;
-	gboolean fill;
+	const int left;
+	const int top;
+	const int width;
+	const int height;
+	const gboolean fill;
 
 } VipsDrawRect;
 

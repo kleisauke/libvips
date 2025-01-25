@@ -61,47 +61,47 @@ typedef struct _VipsForeignSaveJpeg {
 
 	/* Quality factor.
 	 */
-	int Q;
+	const int Q;
 
 	/* Compute optimal Huffman coding tables.
 	 */
-	gboolean optimize_coding;
+	const gboolean optimize_coding;
 
 	/* Generate an interlaced (progressive, in jpg terminology) file.
 	 */
-	gboolean interlace;
+	const gboolean interlace;
 
 	/* Deprecated: Disable chroma subsampling. Use subsample_mode instead.
 	 */
-	gboolean no_subsample;
+	const gboolean no_subsample;
 
 	/* Select chroma subsampling mode:
 	 * auto will disable subsampling for Q >= 90
 	 * on will always enable subsampling
 	 * off will always disable subsampling
 	 */
-	VipsForeignSubsample subsample_mode;
+	const VipsForeignSubsample subsample_mode;
 
 	/* Apply trellis quantisation to each 8x8 block.
 	 */
-	gboolean trellis_quant;
+	const gboolean trellis_quant;
 
 	/* Apply overshooting to samples with extreme values e.g. 0 & 255
 	 * for 8-bit.
 	 */
-	gboolean overshoot_deringing;
+	const gboolean overshoot_deringing;
 
 	/* Split the spectrum of DCT coefficients into separate scans.
 	 */
-	gboolean optimize_scans;
+	const gboolean optimize_scans;
 
 	/* Use predefined quantization table with given index.
 	 */
-	int quant_table;
+	const int quant_table;
 
 	/* Use an MCU restart interval.
 	 */
-	int restart_interval;
+	const int restart_interval;
 
 } VipsForeignSaveJpeg;
 
@@ -242,7 +242,7 @@ vips_foreign_save_jpeg_init(VipsForeignSaveJpeg *jpeg)
 typedef struct _VipsForeignSaveJpegTarget {
 	VipsForeignSaveJpeg parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 
 } VipsForeignSaveJpegTarget;
 
@@ -306,7 +306,7 @@ typedef struct _VipsForeignSaveJpegFile {
 
 	/* Filename for save.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignSaveJpegFile;
 

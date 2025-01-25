@@ -64,19 +64,19 @@ typedef struct _VipsForeignLoadWebp {
 
 	/* Load this page (frame number).
 	 */
-	int page;
+	const int page;
 
 	/* Load this many pages.
 	 */
-	int n;
+	const int n;
 
 	/* Scale by this much during load.
 	 */
-	double scale;
+	const double scale;
 
 	/* Old and deprecated scaling path.
 	 */
-	int shrink;
+	const int shrink;
 } VipsForeignLoadWebp;
 
 typedef VipsForeignLoadClass VipsForeignLoadWebpClass;
@@ -214,7 +214,7 @@ vips_foreign_load_webp_init(VipsForeignLoadWebp *webp)
 typedef struct _VipsForeignLoadWebpSource {
 	VipsForeignLoadWebp parent_object;
 
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadWebpSource;
 
@@ -280,7 +280,7 @@ typedef struct _VipsForeignLoadWebpFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadWebpFile;
 
@@ -360,7 +360,7 @@ typedef struct _VipsForeignLoadWebpBuffer {
 
 	/* Load from a buffer.
 	 */
-	VipsBlob *blob;
+	const VipsBlob *const blob;
 
 } VipsForeignLoadWebpBuffer;
 

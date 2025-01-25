@@ -67,9 +67,9 @@ typedef struct _VipsDrawMask {
 
 	/* Parameters.
 	 */
-	VipsImage *mask;
-	int x;
-	int y;
+	const VipsImage *const mask;
+	const int x;
+	const int y;
 
 	/* Derived.
 	 */

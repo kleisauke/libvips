@@ -76,15 +76,15 @@ typedef struct _VipsForeignLoadJpeg {
 
 	/* Remove DoS limits.
 	 */
-	gboolean unlimited;
+	const gboolean unlimited;
 
 	/* Shrink by this much during load.
 	 */
-	int shrink;
+	const int shrink;
 
 	/* Autorotate using exif orientation tag.
 	 */
-	gboolean autorotate;
+	const gboolean autorotate;
 
 } VipsForeignLoadJpeg;
 
@@ -220,7 +220,7 @@ vips_foreign_load_jpeg_init(VipsForeignLoadJpeg *jpeg)
 typedef struct _VipsForeignLoadJpegSource {
 	VipsForeignLoadJpeg parent_object;
 
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadJpegSource;
 
@@ -290,7 +290,7 @@ vips_foreign_load_jpeg_source_init(VipsForeignLoadJpegSource *source)
 typedef struct _VipsForeignLoadJpegFile {
 	VipsForeignLoadJpeg parent_object;
 
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadJpegFile;
 
@@ -366,7 +366,7 @@ vips_foreign_load_jpeg_file_init(VipsForeignLoadJpegFile *file)
 typedef struct _VipsForeignLoadJpegBuffer {
 	VipsForeignLoadJpeg parent_object;
 
-	VipsBlob *blob;
+	const VipsBlob *const blob;
 
 } VipsForeignLoadJpegBuffer;
 

@@ -68,11 +68,11 @@
 typedef struct _VipsSmartcrop {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
-	int width;
-	int height;
-	VipsInteresting interesting;
-	gboolean premultiplied;
+	const VipsImage *const in;
+	const int width;
+	const int height;
+	const VipsInteresting interesting;
+	const gboolean premultiplied;
 
 	int attention_x;
 	int attention_y;

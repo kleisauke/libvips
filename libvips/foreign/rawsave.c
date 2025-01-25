@@ -149,7 +149,7 @@ vips_foreign_save_raw_init(VipsForeignSaveRaw *raw)
 typedef struct _VipsForeignSaveRawFile {
 	VipsForeignSaveRaw parent_object;
 
-	char *filename;
+	const char *const filename;
 } VipsForeignSaveRawFile;
 
 typedef VipsForeignSaveRawClass VipsForeignSaveRawFileClass;
@@ -208,7 +208,7 @@ vips_foreign_save_raw_file_init(VipsForeignSaveRawFile *raw)
 typedef struct _VipsForeignSaveRawTarget {
 	VipsForeignSaveRaw parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 } VipsForeignSaveRawTarget;
 
 typedef VipsForeignSaveRawClass VipsForeignSaveRawTargetClass;

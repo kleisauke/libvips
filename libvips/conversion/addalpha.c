@@ -44,7 +44,7 @@
 typedef struct _VipsAddAlpha {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
 } VipsAddAlpha;
 

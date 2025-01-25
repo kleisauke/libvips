@@ -107,7 +107,7 @@ vips_foreign_save_rad_init(VipsForeignSaveRad *rad)
 typedef struct _VipsForeignSaveRadFile {
 	VipsForeignSaveRad parent_object;
 
-	char *filename;
+	const char *const filename;
 } VipsForeignSaveRadFile;
 
 typedef VipsForeignSaveRadClass VipsForeignSaveRadFileClass;
@@ -166,7 +166,7 @@ vips_foreign_save_rad_file_init(VipsForeignSaveRadFile *file)
 typedef struct _VipsForeignSaveRadTarget {
 	VipsForeignSaveRad parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 } VipsForeignSaveRadTarget;
 
 typedef VipsForeignSaveRadClass VipsForeignSaveRadTargetClass;

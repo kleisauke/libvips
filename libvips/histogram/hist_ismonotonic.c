@@ -56,7 +56,7 @@
 typedef struct _VipsHistIsmonotonic {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
 	gboolean monotonic;
 } VipsHistIsmonotonic;

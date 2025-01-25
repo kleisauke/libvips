@@ -63,14 +63,14 @@
 typedef struct _VipsSimilarityBase {
 	VipsResample parent_instance;
 
-	double scale;
-	double angle;
-	VipsInterpolate *interpolate;
-	VipsArrayDouble *background;
-	double odx;
-	double ody;
-	double idx;
-	double idy;
+	const double scale;
+	const double angle;
+	const VipsInterpolate *const interpolate;
+	const VipsArrayDouble *const background;
+	const double odx;
+	const double ody;
+	const double idx;
+	const double idy;
 
 } VipsSimilarityBase;
 

@@ -54,7 +54,7 @@
 typedef struct _VipsMaskFractal {
 	VipsMask parent_instance;
 
-	double fractal_dimension;
+	const double fractal_dimension;
 
 } VipsMaskFractal;
 

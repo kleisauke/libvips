@@ -120,14 +120,14 @@ typedef struct _VipsTile {
 typedef struct _VipsBlockCache {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
-	int tile_width;
-	int tile_height;
-	int max_tiles;
+	const VipsImage *const in;
+	const int tile_width;
+	const int tile_height;
+	const int max_tiles;
 
-	VipsAccess access;
-	gboolean threaded;
-	gboolean persistent;
+	const VipsAccess access;
+	const gboolean threaded;
+	const gboolean persistent;
 
 	GMutex *lock;	   /* Lock everything here */
 	GCond *new_tile;   /* A new tile is ready */

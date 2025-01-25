@@ -99,11 +99,11 @@ typedef struct _VipsForeignLoadNsgif {
 
 	/* Load this page (frame number).
 	 */
-	int page;
+	const int page;
 
 	/* Load this many pages.
 	 */
-	int n;
+	const int n;
 
 	/* Load from this source (set by subclasses).
 	 */
@@ -695,7 +695,7 @@ typedef struct _VipsForeignLoadNsgifFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadNsgifFile;
 
@@ -779,7 +779,7 @@ typedef struct _VipsForeignLoadNsgifBuffer {
 
 	/* Load from a buffer.
 	 */
-	VipsArea *blob;
+	const VipsArea *const blob;
 
 } VipsForeignLoadNsgifBuffer;
 
@@ -857,7 +857,7 @@ typedef struct _VipsForeignLoadNsgifSource {
 
 	/* Load from a source.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadNsgifSource;
 

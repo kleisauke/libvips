@@ -85,21 +85,21 @@ vips__coeff(int xr1, int yr1, int xs1, int ys1,
 typedef struct {
 	VipsOperation parent_instance;
 
-	VipsImage *ref;
-	VipsImage *sec;
+	const VipsImage *const ref;
+	const VipsImage *const sec;
 	VipsImage *out;
-	int xr1;
-	int yr1;
-	int xs1;
-	int ys1;
-	int xr2;
-	int yr2;
-	int xs2;
-	int ys2;
-	int hwindow;
-	int harea;
-	gboolean search;
-	VipsInterpolate *interpolate;
+	const int xr1;
+	const int yr1;
+	const int xs1;
+	const int ys1;
+	const int xr2;
+	const int yr2;
+	const int xs2;
+	const int ys2;
+	const int hwindow;
+	const int harea;
+	const gboolean search;
+	const VipsInterpolate *const interpolate;
 
 } VipsMatch;
 

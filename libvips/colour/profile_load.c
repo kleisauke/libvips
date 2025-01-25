@@ -49,7 +49,7 @@
 typedef struct _VipsProfileLoad {
 	VipsOperation parent_instance;
 
-	const char *name;
+	const char *const name;
 	VipsBlob *profile;
 
 } VipsProfileLoad;

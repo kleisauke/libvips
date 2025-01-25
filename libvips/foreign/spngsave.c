@@ -70,14 +70,14 @@
 typedef struct _VipsForeignSaveSpng {
 	VipsForeignSave parent_object;
 
-	int compression;
-	gboolean interlace;
-	VipsForeignPngFilter filter;
-	gboolean palette;
-	int Q;
-	double dither;
-	int bitdepth;
-	int effort;
+	const int compression;
+	const gboolean interlace;
+	const VipsForeignPngFilter filter;
+	const gboolean palette;
+	const int Q;
+	const double dither;
+	const int bitdepth;
+	const int effort;
 
 	/* Set by subclasses.
 	 */
@@ -93,7 +93,7 @@ typedef struct _VipsForeignSaveSpng {
 
 	/* Deprecated.
 	 */
-	int colours;
+	const int colours;
 
 } VipsForeignSaveSpng;
 
@@ -764,7 +764,7 @@ vips_foreign_save_spng_init(VipsForeignSaveSpng *spng)
 typedef struct _VipsForeignSaveSpngTarget {
 	VipsForeignSaveSpng parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 } VipsForeignSaveSpngTarget;
 
 typedef VipsForeignSaveSpngClass VipsForeignSaveSpngTargetClass;
@@ -818,7 +818,7 @@ vips_foreign_save_spng_target_init(VipsForeignSaveSpngTarget *target)
 typedef struct _VipsForeignSaveSpngFile {
 	VipsForeignSaveSpng parent_object;
 
-	char *filename;
+	const char *const filename;
 } VipsForeignSaveSpngFile;
 
 typedef VipsForeignSaveSpngClass VipsForeignSaveSpngFileClass;

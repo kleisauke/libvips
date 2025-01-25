@@ -57,7 +57,7 @@ typedef struct _VipsForeignLoadAnalyze {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadAnalyze;
 

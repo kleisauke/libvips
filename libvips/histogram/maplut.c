@@ -76,10 +76,10 @@
 typedef struct _VipsMaplut {
 	VipsOperation parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 	VipsImage *out;
-	VipsImage *lut;
-	int band;
+	const VipsImage *const lut;
+	const int band;
 
 	int fmt;		 /* LUT image BandFmt */
 	int nb;			 /* Number of bands in lut */

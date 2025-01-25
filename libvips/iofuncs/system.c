@@ -72,11 +72,11 @@
 typedef struct _VipsSystem {
 	VipsOperation parent_instance;
 
-	VipsArrayImage *in;
+	const VipsArrayImage *const in;
 	VipsImage *out;
-	char *cmd_format;
-	char *in_format;
-	char *out_format;
+	const char *const cmd_format;
+	const char *const in_format;
+	const char *const out_format;
 	char *log;
 
 	/* Array of names we wrote the input images to.

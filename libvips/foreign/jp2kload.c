@@ -77,7 +77,7 @@ typedef struct _VipsForeignLoadJp2k {
 
 	/* Page set by user, then we translate that into shrink factor.
 	 */
-	int page;
+	const int page;
 	int shrink;
 
 	/* Decompress state.
@@ -1243,7 +1243,7 @@ typedef struct _VipsForeignLoadJp2kFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadJp2kFile;
 
@@ -1323,7 +1323,7 @@ typedef struct _VipsForeignLoadJp2kBuffer {
 
 	/* Load from a buffer.
 	 */
-	VipsArea *buf;
+	const VipsArea *const buf;
 
 } VipsForeignLoadJp2kBuffer;
 
@@ -1399,7 +1399,7 @@ typedef struct _VipsForeignLoadJp2kSource {
 
 	/* Load from a source.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadJp2kSource;
 

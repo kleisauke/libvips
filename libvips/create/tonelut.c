@@ -62,14 +62,14 @@ typedef struct _VipsTonelut {
 
 	/* Parameters for tone curve formation.
 	 */
-	double Lb, Lw;
-	double Ps, Pm, Ph;
-	double S, M, H;
+	const double Lb, Lw;
+	const double Ps, Pm, Ph;
+	const double S, M, H;
 
 	/* Range we process.
 	 */
-	int in_max;
-	int out_max;
+	const int in_max;
+	const int out_max;
 
 	/* Derived values.
 	 */

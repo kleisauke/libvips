@@ -63,10 +63,10 @@
 typedef struct _VipsUnpremultiply {
 	VipsConversion parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
-	double max_alpha;
-	int alpha_band;
+	const double max_alpha;
+	const int alpha_band;
 
 } VipsUnpremultiply;
 

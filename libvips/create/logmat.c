@@ -67,12 +67,12 @@
 typedef struct _VipsLogmat {
 	VipsCreate parent_instance;
 
-	double sigma;
-	double min_ampl;
+	const double sigma;
+	const double min_ampl;
 
-	gboolean separable;
-	gboolean integer; /* Deprecated */
-	VipsPrecision precision;
+	const gboolean separable;
+	const gboolean integer; /* Deprecated */
+	const VipsPrecision precision;
 
 } VipsLogmat;
 

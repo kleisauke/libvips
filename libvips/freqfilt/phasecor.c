@@ -52,7 +52,7 @@
 typedef struct _VipsPhasecor {
 	VipsFreqfilt parent_instance;
 
-	VipsImage *in2;
+	const VipsImage *const in2;
 } VipsPhasecor;
 
 typedef VipsFreqfiltClass VipsPhasecorClass;

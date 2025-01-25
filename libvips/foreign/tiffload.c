@@ -63,23 +63,23 @@ typedef struct _VipsForeignLoadTiff {
 
 	/* Load this page.
 	 */
-	int page;
+	const int page;
 
 	/* Load this many pages.
 	 */
-	int n;
+	const int n;
 
 	/* Select subifd index. -1 for main image.
 	 */
-	int subifd;
+	const int subifd;
 
 	/* Autorotate using orientation tag.
 	 */
-	gboolean autorotate;
+	const gboolean autorotate;
 
 	/* Remove denial of service limits.
 	 */
-	gboolean unlimited;
+	const gboolean unlimited;
 
 } VipsForeignLoadTiff;
 
@@ -244,7 +244,7 @@ typedef struct _VipsForeignLoadTiffSource {
 
 	/* Load from a source.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadTiffSource;
 
@@ -316,7 +316,7 @@ typedef struct _VipsForeignLoadTiffFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadTiffFile;
 
@@ -396,7 +396,7 @@ typedef struct _VipsForeignLoadTiffBuffer {
 
 	/* Load from a buffer.
 	 */
-	VipsBlob *blob;
+	const VipsBlob *const blob;
 
 } VipsForeignLoadTiffBuffer;
 

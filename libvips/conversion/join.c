@@ -76,13 +76,13 @@ typedef struct _VipsJoin {
 
 	/* Params.
 	 */
-	VipsImage *in1;
-	VipsImage *in2;
-	VipsDirection direction;
-	gboolean expand;
-	int shim;
-	VipsArrayDouble *background;
-	VipsAlign align;
+	const VipsImage *const in1;
+	const VipsImage *const in2;
+	const VipsDirection direction;
+	const gboolean expand;
+	const int shim;
+	const VipsArrayDouble *const background;
+	const VipsAlign align;
 } VipsJoin;
 
 typedef VipsConversionClass VipsJoinClass;

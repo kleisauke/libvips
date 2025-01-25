@@ -86,11 +86,11 @@ typedef struct _VipsForeignLoadJxl {
 
 	/* Load this page (frame number).
 	 */
-	int page;
+	const int page;
 
 	/* Load this many pages.
 	 */
-	int n;
+	const int n;
 
 	/* Base image properties.
 	 */
@@ -1155,7 +1155,7 @@ typedef struct _VipsForeignLoadJxlFile {
 
 	/* Filename for load.
 	 */
-	char *filename;
+	const char *const filename;
 
 } VipsForeignLoadJxlFile;
 
@@ -1232,7 +1232,7 @@ typedef struct _VipsForeignLoadJxlBuffer {
 
 	/* Load from a buffer.
 	 */
-	VipsArea *buf;
+	const VipsArea *const buf;
 
 } VipsForeignLoadJxlBuffer;
 
@@ -1307,7 +1307,7 @@ typedef struct _VipsForeignLoadJxlSource {
 
 	/* Load from a source.
 	 */
-	VipsSource *source;
+	const VipsSource *const source;
 
 } VipsForeignLoadJxlSource;
 

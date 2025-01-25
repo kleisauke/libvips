@@ -61,14 +61,14 @@ typedef struct _VipsArrayjoin {
 
 	/* Params.
 	 */
-	VipsArrayImage *in;
-	int across;
-	int shim;
-	VipsArrayDouble *background;
-	VipsAlign halign;
-	VipsAlign valign;
-	int hspacing;
-	int vspacing;
+	const VipsArrayImage *const in;
+	const int across;
+	const int shim;
+	const VipsArrayDouble *const background;
+	const VipsAlign halign;
+	const VipsAlign valign;
+	const int hspacing;
+	const int vspacing;
 
 	int down;
 	VipsRect *rects;

@@ -52,7 +52,7 @@ extern "C" {
 typedef struct _VipsUnary {
 	VipsArithmetic parent_instance;
 
-	VipsImage *in;
+	const VipsImage *const in;
 
 } VipsUnary;
 

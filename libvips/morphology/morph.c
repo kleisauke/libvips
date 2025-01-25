@@ -120,8 +120,8 @@ typedef struct {
 	VipsMorphology parent_instance;
 
 	VipsImage *out;
-	VipsImage *mask;
-	VipsOperationMorphology morph;
+	const VipsImage *const mask;
+	const VipsOperationMorphology morph;
 
 	/* @mask cast ready for processing.
 	 */

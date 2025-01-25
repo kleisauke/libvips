@@ -51,8 +51,8 @@
 typedef struct _VipsClamp {
 	VipsUnary parent_instance;
 
-	double min;
-	double max;
+	const double min;
+	const double max;
 } VipsClamp;
 
 typedef VipsUnaryClass VipsClampClass;

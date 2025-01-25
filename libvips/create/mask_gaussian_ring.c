@@ -54,7 +54,7 @@
 typedef struct _VipsMaskGaussianRing {
 	VipsMaskGaussian parent_instance;
 
-	double ringwidth;
+	const double ringwidth;
 
 } VipsMaskGaussianRing;
 

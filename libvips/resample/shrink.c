@@ -63,9 +63,9 @@
 typedef struct _VipsShrink {
 	VipsResample parent_instance;
 
-	double hshrink; /* Shrink factors */
-	double vshrink;
-	gboolean ceil; /* Round operation */
+	const double hshrink; /* Shrink factors */
+	const double vshrink;
+	const gboolean ceil; /* Round operation */
 
 } VipsShrink;
 

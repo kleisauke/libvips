@@ -63,10 +63,10 @@
 typedef struct _VipsDrawCircle {
 	VipsDrawink parent_object;
 
-	int cx;
-	int cy;
-	int radius;
-	gboolean fill;
+	const int cx;
+	const int cy;
+	const int radius;
+	const gboolean fill;
 
 } VipsDrawCircle;
 

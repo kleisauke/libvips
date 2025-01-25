@@ -106,46 +106,46 @@ typedef struct _VipsForeignSaveWebp {
 
 	/* Quality factor.
 	 */
-	int Q;
+	const int Q;
 
 	/* Turn on lossless encode.
 	 */
-	gboolean lossless;
+	const gboolean lossless;
 
 	/* Lossy compression preset.
 	 */
-	VipsForeignWebpPreset preset;
+	const VipsForeignWebpPreset preset;
 
 	/* Enable smart chroma subsampling.
 	 */
-	gboolean smart_subsample;
+	const gboolean smart_subsample;
 
 	/* Enable smart deblock filter adjusting.
 	 */
-	gboolean smart_deblock;
+	const gboolean smart_deblock;
 
 	/* Use preprocessing in lossless mode.
 	 */
-	gboolean near_lossless;
+	const gboolean near_lossless;
 
 	/* Alpha quality.
 	 */
-	int alpha_q;
+	const int alpha_q;
 
 	/* Level of CPU effort to reduce file size.
 	 */
-	int effort;
+	const int effort;
 
 	/* If non-zero, set the desired target size in bytes.
 	 * Takes precedence over the 'Q' parameter.
 	 */
-	int target_size;
+	const int target_size;
 
 	/* Number of entropy-analysis passes (in [1..10]).
 	 * The default value of 1 is appropriate for most cases.
 	 * If target_size is set, this must be set to a suitably large value.
 	 */
-	int passes;
+	const int passes;
 
 	/* Animated webp options.
 	 */
@@ -156,19 +156,19 @@ typedef struct _VipsForeignSaveWebp {
 
 	/* Attempt to minimise size
 	 */
-	gboolean min_size;
+	const gboolean min_size;
 
 	/* Allow mixed encoding (might reduce file size)
 	 */
-	gboolean mixed;
+	const gboolean mixed;
 
 	/* Min between key frames.
 	 */
-	int kmin;
+	const int kmin;
 
 	/* Max between keyframes.
 	 */
-	int kmax;
+	const int kmax;
 
 	WebPConfig config;
 
@@ -946,7 +946,7 @@ vips_foreign_save_webp_init(VipsForeignSaveWebp *webp)
 typedef struct _VipsForeignSaveWebpTarget {
 	VipsForeignSaveWebp parent_object;
 
-	VipsTarget *target;
+	const VipsTarget *const target;
 } VipsForeignSaveWebpTarget;
 
 typedef VipsForeignSaveWebpClass VipsForeignSaveWebpTargetClass;
@@ -998,7 +998,7 @@ vips_foreign_save_webp_target_init(VipsForeignSaveWebpTarget *target)
 
 typedef struct _VipsForeignSaveWebpFile {
 	VipsForeignSaveWebp parent_object;
-	char *filename;
+	const char *const filename;
 } VipsForeignSaveWebpFile;
 
 typedef VipsForeignSaveWebpClass VipsForeignSaveWebpFileClass;
