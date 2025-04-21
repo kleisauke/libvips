@@ -401,9 +401,7 @@ libvips/resample/resample.c
 libvips/resample/resize.c
 libvips/resample/shrink.c
 libvips/resample/shrinkh.c
-libvips/resample/shrinkh_hwy.cpp
 libvips/resample/shrinkv.c
-libvips/resample/shrinkv_hwy.cpp
 libvips/resample/similarity.c
 libvips/resample/thumbnail.c
 libvips/resample/transform.c

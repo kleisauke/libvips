@@ -113,6 +113,8 @@ typedef struct _VipsReducev {
 	double vshrink; /* Reduce factor */
 	double gap;		/* Reduce gap */
 
+	gboolean ceil; /* Round operation */
+
 	/* The thing we use to make the kernel.
 	 */
 	VipsKernel kernel;
@@ -852,7 +854,9 @@ vips_reducev_build(VipsObject *object)
 	/* Output size. We need to always round to nearest, so round(), not
 	 * rint().
 	 */
-	height = VIPS_ROUND_UINT((double) in->Ysize / reducev->vshrink);
+	height = reducev->ceil
+		? ceil((double) in->Ysize / reducev->vshrink)
+		: VIPS_ROUND_UINT((double) in->Ysize / reducev->vshrink);
 
 	/* How many pixels we are inventing in the input, -ve for
 	 * discarding.
@@ -864,7 +868,8 @@ vips_reducev_build(VipsObject *object)
 	reducev->residual_vshrink = reducev->vshrink;
 
 	if (reducev->gap > 0.0 &&
-		reducev->kernel != VIPS_KERNEL_NEAREST) {
+		reducev->kernel != VIPS_KERNEL_NEAREST &&
+		reducev->kernel != VIPS_KERNEL_BOX) {
 		if (reducev->gap < 1.0) {
 			vips_error(object_class->nickname,
 				"%s", _("reduce gap should be >= 1.0"));
@@ -878,7 +883,8 @@ vips_reducev_build(VipsObject *object)
 
 		if (int_vshrink > 1) {
 			g_info("shrinkv by %d", int_vshrink);
-			if (vips_shrinkv(in, &t[0], int_vshrink,
+			if (vips_reducev(in, &t[0], int_vshrink,
+					"kernel", VIPS_KERNEL_BOX,
 					"ceil", TRUE,
 					nullptr))
 				return -1;
@@ -895,7 +901,8 @@ vips_reducev_build(VipsObject *object)
 	reducev->n_point =
 		vips_reduce_get_points(reducev->kernel, reducev->residual_vshrink);
 	g_info("reducev: %d point mask", reducev->n_point);
-	if (reducev->n_point > MAX_POINT) {
+	if (in->BandFmt >= VIPS_FORMAT_DOUBLE
+		&& reducev->n_point > MAX_POINT) {
 		vips_error(object_class->nickname,
 			"%s", _("reduce factor too large"));
 		return -1;
@@ -1086,6 +1093,13 @@ vips_reducev_class_init(VipsReducevClass *reducev_class)
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
 		G_STRUCT_OFFSET(VipsReducev, gap),
 		0.0, 1000000.0, 0.0);
+
+	VIPS_ARG_BOOL(reducev_class, "ceil", 6,
+		_("Ceil"),
+		_("Round-up output dimensions"),
+		VIPS_ARGUMENT_OPTIONAL_INPUT,
+		G_STRUCT_OFFSET(VipsReducev, ceil),
+		FALSE);
 
 	/* Old name.
 	 */

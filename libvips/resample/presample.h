@@ -78,13 +78,6 @@ void vips_reduceh_uchar_hwy(VipsPel *pout, VipsPel *pin,
 void vips_reducev_uchar_hwy(VipsPel *pout, VipsPel *pin,
 	int n, int ne, int lskip, const short *restrict k);
 
-void vips_shrinkh_uchar_hwy(VipsPel *pout, VipsPel *pin,
-	int width, int hshrink, int bands);
-void vips_shrinkv_add_line_uchar_hwy(VipsPel *pin,
-	int ne, unsigned int *restrict sum);
-void vips_shrinkv_write_line_uchar_hwy(VipsPel *pout,
-	int ne, int vshrink, unsigned int *restrict sum);
-
 #ifdef __cplusplus
 }
 #endif /*__cplusplus*/

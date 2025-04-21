@@ -61,6 +61,7 @@
 /**
  * VipsKernel:
  * @VIPS_KERNEL_NEAREST: The nearest pixel to the point.
+ * @VIPS_KERNEL_BOX: Convolve with a box filter.
  * @VIPS_KERNEL_LINEAR: Convolve with a triangle filter.
  * @VIPS_KERNEL_CUBIC: Convolve with a cubic filter.
  * @VIPS_KERNEL_MITCHELL: Convolve with a Mitchell kernel.
@@ -79,6 +80,8 @@ typedef struct _VipsReduce {
 	double hshrink; /* Shrink factors */
 	double vshrink;
 	double gap; /* Reduce gap */
+
+	gboolean ceil; /* Round operation */
 
 	/* The thing we use to make the kernel.
 	 */
@@ -108,10 +111,12 @@ vips_reduce_build(VipsObject *object)
 	if (vips_reducev(resample->in, &t[0], reduce->vshrink,
 			"kernel", reduce->kernel,
 			"gap", reduce->gap,
+			"ceil", reduce->ceil,
 			NULL) ||
 		vips_reduceh(t[0], &t[1], reduce->hshrink,
 			"kernel", reduce->kernel,
 			"gap", reduce->gap,
+			"ceil", reduce->ceil,
 			NULL) ||
 		vips_image_write(t[1], resample->out))
 		return -1;
@@ -164,6 +169,13 @@ vips_reduce_class_init(VipsReduceClass *class)
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
 		G_STRUCT_OFFSET(VipsReduce, gap),
 		0.0, 1000000.0, 0.0);
+
+	VIPS_ARG_BOOL(class, "ceil", 5,
+		_("Ceil"),
+		_("Round-up output dimensions"),
+		VIPS_ARGUMENT_OPTIONAL_INPUT,
+		G_STRUCT_OFFSET(VipsReduce, ceil),
+		FALSE);
 
 	/* The old names .. now use h and v everywhere.
 	 */

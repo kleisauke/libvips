@@ -70,6 +70,8 @@ typedef struct _VipsReduceh {
 	double hshrink; /* Reduce factor */
 	double gap;		/* Reduce gap */
 
+	gboolean ceil; /* Round operation */
+
 	/* The thing we use to make the kernel.
 	 */
 	VipsKernel kernel;
@@ -115,6 +117,9 @@ vips_reduce_get_points(VipsKernel kernel, double shrink)
 	switch (kernel) {
 	case VIPS_KERNEL_NEAREST:
 		return 1;
+
+	case VIPS_KERNEL_BOX:
+		return 2 * rint(0.5 * shrink) + 1;
 
 	case VIPS_KERNEL_LINEAR:
 		return 2 * rint(shrink) + 1;
@@ -418,8 +423,9 @@ vips_reduceh_build(VipsObject *object)
 	/* Output size. We need to always round to nearest, so round(), not
 	 * rint().
 	 */
-	width = VIPS_ROUND_UINT(
-		(double) in->Xsize / reduceh->hshrink);
+	width = reduceh->ceil
+		? ceil((double) in->Xsize / reduceh->hshrink)
+		: VIPS_ROUND_UINT((double) in->Xsize / reduceh->hshrink);
 
 	/* How many pixels we are inventing in the input, -ve for
 	 * discarding.
@@ -431,7 +437,8 @@ vips_reduceh_build(VipsObject *object)
 	reduceh->residual_hshrink = reduceh->hshrink;
 
 	if (reduceh->gap > 0.0 &&
-		reduceh->kernel != VIPS_KERNEL_NEAREST) {
+		reduceh->kernel != VIPS_KERNEL_NEAREST &&
+		reduceh->kernel != VIPS_KERNEL_BOX) {
 		if (reduceh->gap < 1.0) {
 			vips_error(object_class->nickname,
 				"%s", _("reduce gap should be >= 1.0"));
@@ -445,7 +452,8 @@ vips_reduceh_build(VipsObject *object)
 
 		if (int_hshrink > 1) {
 			g_info("shrinkh by %d", int_hshrink);
-			if (vips_shrinkh(in, &t[0], int_hshrink,
+			if (vips_reduceh(in, &t[0], int_hshrink,
+					"kernel", VIPS_KERNEL_BOX,
 					"ceil", TRUE,
 					nullptr))
 				return -1;
@@ -462,7 +470,8 @@ vips_reduceh_build(VipsObject *object)
 	reduceh->n_point =
 		vips_reduce_get_points(reduceh->kernel, reduceh->residual_hshrink);
 	g_info("reduceh: %d point mask", reduceh->n_point);
-	if (reduceh->n_point > MAX_POINT) {
+	if (in->BandFmt >= VIPS_FORMAT_DOUBLE
+		&& reduceh->n_point > MAX_POINT) {
 		vips_error(object_class->nickname,
 			"%s", _("reduce factor too large"));
 		return -1;
@@ -602,6 +611,13 @@ vips_reduceh_class_init(VipsReducehClass *reduceh_class)
 		VIPS_ARGUMENT_OPTIONAL_INPUT,
 		G_STRUCT_OFFSET(VipsReduceh, gap),
 		0.0, 1000000.0, 0.0);
+
+	VIPS_ARG_BOOL(reduceh_class, "ceil", 6,
+		_("Ceil"),
+		_("Round-up output dimensions"),
+		VIPS_ARGUMENT_OPTIONAL_INPUT,
+		G_STRUCT_OFFSET(VipsReduceh, ceil),
+		FALSE);
 
 	/* Old name.
 	 */

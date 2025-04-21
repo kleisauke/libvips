@@ -359,6 +359,15 @@ template <VipsKernel K>
 static double inline filter(double x);
 
 template <>
+double inline filter<VIPS_KERNEL_BOX>(double x)
+{
+	if (x > -0.5 && x <= 0.5)
+		return 1.0;
+
+	return 0.0;
+}
+
+template <>
 double inline filter<VIPS_KERNEL_LINEAR>(double x)
 {
 	x = fabs(x);
@@ -454,13 +463,14 @@ calculate_coefficients(T *c, const int n_points,
 	VipsFilterFn filter_fn, const double shrink, const double x)
 {
 	const double half = x + n_points / 2.0 - 1;
+	const double scale = 1.0 / shrink;
 
 	int i;
 	T sum;
 
 	sum = 0.0;
 	for (i = 0; i < n_points; i++) {
-		const double xp = (i - half) / shrink;
+		const double xp = (i - half) * scale;
 		double l = filter_fn(xp);
 
 		c[i] = l;
@@ -481,6 +491,11 @@ vips_reduce_make_mask(T *c, VipsKernel kernel, const int n_points,
 	switch (kernel) {
 	case VIPS_KERNEL_NEAREST:
 		c[0] = 1.0;
+		break;
+
+	case VIPS_KERNEL_BOX:
+		calculate_coefficients(c, n_points,
+			filter<VIPS_KERNEL_BOX>, shrink, x);
 		break;
 
 	case VIPS_KERNEL_LINEAR:
