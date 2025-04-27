@@ -374,6 +374,12 @@ vips_foreign_load_svg_build(VipsObject *object)
 	}
 #endif /*HAVE_CAIRO_FORMAT_RGBA128F*/
 
+#ifdef HAVE_RESVG
+	if (svg->stylesheet &&
+		g_utf8_validate(svg->stylesheet, -1, NULL))
+		resvg_options_set_stylesheet(svg->options, svg->stylesheet);
+#endif
+
 	return VIPS_OBJECT_CLASS(vips_foreign_load_svg_parent_class)
 		->build(object);
 }
