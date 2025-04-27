@@ -388,6 +388,10 @@ vips_foreign_load_svg_build(VipsObject *object)
 	/* Set target DPI to scale non-pixel units correctly.
 	 */
 	resvg_options_set_dpi(svg->options, svg->dpi);
+
+	if (svg->stylesheet &&
+		g_utf8_validate(svg->stylesheet, -1, NULL))
+		resvg_options_set_stylesheet(svg->options, svg->stylesheet);
 #endif
 
 	return VIPS_OBJECT_CLASS(vips_foreign_load_svg_parent_class)
