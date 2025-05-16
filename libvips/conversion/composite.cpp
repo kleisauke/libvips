@@ -1309,7 +1309,7 @@ vips_composite_base_build(VipsObject *object)
 	composite->skippable = TRUE;
 	for (int i = 0; i < composite->mode->area.n; i++) {
 		if (mode[i] < 0 ||
-			mode[i] >= VIPS_BLEND_MODE_LAST) {
+			mode[i] > VIPS_BLEND_MODE_EXCLUSION) {
 			vips_error(klass->nickname,
 				_("blend mode index %d (%d) invalid"),
 				i, mode[i]);

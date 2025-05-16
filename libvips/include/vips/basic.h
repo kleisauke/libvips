@@ -96,8 +96,7 @@ typedef void *(*VipsSListFold2Fn)(void *item,
 typedef enum {
 	VIPS_PRECISION_INTEGER,
 	VIPS_PRECISION_FLOAT,
-	VIPS_PRECISION_APPROXIMATE,
-	VIPS_PRECISION_LAST	/*< skip >*/
+	VIPS_PRECISION_APPROXIMATE
 } VipsPrecision;
 
 #ifndef __GI_SCANNER__

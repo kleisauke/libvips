@@ -104,14 +104,12 @@ typedef enum {
 	/* Leave room for possible new rendering intents beyond the
 	 * four standard ones.
 	 */
-	VIPS_INTENT_AUTO = 32,
-	VIPS_INTENT_LAST	/*< skip >*/
+	VIPS_INTENT_AUTO = 32
 } VipsIntent;
 
 typedef enum {
 	VIPS_PCS_LAB,
-	VIPS_PCS_XYZ,
-	VIPS_PCS_LAST	/*< skip >*/
+	VIPS_PCS_XYZ
 } VipsPCS;
 
 VIPS_API

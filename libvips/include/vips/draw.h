@@ -44,8 +44,7 @@ extern "C" {
 
 typedef enum {
 	VIPS_COMBINE_MODE_SET,
-	VIPS_COMBINE_MODE_ADD,
-	VIPS_COMBINE_MODE_LAST	/*< skip >*/
+	VIPS_COMBINE_MODE_ADD
 } VipsCombineMode;
 
 VIPS_API
