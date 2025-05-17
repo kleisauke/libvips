@@ -1284,6 +1284,7 @@ vips_composite_base_build(VipsObject *object)
 	VipsCompositeBase *composite = (VipsCompositeBase *) object;
 
 	int n;
+	GEnumClass *genum;
 	VipsBlendMode *mode;
 	VipsImage **in;
 	VipsImage **decode;
@@ -1305,11 +1306,12 @@ vips_composite_base_build(VipsObject *object)
 			n - 1);
 		return -1;
 	}
+	genum = G_ENUM_CLASS(g_type_class_peek(VIPS_TYPE_BLEND_MODE));
 	mode = (VipsBlendMode *) composite->mode->area.data;
 	composite->skippable = TRUE;
 	for (int i = 0; i < composite->mode->area.n; i++) {
 		if (mode[i] < 0 ||
-			mode[i] > VIPS_BLEND_MODE_EXCLUSION) {
+			mode[i] >= genum->n_values) {
 			vips_error(klass->nickname,
 				_("blend mode index %d (%d) invalid"),
 				i, mode[i]);
