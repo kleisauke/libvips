@@ -644,7 +644,7 @@ static int
 vips_thumbnail_build(VipsObject *object)
 {
 	VipsThumbnail *thumbnail = VIPS_THUMBNAIL(object);
-	VipsImage **t = (VipsImage **) vips_object_local_array(object, 15);
+	VipsImage **t = (VipsImage **) vips_object_local_array(object, 14);
 
 	VipsImage *in;
 	int preshrunk_page_height;
@@ -790,9 +790,9 @@ vips_thumbnail_build(VipsObject *object)
 		vshrink = (double) in->Ysize / target_image_height;
 	}
 
-	/* Both vips_premultiply() and vips_unpremultiply() produces a float
-	 * image, so we must cast back to the original format. Use NOTSET
-	 * to mean no pre/unmultiply.
+	/* vips_premultiply() makes a float image, so when we unpremultiply
+	 * below we must cast back to the original format. Use NOTSET to
+	 * mean no pre/unmultiply.
 	 */
 	unpremultiplied_format = VIPS_FORMAT_NOTSET;
 
@@ -805,22 +805,21 @@ vips_thumbnail_build(VipsObject *object)
 		g_info("premultiplying alpha");
 		unpremultiplied_format = in->BandFmt;
 
-		if (vips_premultiply(in, &t[3], NULL) ||
-			vips_cast(t[3], &t[4], unpremultiplied_format, NULL))
+		if (vips_premultiply(in, &t[3], NULL))
 			return -1;
-		in = t[4];
+		in = t[3];
 	}
 
-	if (vips_resize(in, &t[5], 1.0 / hshrink, "vscale", 1.0 / vshrink, NULL))
+	if (vips_resize(in, &t[4], 1.0 / hshrink, "vscale", 1.0 / vshrink, NULL))
 		return -1;
-	in = t[5];
+	in = t[4];
 
 	if (unpremultiplied_format != VIPS_FORMAT_NOTSET) {
 		g_info("unpremultiplying alpha");
-		if (vips_unpremultiply(in, &t[6], NULL) ||
-			vips_cast(t[6], &t[7], unpremultiplied_format, NULL))
+		if (vips_unpremultiply(in, &t[5], NULL) ||
+			vips_cast(t[5], &t[6], unpremultiplied_format, NULL))
 			return -1;
-		in = t[7];
+		in = t[6];
 	}
 
 	/* Only set page-height if we have more than one page, or this could
@@ -829,9 +828,9 @@ vips_thumbnail_build(VipsObject *object)
 	if (thumbnail->n_loaded_pages > 1) {
 		int output_page_height = rint(preshrunk_page_height / vshrink);
 
-		if (vips_copy(in, &t[8], NULL))
+		if (vips_copy(in, &t[7], NULL))
 			return -1;
-		in = t[8];
+		in = t[7];
 
 		vips_image_set_int(in, VIPS_META_PAGE_HEIGHT, output_page_height);
 	}
@@ -847,19 +846,19 @@ vips_thumbnail_build(VipsObject *object)
 		 * output profile).
 		 */
 		g_info("exporting to device space with a profile");
-		if (vips_icc_export(in, &t[9],
+		if (vips_icc_export(in, &t[8],
 				"output_profile", thumbnail->output_profile,
 				"intent", thumbnail->intent,
 				"depth", 8,
 				NULL))
 			return -1;
-		in = t[9];
+		in = t[8];
 	}
 	else if (needs_icc_transform) {
 		/* We can transform to the output with a pair of ICC profiles.
 		 */
 		g_info("transforming with supplied profiles");
-		if (vips_icc_transform(in, &t[9], thumbnail->output_profile,
+		if (vips_icc_transform(in, &t[8], thumbnail->output_profile,
 				"input_profile", thumbnail->input_profile,
 				"intent", thumbnail->intent,
 				"embedded", TRUE,
@@ -867,21 +866,21 @@ vips_thumbnail_build(VipsObject *object)
 				NULL))
 			return -1;
 
-		in = t[9];
+		in = t[8];
 	}
 	else if (thumbnail->output_profile) {
 		/* We are in one of the resize space (sRGB, scRGB, B_W, GREY16, etc.)
 		 * and need to go to PCS, then export.
 		 */
 		g_info("exporting with %s", thumbnail->output_profile);
-		if (vips_colourspace(in, &t[9], VIPS_INTERPRETATION_XYZ, NULL) ||
-			vips_icc_export(t[9], &t[10],
+		if (vips_colourspace(in, &t[8], VIPS_INTERPRETATION_XYZ, NULL) ||
+			vips_icc_export(t[8], &t[9],
 				"output_profile", thumbnail->output_profile,
 				"intent", thumbnail->intent,
 				"depth", 8,
 				NULL))
 			return -1;
-		in = t[10];
+		in = t[9];
 	}
 	else if (thumbnail->linear) {
 		/* We are in one of the scRGB or GREY16 spaces and there's
@@ -896,9 +895,9 @@ vips_thumbnail_build(VipsObject *object)
 
 		g_info("converting to output space %s",
 			vips_enum_nick(VIPS_TYPE_INTERPRETATION, interpretation));
-		if (vips_colourspace(in, &t[9], interpretation, NULL))
+		if (vips_colourspace(in, &t[8], interpretation, NULL))
 			return -1;
-		in = t[9];
+		in = t[8];
 	}
 
 	if (thumbnail->auto_rotate &&
@@ -906,10 +905,10 @@ vips_thumbnail_build(VipsObject *object)
 		g_info("rotating by EXIF orientation %d", thumbnail->orientation);
 		/* Need to copy to memory, we have to stay seq.
 		 */
-		if (!(t[11] = vips_image_copy_memory(in)) ||
-			vips_autorot(t[11], &t[12], NULL))
+		if (!(t[10] = vips_image_copy_memory(in)) ||
+			vips_autorot(t[10], &t[11], NULL))
 			return -1;
-		in = t[12];
+		in = t[11];
 	}
 
 	/* Crop after rotate so we don't need to rotate the crop box.
@@ -927,12 +926,12 @@ vips_thumbnail_build(VipsObject *object)
 		 *
 		 * FIXME ... could skip the copy if we've rotated.
 		 */
-		if (!(t[13] = vips_image_copy_memory(in)) ||
-			vips_smartcrop(t[13], &t[14], crop_width, crop_height,
+		if (!(t[12] = vips_image_copy_memory(in)) ||
+			vips_smartcrop(t[12], &t[13], crop_width, crop_height,
 				"interesting", thumbnail->crop,
 				NULL))
 			return -1;
-		in = t[14];
+		in = t[13];
 	}
 
 	g_object_set(thumbnail, "out", vips_image_new(), NULL);
