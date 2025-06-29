@@ -56,6 +56,7 @@ namespace HWY_NAMESPACE {
 
 using namespace hwy::HWY_NAMESPACE;
 
+using DF64 = ScalableTag<double>;
 using DU32 = ScalableTag<uint32_t>;
 using DU16 = ScalableTag<uint16_t>;
 constexpr Rebind<uint8_t, DU16> du8x16;
@@ -64,6 +65,8 @@ constexpr Rebind<uint8_t, DU32> du8x32;
 #endif
 constexpr DU16 du16;
 constexpr DU32 du32;
+constexpr DF64 df64;
+constexpr Rebind<float, DF64> df32x4;
 
 constexpr int64_t max_uint32 = 1LL << 32;
 constexpr int32_t max_bits = 1 << 8;
@@ -114,6 +117,37 @@ vips_shrinkv_add_line_uchar_hwy(VipsPel *pin,
 		sum[x] += p[x];
 #endif
 }
+
+HWY_ATTR void
+vips_shrinkv_add_line_float_hwy(VipsPel *pin,
+	int32_t ne, double *HWY_RESTRICT sum)
+{
+#if HWY_TARGET != HWY_SCALAR
+	const int32_t N = Lanes(df64);
+
+	auto *HWY_RESTRICT p = (float *) pin;
+
+	/* Main sum loop: unrolled.
+	 */
+	int32_t x = 0;
+	for (; x + N <= ne; x += N) {
+		auto pix0 = PromoteTo(df64, LoadU(df32x4, p + x));
+
+		auto sum0 = LoadU(df64, &sum[x]);
+
+		sum0 = Add(sum0, pix0);
+
+		StoreU(sum0, df64, &sum[x]);
+	}
+
+	/* `ne` was not a multiple of the vector length `N`;
+	 * proceed one by one.
+	 */
+	for (; x < ne; ++x)
+		sum[x] += p[x];
+#endif
+}
+
 
 HWY_ATTR void
 vips_shrinkv_write_line_uchar_hwy(VipsPel *pout,
@@ -183,6 +217,40 @@ vips_shrinkv_write_line_uchar_hwy(VipsPel *pout,
 #endif
 }
 
+HWY_ATTR void
+vips_shrinkv_write_line_float_hwy(VipsPel *pout,
+	int32_t ne, int32_t vshrink, double *HWY_RESTRICT sum)
+{
+#if HWY_TARGET != HWY_SCALAR
+	const int32_t N = Lanes(df64);
+
+	const auto shrink = Set(df64, vshrink);
+
+	/* Main write loop: unrolled.
+	 */
+	int32_t x = 0;
+	for (; x + N <= ne; x += N) {
+		auto *HWY_RESTRICT q = (float *) pout + x;
+
+		auto sum0 = LoadU(df64, &sum[x]);
+
+		sum0 = Div(sum0, shrink);
+
+		auto demoted = DemoteTo(df32x4, sum0);
+		StoreU(demoted, df32x4, q);
+	}
+
+	/* `ne` was not a multiple of the vector length `N`;
+	 * proceed one by one.
+	 */
+	for (; x < ne; ++x) {
+		auto *HWY_RESTRICT q = (float *) pout + x;
+
+		*q = sum[x] / vshrink;
+	}
+#endif
+}
+
 #undef InterleaveLower
 #undef InterleaveUpper
 
@@ -190,7 +258,9 @@ vips_shrinkv_write_line_uchar_hwy(VipsPel *pout,
 
 #if HWY_ONCE
 HWY_EXPORT(vips_shrinkv_add_line_uchar_hwy);
+HWY_EXPORT(vips_shrinkv_add_line_float_hwy);
 HWY_EXPORT(vips_shrinkv_write_line_uchar_hwy);
+HWY_EXPORT(vips_shrinkv_write_line_float_hwy);
 
 void
 vips_shrinkv_add_line_uchar_hwy(VipsPel *pin,
@@ -203,11 +273,31 @@ vips_shrinkv_add_line_uchar_hwy(VipsPel *pin,
 }
 
 void
+vips_shrinkv_add_line_float_hwy(VipsPel *pin,
+	int ne, double *restrict sum)
+{
+	/* clang-format off */
+	HWY_DYNAMIC_DISPATCH(vips_shrinkv_add_line_float_hwy)(pin,
+		ne, sum);
+	/* clang-format on */
+}
+
+void
 vips_shrinkv_write_line_uchar_hwy(VipsPel *pout,
 	int ne, int vshrink, unsigned int *restrict sum)
 {
 	/* clang-format off */
 	HWY_DYNAMIC_DISPATCH(vips_shrinkv_write_line_uchar_hwy)(pout,
+		ne, vshrink, sum);
+	/* clang-format on */
+}
+
+void
+vips_shrinkv_write_line_float_hwy(VipsPel *pout,
+	int ne, int vshrink, double *restrict sum)
+{
+	/* clang-format off */
+	HWY_DYNAMIC_DISPATCH(vips_shrinkv_write_line_float_hwy)(pout,
 		ne, vshrink, sum);
 	/* clang-format on */
 }

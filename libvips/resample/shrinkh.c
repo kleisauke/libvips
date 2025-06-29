@@ -265,7 +265,7 @@ vips_shrinkh_gen(VipsRegion *out_region,
 
 #ifdef HAVE_HWY
 static int
-vips_shrinkh_uchar_vector_gen(VipsRegion *out_region,
+vips_shrinkh_vector_gen(VipsRegion *out_region,
 	void *seq, void *a, void *b, gboolean *stop)
 {
 	/* How do we chunk up the image? We don't want to prepare the whole of
@@ -288,7 +288,7 @@ vips_shrinkh_uchar_vector_gen(VipsRegion *out_region,
 	int y, y1;
 
 #ifdef DEBUG
-	printf("vips_shrinkh_uchar_vector_gen: generating %d x %d at %d x %d\n",
+	printf("vips_shrinkh_vector_gen: generating %d x %d at %d x %d\n",
 		r->width, r->height, r->left, r->top);
 #endif /*DEBUG*/
 
@@ -302,13 +302,13 @@ vips_shrinkh_uchar_vector_gen(VipsRegion *out_region,
 		s.width = r->width * shrink->hshrink;
 		s.height = chunk_height;
 #ifdef DEBUG
-		printf("vips_shrinkh_uchar_vector_gen: requesting %d lines from %d\n",
+		printf("vips_shrinkh_vector_gen: requesting %d lines from %d\n",
 			s.height, s.top);
 #endif /*DEBUG*/
 		if (vips_region_prepare(ir, &s))
 			return -1;
 
-		VIPS_GATE_START("vips_shrinkh_uchar_vector_gen: work");
+		VIPS_GATE_START("vips_shrinkh_vector_gen: work");
 
 		// each output line
 		for (y1 = 0; y1 < chunk_height; y1++) {
@@ -318,13 +318,25 @@ vips_shrinkh_uchar_vector_gen(VipsRegion *out_region,
 			VipsPel *q = VIPS_REGION_ADDR(out_region, r->left, top);
 			VipsPel *p = VIPS_REGION_ADDR(ir, s.left, top);
 
-			vips_shrinkh_uchar_hwy(q, p, r->width, shrink->hshrink, bands);
+			switch (in->BandFmt) {
+			case VIPS_FORMAT_UCHAR:
+				vips_shrinkh_uchar_hwy(q, p, r->width, shrink->hshrink, bands);
+				break;
+
+			case VIPS_FORMAT_FLOAT:
+				vips_shrinkh_float_hwy(q, p, r->width, shrink->hshrink, bands);
+				break;
+
+			default:
+				g_assert_not_reached();
+				break;
+			}
 		}
 
-		VIPS_GATE_STOP("vips_shrinkh_uchar_vector_gen: work");
+		VIPS_GATE_STOP("vips_shrinkh_vector_gen: work");
 	}
 
-	VIPS_COUNT_PIXELS(out_region, "vips_shrinkh_uchar_vector_gen");
+	VIPS_COUNT_PIXELS(out_region, "vips_shrinkh_vector_gen");
 
 	return 0;
 }
@@ -367,12 +379,13 @@ vips_shrinkh_build(VipsObject *object)
 		return -1;
 	in = t[1];
 
-	/* For uchar input, try to make a vector path.
+	/* For uchar or float input, try to make a vector path.
 	 */
 #ifdef HAVE_HWY
-	if (in->BandFmt == VIPS_FORMAT_UCHAR &&
+	if ((in->BandFmt == VIPS_FORMAT_UCHAR ||
+			in->BandFmt == VIPS_FORMAT_FLOAT) &&
 		vips_vector_isenabled()) {
-		generate = vips_shrinkh_uchar_vector_gen;
+		generate = vips_shrinkh_vector_gen;
 		g_info("shrinkh: using vector path");
 	}
 	else

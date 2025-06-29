@@ -56,9 +56,12 @@ namespace HWY_NAMESPACE {
 
 using namespace hwy::HWY_NAMESPACE;
 
+using DF64 = ScalableTag<double>;
 using DU32 = ScalableTag<uint32_t>;
 constexpr Rebind<uint8_t, DU32> du8x32;
 constexpr DU32 du32;
+constexpr DF64 df64;
+constexpr Rebind<float, DF64> df32x4;
 
 constexpr int64_t max_uint32 = 1LL << 32;
 constexpr int32_t max_bits = 1 << 8;
@@ -110,10 +113,53 @@ vips_shrinkh_uchar_hwy(VipsPel *pout, VipsPel *pin,
 #endif
 }
 
+HWY_ATTR void
+vips_shrinkh_float_hwy(VipsPel *pout, VipsPel *pin,
+	int32_t width, int32_t hshrink, int32_t bands)
+{
+#if HWY_TARGET != HWY_SCALAR
+	int32_t ix = 0;
+
+	const auto shrink = Set(df64, hshrink);
+
+	for (int32_t x = 0; x < width; ++x) {
+		auto *HWY_RESTRICT p = (float *) pin + ix * bands;
+		auto *HWY_RESTRICT q = (float *) pout + x * bands;
+
+		auto sum0 = Zero(df64);
+
+		int32_t xx = 0;
+		for (; xx + 2 <= hshrink; xx += 2) {
+			auto pix0 = PromoteTo(df64, LoadU(df32x4, p));
+			p += bands;
+			auto pix1 = PromoteTo(df64, LoadU(df32x4, p));
+			p += bands;
+
+			pix0 = Add(pix0, pix1);
+			sum0 = Add(sum0, pix0);
+		}
+		for (; xx < hshrink; ++xx) {
+			auto pix0 = PromoteTo(df64, LoadU(df32x4, p));
+			p += bands;
+
+			sum0 = Add(sum0, pix0);
+		}
+
+		sum0 = Div(sum0, shrink);
+
+		auto demoted = DemoteTo(df32x4, sum0);
+		StoreU(demoted, df32x4, q);
+
+		ix += hshrink;
+	}
+#endif
+}
+
 } /*namespace HWY_NAMESPACE*/
 
 #if HWY_ONCE
 HWY_EXPORT(vips_shrinkh_uchar_hwy);
+HWY_EXPORT(vips_shrinkh_float_hwy);
 
 void
 vips_shrinkh_uchar_hwy(VipsPel *pout, VipsPel *pin,
@@ -121,6 +167,16 @@ vips_shrinkh_uchar_hwy(VipsPel *pout, VipsPel *pin,
 {
 	/* clang-format off */
 	HWY_DYNAMIC_DISPATCH(vips_shrinkh_uchar_hwy)(pout, pin,
+		width, hshrink, bands);
+	/* clang-format on */
+}
+
+void
+vips_shrinkh_float_hwy(VipsPel *pout, VipsPel *pin,
+	int width, int hshrink, int bands)
+{
+	/* clang-format off */
+	HWY_DYNAMIC_DISPATCH(vips_shrinkh_float_hwy)(pout, pin,
 		width, hshrink, bands);
 	/* clang-format on */
 }

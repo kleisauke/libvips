@@ -379,7 +379,7 @@ vips_shrinkv_gen(VipsRegion *out_region,
 
 #ifdef HAVE_HWY
 static int
-vips_shrinkv_uchar_vector_gen(VipsRegion *out_region,
+vips_shrinkv_vector_gen(VipsRegion *out_region,
 	void *vseq, void *a, void *b, gboolean *stop)
 {
 	VipsShrinkvSequence *seq = (VipsShrinkvSequence *) vseq;
@@ -404,7 +404,7 @@ vips_shrinkv_uchar_vector_gen(VipsRegion *out_region,
 	int y, y1, y2;
 
 #ifdef DEBUG
-	printf("vips_shrinkv_uchar_vector_gen: generating %d x %d at %d x %d\n",
+	printf("vips_shrinkv_vector_gen: generating %d x %d at %d x %d\n",
 		r->width, r->height, r->left, r->top);
 #endif /*DEBUG*/
 
@@ -424,40 +424,65 @@ vips_shrinkv_uchar_vector_gen(VipsRegion *out_region,
 			s.width = r->width;
 			s.height = VIPS_MIN(dy, end - y1);
 #ifdef DEBUG
-			printf(
-				"vips_shrinkv_uchar_vector_gen: requesting %d lines from %d\n",
+			printf("vips_shrinkv_vector_gen: requesting %d lines from %d\n",
 				s.height, s.top);
 #endif /*DEBUG*/
 			if (vips_region_prepare(ir, &s))
 				return -1;
 
-			VIPS_GATE_START("vips_shrinkv_uchar_vector_gen: work");
+			VIPS_GATE_START("vips_shrinkv_vector_gen: work");
 
 			for (y2 = 0; y2 < s.height; y2++) {
 				VipsPel *p = VIPS_REGION_ADDR(ir, r->left, y1 + y2);
 				int chunk_y = (y1 + y2 - start) / shrink->vshrink;
 
-				vips_shrinkv_add_line_uchar_hwy(p, ne,
-					(unsigned int *) seq->sum + ne * chunk_y);
+				switch (in->BandFmt) {
+				case VIPS_FORMAT_UCHAR:
+					vips_shrinkv_add_line_uchar_hwy(p, ne,
+						(unsigned int *) seq->sum + ne * chunk_y);
+					break;
+
+				case VIPS_FORMAT_FLOAT:
+					vips_shrinkv_add_line_float_hwy(p, ne,
+						(double *) seq->sum + ne * chunk_y);
+					break;
+
+				default:
+					g_assert_not_reached();
+					break;
+				}
 			}
 
-			VIPS_GATE_STOP("vips_shrinkv_uchar_vector_gen: work");
+			VIPS_GATE_STOP("vips_shrinkv_vector_gen: work");
 		}
 
-		VIPS_GATE_START("vips_shrinkv_uchar_vector_gen: work");
+		VIPS_GATE_START("vips_shrinkv_vector_gen: work");
 
 		for (y1 = 0; y1 < chunk_height; y1++) {
 			VipsPel *q = VIPS_REGION_ADDR(out_region, r->left,
 				r->top + y + y1);
 
-			vips_shrinkv_write_line_uchar_hwy(q, ne, shrink->vshrink,
-				(unsigned int *) seq->sum + ne * y1);
+			switch (in->BandFmt) {
+			case VIPS_FORMAT_UCHAR:
+				vips_shrinkv_write_line_uchar_hwy(q, ne, shrink->vshrink,
+					(unsigned int *) seq->sum + ne * y1);
+				break;
+
+			case VIPS_FORMAT_FLOAT:
+				vips_shrinkv_write_line_float_hwy(q, ne, shrink->vshrink,
+					(double *) seq->sum + ne * y1);
+				break;
+
+			default:
+				g_assert_not_reached();
+				break;
+			}
 		}
 
-		VIPS_GATE_STOP("vips_shrinkv_uchar_vector_gen: work");
+		VIPS_GATE_STOP("vips_shrinkv_vector_gen: work");
 	}
 
-	VIPS_COUNT_PIXELS(out_region, "vips_shrinkv_uchar_vector_gen");
+	VIPS_COUNT_PIXELS(out_region, "vips_shrinkv_vector_gen");
 
 	return 0;
 }
@@ -473,7 +498,7 @@ vips_shrinkv_build(VipsObject *object)
 
 	VipsImage *in;
 	VipsGenerateFn generate;
-	size_t acc_size; 
+	size_t acc_size;
 
 	if (VIPS_OBJECT_CLASS(vips_shrinkv_parent_class)->build(object))
 		return -1;
@@ -526,12 +551,13 @@ vips_shrinkv_build(VipsObject *object)
 	shrink->sizeof_line_buffer =
 		(size_t) in->Xsize * in->Bands * vips__fatstrip_height * acc_size;
 
-	/* For uchar input, try to make a vector path.
+	/* For uchar or float input, try to make a vector path.
 	 */
 #ifdef HAVE_HWY
-	if (in->BandFmt == VIPS_FORMAT_UCHAR &&
+	if ((in->BandFmt == VIPS_FORMAT_UCHAR ||
+			in->BandFmt == VIPS_FORMAT_FLOAT) &&
 		vips_vector_isenabled()) {
-		generate = vips_shrinkv_uchar_vector_gen;
+		generate = vips_shrinkv_vector_gen;
 		g_info("shrinkv: using vector path");
 	}
 	else
