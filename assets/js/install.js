@@ -40,11 +40,11 @@ async function init() {
   }
 
   const variant = 'web';
-  const linking = architecture === 'arm64' ? 'static' : 'shared';
+  const linking = 'shared';
 
   const input = document.querySelector(`input[value='${architecture}']`);
   input.checked = true;
-  
+
   const response = await fetch(latestRelease);
   if (!response.ok) {
     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -79,27 +79,8 @@ document.querySelectorAll('input').forEach(el => {
       }
 
       staticLinkInputs.forEach(e => e.parentElement.classList.add('disabled'));
-
-      // -all variant is not available for Windows Arm64.
-      document.querySelector("input[value='arm64']").parentElement.classList.add('disabled');
     } else {
       staticLinkInputs.forEach(e => e.parentElement.classList.remove('disabled'));
-      document.querySelector("input[value='arm64']").parentElement.classList.remove('disabled');
-
-      // Only the static(-ffi) variants are available for Windows Arm64.
-      if (architecture === 'arm64') {
-        if (linking === 'shared') {
-          document.querySelector(`input[value='${linking}']`).checked = false;
-          linking = 'static';
-          document.querySelector(`input[value='${linking}']`).checked = true;
-        }
-
-        document.querySelector("input[value='all']").parentElement.classList.add('disabled');
-        document.querySelector("input[value='shared']").parentElement.classList.add('disabled');
-      } else {
-        document.querySelector("input[value='all']").parentElement.classList.remove('disabled');
-        document.querySelector("input[value='shared']").parentElement.classList.remove('disabled');
-      }
     }
 
     update_states(variant, architecture, linking);
