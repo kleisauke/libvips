@@ -169,6 +169,11 @@
 
 #define SOURCE_BUFFER_SIZE (4096)
 
+/* Number of app2 sections we can capture. Each one can be 64k, so 6400k should
+ * be enough for anyone (haha).
+ */
+#define MAX_APP2_SECTIONS (100)
+
 /* Private struct for source input.
  */
 typedef struct {
@@ -182,6 +187,19 @@ typedef struct {
 	VipsSource *source;
 	unsigned char buf[SOURCE_BUFFER_SIZE];
 
+	unsigned char *exif_data;
+	size_t exif_size;
+
+	unsigned char *xmp_data;
+	size_t xmp_size;
+
+	/* Capture app2 sections here for assembly.
+	 */
+	unsigned char *app2_data[MAX_APP2_SECTIONS];
+	size_t app2_size[MAX_APP2_SECTIONS];
+
+	unsigned char *iptc_data;
+	size_t iptc_size;
 } Source;
 
 static void
@@ -284,6 +302,214 @@ skip_input_data_mappable(j_decompress_ptr cinfo, long num_bytes)
 	}
 }
 
+static unsigned int
+get_character(j_decompress_ptr cinfo)
+{
+	struct jpeg_source_mgr *src = cinfo->src;
+
+	if (src->bytes_in_buffer == 0)
+		if (!(*src->fill_input_buffer)(cinfo))
+			ERREXIT(cinfo, JERR_CANT_SUSPEND);
+
+	src->bytes_in_buffer--;
+	return *src->next_input_byte++;
+}
+
+#ifdef HAVE_UHDR
+boolean
+mpf_sniffer(j_decompress_ptr cinfo)
+{
+	Source *src = (Source *) cinfo->src;
+
+	unsigned int length = get_character(cinfo) << 8;
+	length += get_character(cinfo);
+	if (length < 2)
+		return TRUE;
+	length -= 2;
+	if (length < 4) {
+		(*src->pub.skip_input_data)(cinfo, length);
+		return TRUE;
+	}
+
+	char header[3];
+	for (int i = 0; i < 3; i++)
+		header[i] = (char) get_character(cinfo);
+	length -= 3;
+
+	if (memcmp(header, "MPF", 3) == 0)
+		src->jpeg->is_uhdr = TRUE;
+
+	(*src->pub.skip_input_data)(cinfo, length);
+	return TRUE;
+}
+#endif
+
+static boolean
+exif_xmp_processor(j_decompress_ptr cinfo)
+{
+	Source *src = (Source *) cinfo->src;
+
+	unsigned int length = get_character(cinfo) << 8;
+	length += get_character(cinfo);
+	if (length < 2)
+		return TRUE;
+	length -= 2;
+	if (length < 5) {
+		(*src->pub.skip_input_data)(cinfo, length);
+		return TRUE;
+	}
+
+	char header[4];
+	for (int i = 0; i < 4; i++)
+		header[i] = (char) get_character(cinfo);
+
+	/* Only use the first possible EXIF data block.
+	 */
+	if (memcmp(header, "Exif", 4) == 0 &&
+		!src->exif_data) {
+		if (!(src->exif_data = vips_malloc(NULL, length)))
+			ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 10);
+
+		memcpy(src->exif_data, header, 4);
+		for (unsigned int i = 4; i < length; i++)
+			src->exif_data[i] = get_character(cinfo);
+
+		src->exif_size = length;
+
+		return TRUE;
+	}
+
+	length -= 4;
+
+	/* Only use the first possible XMP data block.
+	 */
+	if (memcmp(header, "http", 4) == 0 &&
+		!src->xmp_data) {
+		if (!(src->xmp_data = vips_malloc(NULL, length)))
+			ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 10);
+
+		/* data is the XMP string ... it'll have something like
+		 * "http://ns.adobe.com/xap/1.0/" at the front, then a null character,
+		 * then the real XMP.
+		 */
+		for (unsigned int i = 0; i < length; i++)
+			src->xmp_data[i] = get_character(cinfo);
+
+		/* Search for a null char within the first few characters. 80
+		 * should be plenty for a basic URL.
+		 *
+		 * -2 for the extra null.
+		 */
+		unsigned char *p = memchr(src->xmp_data, '\0',
+			VIPS_MIN(80, length - 2));
+		if (!p) {
+			g_free(src->xmp_data);
+			src->xmp_data = NULL;
+			return TRUE;
+		}
+
+		size_t i = p - src->xmp_data;
+		length -= i + 1;
+		memmove(src->xmp_data, src->xmp_data + i + 1, length);
+
+		src->xmp_size = length;
+
+		return TRUE;
+	}
+
+	(*src->pub.skip_input_data)(cinfo, length);
+	return TRUE;
+}
+
+static boolean
+icc_processor(j_decompress_ptr cinfo)
+{
+	Source *src = (Source *) cinfo->src;
+
+	unsigned int length = get_character(cinfo) << 8;
+	length += get_character(cinfo);
+	if (length < 2)
+		return TRUE;
+	length -= 2;
+	if (length < 15) {
+		(*src->pub.skip_input_data)(cinfo, length);
+		return TRUE;
+	}
+
+	char header[12];
+	for (int i = 0; i < 12; i++)
+		header[i] = (char) get_character(cinfo);
+	length -= 12;
+
+	if (memcmp(header, "ICC_PROFILE\0", 12) != 0) {
+		(*src->pub.skip_input_data)(cinfo, length);
+		return TRUE;
+	}
+
+	unsigned int seq_no = get_character(cinfo);
+	unsigned int total = get_character(cinfo);
+	length -= 2;
+	if (seq_no < 1 ||
+		seq_no > total ||
+		total >= MAX_APP2_SECTIONS ||
+		src->app2_data[seq_no - 1]) {
+		(*src->pub.skip_input_data)(cinfo, length);
+		return TRUE;
+	}
+
+	/* seq_no numbers from 1, according to spec.
+	 */
+	unsigned int seq_idx = seq_no - 1;
+	if (!(src->app2_data[seq_idx] = vips_malloc(NULL, length)))
+		ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 11);
+
+	for (unsigned int i = 0; i < length; i++)
+		src->app2_data[seq_idx][i] = get_character(cinfo);
+
+	src->app2_size[seq_idx] = length;
+
+	return TRUE;
+}
+
+static boolean
+iptc_processor(j_decompress_ptr cinfo)
+{
+	Source *src = (Source *) cinfo->src;
+
+	unsigned int length = get_character(cinfo) << 8;
+	length += get_character(cinfo);
+	if (length < 2)
+		return TRUE;
+	length -= 2;
+	if (length < 6) {
+		(*src->pub.skip_input_data)(cinfo, length);
+		return TRUE;
+	}
+
+	char header[5];
+	for (int i = 0; i < 5; i++)
+		header[i] = (char) get_character(cinfo);
+
+	/* Only use the first possible IPTC data block.
+	 */
+	if (memcmp(header, "Photo", 5) != 0 ||
+		src->iptc_data) {
+		(*src->pub.skip_input_data)(cinfo, length - 5);
+		return TRUE;
+	}
+
+	if (!(src->iptc_data = vips_malloc(NULL, length)))
+		ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 12);
+
+	memcpy(src->iptc_data, header, 5);
+	for (unsigned int i = 5; i < length; i++)
+		src->iptc_data[i] = get_character(cinfo);
+
+	src->iptc_size = length;
+
+	return TRUE;
+}
+
 int
 vips__readjpeg_open_input(ReadJpeg *jpeg)
 {
@@ -298,6 +524,7 @@ vips__readjpeg_open_input(ReadJpeg *jpeg)
 
 		cinfo->src = (struct jpeg_source_mgr *) (*cinfo->mem->alloc_small)(
 				(j_common_ptr) cinfo, JPOOL_PERMANENT, sizeof(Source));
+		memset(cinfo->src, 0, sizeof(Source));
 
 		src = (Source *) cinfo->src;
 		src->jpeg = jpeg;
@@ -368,6 +595,8 @@ readjpeg_emit_message(j_common_ptr cinfo, int msg_level)
 static int
 readjpeg_free(ReadJpeg *jpeg)
 {
+	Source *src = (Source *) jpeg->cinfo.src;
+
 	if (jpeg->eman.pub.num_warnings != 0) {
 		g_warning("read gave %ld warnings", jpeg->eman.pub.num_warnings);
 		g_warning("%s", vips_error_buffer());
@@ -376,6 +605,12 @@ readjpeg_free(ReadJpeg *jpeg)
 		 */
 		jpeg->eman.pub.num_warnings = 0;
 	}
+
+	for (int i = 0; i < MAX_APP2_SECTIONS; i++)
+		VIPS_FREE(src->app2_data[i]);
+	VIPS_FREE(src->exif_data);
+	VIPS_FREE(src->xmp_data);
+	VIPS_FREE(src->iptc_data);
 
 	/* Don't call jpeg_finish_decompress(). It just checks the tail of the
 	 * file and who cares about that. All mem is freed in
@@ -462,55 +697,6 @@ find_chroma_subsample(struct jpeg_decompress_struct *cinfo)
 		: (has_subsample ? "4:2:0" : "4:4:4");
 }
 
-static void
-attach_blob(VipsImage *im, const char *field, void *data, size_t data_length)
-{
-	/* Only use the first one.
-	 */
-	if (vips_image_get_typeof(im, field)) {
-#ifdef DEBUG
-		printf("attach_blob: second %s block, ignoring\n", field);
-#endif /*DEBUG*/
-
-		return;
-	}
-
-#ifdef DEBUG
-	printf("attach_blob: attaching %zd bytes of %s\n",
-		data_length, field);
-#endif /*DEBUG*/
-
-	vips_image_set_blob_copy(im, field, data, data_length);
-}
-
-/* data is the XMP string ... it'll have something like
- * "http://ns.adobe.com/xap/1.0/" at the front, then a null character, then
- * the real XMP.
- */
-static void
-attach_xmp_blob(VipsImage *im, char *data, size_t data_length)
-{
-	/* Search for a null char within the first few characters. 80
-	 * should be plenty for a basic URL.
-	 *
-	 * -2 for the extra null.
-	 */
-	char *p = memchr(data, '\0', VIPS_MIN(80, data_length - 2));
-	if (!p)
-		return;
-
-	size_t i = p - data;
-	data_length -= i + 1;
-
-	attach_blob(im, VIPS_META_XMP_NAME,
-		data + i + 1, data_length);
-}
-
-/* Number of app2 sections we can capture. Each one can be 64k, so 6400k should
- * be enough for anyone (haha).
- */
-#define MAX_APP2_SECTIONS (100)
-
 /* Read a cinfo to a VIPS image. Set invert_pels if the pixel reader needs to
  * do 255-pel.
  */
@@ -519,15 +705,9 @@ read_jpeg_header(ReadJpeg *jpeg, VipsImage *out)
 {
 	struct jpeg_decompress_struct *cinfo = &jpeg->cinfo;
 
-	jpeg_saved_marker_ptr p;
 	VipsInterpretation interpretation;
 	double xres, yres;
 
-	/* Capture app2 sections here for assembly.
-	 */
-	void *app2_data[MAX_APP2_SECTIONS] = { 0 };
-	size_t app2_data_length[MAX_APP2_SECTIONS] = { 0 };
-	size_t data_length;
 	int i;
 
 	/* Read JPEG header. libjpeg will set out_color_space sanely for us
@@ -547,7 +727,7 @@ read_jpeg_header(ReadJpeg *jpeg, VipsImage *out)
 	case JCS_CMYK:
 		interpretation = VIPS_INTERPRETATION_CMYK;
 
-		/* CMYKs are almost always returned inverted, but see below.
+		/* CMYKs are almost always returned inverted.
 		 */
 		jpeg->invert_pels = TRUE;
 		break;
@@ -653,117 +833,13 @@ read_jpeg_header(ReadJpeg *jpeg, VipsImage *out)
 	(void) vips_image_set_string(out, "jpeg-chroma-subsample",
 		find_chroma_subsample(cinfo));
 
-	/* Look for EXIF and ICC profile.
-	 */
-	for (p = cinfo->marker_list; p; p = p->next) {
-#ifdef DEBUG
-		{
-			printf("read_jpeg_header: seen %u bytes of APP%d\n",
-				p->data_length,
-				p->marker - JPEG_APP0);
-
-			for (i = 0; i < 10; i++)
-				printf("\t%d) '%c' (%d)\n",
-					i, p->data[i], p->data[i]);
-		}
-#endif /*DEBUG*/
-
-		switch (p->marker) {
-		case JPEG_APP0 + 1:
-			/* Possible EXIF or XMP data.
-			 */
-			if (p->data_length > 4 &&
-				vips_isprefix("Exif", (char *) p->data))
-				attach_blob(out, VIPS_META_EXIF_NAME,
-					p->data, p->data_length);
-
-			if (p->data_length > 4 &&
-				vips_isprefix("http", (char *) p->data))
-				attach_xmp_blob(out,
-					(char *) p->data, p->data_length);
-
-			break;
-
-		case JPEG_APP0 + 2:
-			/* Possible ICC profile.
-			 */
-			if (p->data_length > 14 &&
-				vips_isprefix("ICC_PROFILE",
-					(char *) p->data)) {
-				/* cur_marker numbers from 1, according to
-				 * spec.
-				 */
-				int cur_marker = p->data[12] - 1;
-
-				if (cur_marker >= 0 &&
-					cur_marker < MAX_APP2_SECTIONS) {
-					app2_data[cur_marker] = p->data + 14;
-					app2_data_length[cur_marker] =
-						p->data_length - 14;
-				}
-			}
-			break;
-
-		case JPEG_APP0 + 13:
-			/* Possible IPTC data block.
-			 */
-			if (p->data_length > 5 &&
-				vips_isprefix("Photo", (char *) p->data)) {
-				attach_blob(out, VIPS_META_IPTC_NAME,
-					p->data, p->data_length);
-
-				/* Older versions of libvips used this misspelt
-				 * name :-( attach under this name too for
-				 * compatibility.
-				 */
-				attach_blob(out, "ipct-data",
-					p->data, p->data_length);
-			}
-			break;
-
-		case JPEG_APP0 + 14:
-			/* Adobe block. There's a lot of confusion about
-			 * whether or not CMYK jpg images are inverted. For
-			 * the images we have, it seems they should always
-			 * invert.
-			 *
-			 * See: https://sno.phy.queensu.ca/~phil/exiftool/\
-			 * 	TagNames/JPEG.html#Adobe
-			 *
-			 * data[11] == 0 - unknown
-			 * data[11] == 1 - YCbCr
-			 * data[11] == 2 - YCCK
-			 *
-			 * Leave this code here in case we come up with a
-			 * better rule. Make sure to also uncomment
-			 * jpeg_save_markers() for the APP14 marker.
-			 */
-			if (p->data_length >= 12 &&
-				vips_isprefix("Adobe", (char *) p->data)) {
-				if (p->data[11] == 0) {
-#ifdef DEBUG
-					printf("complete Adobe block, not YCCK image\n");
-#endif				/*DEBUG*/
-					// jpeg->invert_pels = FALSE;
-				}
-			}
-			break;
-
-		default:
-#ifdef DEBUG
-			printf("read_jpeg_header: "
-				   "ignoring %u byte APP%d block\n",
-				p->data_length, p->marker - JPEG_APP0);
-#endif /*DEBUG*/
-			break;
-		}
-	}
+	Source *src = (Source *) cinfo->src;
 
 	/* Assemble ICC sections.
 	 */
-	data_length = 0;
-	for (i = 0; i < MAX_APP2_SECTIONS && app2_data[i]; i++)
-		data_length += app2_data_length[i];
+	size_t data_length = 0;
+	for (i = 0; i < MAX_APP2_SECTIONS && src->app2_data[i]; i++)
+		data_length += src->app2_size[i];
 	if (data_length) {
 		unsigned char *data;
 		int p;
@@ -777,13 +853,46 @@ read_jpeg_header(ReadJpeg *jpeg, VipsImage *out)
 			return -1;
 
 		p = 0;
-		for (i = 0; i < MAX_APP2_SECTIONS && app2_data[i]; i++) {
-			memcpy(data + p, app2_data[i], app2_data_length[i]);
-			p += app2_data_length[i];
+		for (i = 0; i < MAX_APP2_SECTIONS && src->app2_data[i]; i++) {
+			memcpy(data + p, src->app2_data[i], src->app2_size[i]);
+			p += src->app2_size[i];
+
+			g_free(src->app2_data[i]);
+			src->app2_data[i] = NULL;
 		}
 
 		vips_image_set_blob(out, VIPS_META_ICC_NAME,
 			(VipsCallbackFn) vips_area_free_cb, data, data_length);
+	}
+
+	/* Attach EXIF/XMP/IPTC metadata.
+	 */
+	if (src->exif_data) {
+		vips_image_set_blob(out, VIPS_META_EXIF_NAME,
+			(VipsCallbackFn) vips_area_free_cb, src->exif_data, src->exif_size);
+		src->exif_data = NULL;
+		src->exif_size = 0;
+	}
+
+	if (src->xmp_data) {
+		vips_image_set_blob(out, VIPS_META_XMP_NAME,
+			(VipsCallbackFn) vips_area_free_cb, src->xmp_data, src->xmp_size);
+		src->xmp_data = NULL;
+		src->xmp_size = 0;
+	}
+
+	if (src->iptc_data) {
+		vips_image_set_blob(src->jpeg->out, VIPS_META_IPTC_NAME,
+			(VipsCallbackFn) vips_area_free_cb, src->iptc_data, src->iptc_size);
+
+		/* Older versions of libvips used this misspelt name :-(
+		 * attach under this name too for compatibility.
+		 */
+		vips_image_set_blob_copy(src->jpeg->out, "ipct-data",
+			src->iptc_data, src->iptc_size);
+
+		src->iptc_data = NULL;
+		src->iptc_size = 0;
 	}
 
 	return 0;
@@ -948,24 +1057,9 @@ jpeg_read(ReadJpeg *jpeg, VipsImage *out, gboolean header_only)
 	/* Need to read in APP1 (EXIF/XMP metadata), APP2 (ICC profile) and APP13
 	 * (photoshop IPTC).
 	 */
-	jpeg_save_markers(&jpeg->cinfo, JPEG_APP0 + 1, 0xffff);
-	jpeg_save_markers(&jpeg->cinfo, JPEG_APP0 + 2, 0xffff);
-	jpeg_save_markers(&jpeg->cinfo, JPEG_APP0 + 13, 0xffff);
-
-	/* APP14 (Adobe flags), deliberately ignored, see above.
-	 */
-	// jpeg_save_markers(&jpeg->cinfo, JPEG_APP0 + 14, 0xffff);
-
-#ifdef DEBUG
-	{
-		int i;
-
-		/* Handy for debugging ... spot any extra  markers.
-		 */
-		for (i = 0; i < 16; i++)
-			jpeg_save_markers(&jpeg->cinfo, JPEG_APP0 + i, 0xffff);
-	}
-#endif /*DEBUG*/
+	jpeg_set_marker_processor(&jpeg->cinfo, JPEG_APP0 + 1, exif_xmp_processor);
+	jpeg_set_marker_processor(&jpeg->cinfo, JPEG_APP0 + 2, icc_processor);
+	jpeg_set_marker_processor(&jpeg->cinfo, JPEG_APP0 + 13, iptc_processor);
 
 	/* Convert!
 	 */

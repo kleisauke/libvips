@@ -91,6 +91,12 @@ typedef struct _ReadJpeg {
 	ErrorManager eman;
 	gboolean invert_pels;
 
+#ifdef HAVE_UHDR
+	/* Open via libuhdr?
+	 */
+	gboolean is_uhdr;
+#endif
+
 	/* Use orientation tag to automatically rotate and flip image
 	 * during load.
 	 */
@@ -121,6 +127,7 @@ void vips__new_error_exit(j_common_ptr cinfo);
 ReadJpeg *vips__readjpeg_new(VipsSource *source, VipsImage *out,
 	int shrink, VipsFailOn fail_on, gboolean autorotate,
 	gboolean unlimited);
+boolean mpf_sniffer(j_decompress_ptr cinfo);
 int vips__readjpeg_open_input(ReadJpeg *jpeg);
 
 #ifdef __cplusplus

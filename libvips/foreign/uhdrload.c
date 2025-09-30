@@ -133,27 +133,14 @@ vips_foreign_load_uhdr_is_a(VipsSource *source)
 
 	/* Read JPEG header.
 	 */
-	jpeg_save_markers(cinfo, JPEG_APP0 + 2, 0xffff);
+	jpeg_set_marker_processor(cinfo, JPEG_APP0 + 2, mpf_sniffer);
 	jpeg_read_header(cinfo, TRUE);
 
-	gboolean found;
-
-	found = FALSE;
-	for (jpeg_saved_marker_ptr p = cinfo->marker_list; p; p = p->next)
-		switch (p->marker) {
-		case JPEG_APP0 + 2:
-			if (p->data_length > 4 &&
-				vips_isprefix("MPF", (char *) p->data))
-				found = TRUE;
-			break;
-
-		default:
-			break;
-		}
+	gboolean is_a = jpeg->is_uhdr;
 
 	VIPS_UNREF(context);
 
-	return found;
+	return is_a;
 }
 
 const char *
