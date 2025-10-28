@@ -4,19 +4,25 @@ permissions: {}
 jobs:
   Fuzzing:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Note: MSan requires all libraries to be built from source, see:
+        # https://github.com/google/oss-fuzz/issues/6294
+        sanitizer: [address, undefined, thread]
     steps:
-    - name: Build Fuzzers
+    - name: Build Fuzzers (${{ matrix.sanitizer }})
       id: build
       uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
       with:
         oss-fuzz-project-name: 'libvips'
-        dry-run: false
-    - name: Run Fuzzers
+        sanitizer: ${{ matrix.sanitizer }}
+    - name: Run Fuzzers (${{ matrix.sanitizer }})
       uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
       with:
         oss-fuzz-project-name: 'libvips'
         fuzz-seconds: 600
-        dry-run: false
+        sanitizer: ${{ matrix.sanitizer }}
     - name: Upload Crash
       uses: actions/upload-artifact@v4
       if: failure() && steps.build.outcome == 'success'
