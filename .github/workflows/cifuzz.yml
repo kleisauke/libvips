@@ -11,6 +11,9 @@ jobs:
         # https://github.com/google/oss-fuzz/issues/6294
         sanitizer: [address, undefined, thread]
     steps:
+    - name: Fix TSan on CIFuzz
+      if: matrix.sanitizer == 'thread'
+      run: echo "CIFUZZ_TEST=1" >> $GITHUB_ENV
     - name: Build Fuzzers (${{ matrix.sanitizer }})
       id: build
       uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
