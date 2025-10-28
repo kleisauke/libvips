@@ -20,7 +20,6 @@ jobs:
       with:
         oss-fuzz-project-name: 'libvips'
         sanitizer: ${{ matrix.sanitizer }}
-        bad-build-check: ${{ matrix.sanitizer != 'thread' }}
     - name: Run Fuzzers (${{ matrix.sanitizer }})
       uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
       with:
