@@ -1,11 +1,11 @@
 morphology_sources = files(
-    'nearest.c',
-    'morphology.c',
     'countlines.c',
-    'rank.c',
+    'labelregions.c',
     'morph.c',
     'morph_hwy.cpp',
-    'labelregions.c',
+    'morphology.c',
+    'nearest.c',
+    'rank.c',
 )
 
 morphology_headers = files(

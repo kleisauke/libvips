@@ -1,3 +1,1 @@
-i18n.gettext(
-    gettext_domain
-)
+i18n.gettext(gettext_domain)

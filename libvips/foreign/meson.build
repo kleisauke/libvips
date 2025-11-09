@@ -3,9 +3,9 @@ if get_option('nsgif')
 endif
 
 foreign_sources = files(
-    'archive.c',
     'analyze2vips.c',
     'analyzeload.c',
+    'archive.c',
     'cairo.c',
     'cgifsave.c',
     'csvload.c',
@@ -39,8 +39,8 @@ foreign_sources = files(
     'pngsave.c',
     'ppmload.c',
     'ppmsave.c',
-    'qoisave.c',
     'qoiload.c',
+    'qoisave.c',
     'quantise.c',
     'radiance.c',
     'radload.c',
@@ -50,8 +50,8 @@ foreign_sources = files(
     'spngload.c',
     'spngsave.c',
     'svgload.c',
-    'tiff2vips.c',
     'tiff.c',
+    'tiff2vips.c',
     'tiffload.c',
     'tiffsave.c',
     'uhdrload.c',
@@ -111,8 +111,8 @@ if not libheif_module
 endif
 
 poppler_module_sources = files(
-    'popplerload.c',
     'pdf.c',
+    'popplerload.c',
 )
 
 if not libpoppler_module
@@ -120,8 +120,8 @@ if not libpoppler_module
 endif
 
 openslide_module_sources = files(
-    'openslideload.c',
     'openslideconnection.c',
+    'openslideload.c',
 )
 
 if not openslide_module
