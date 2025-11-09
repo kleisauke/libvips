@@ -6,7 +6,7 @@ variables_data.set('PYTHON', pymod.find_installation().full_path())
 variables_sh = configure_file(
     input: 'variables.sh.in',
     output: '@BASENAME@',
-    configuration: variables_data
+    configuration: variables_data,
 )
 
 script_tests = [
@@ -15,7 +15,7 @@ script_tests = [
     'seq',
     'stall',
     'threading',
-    'keep'
+    'keep',
 ]
 
 foreach script_test : script_tests

@@ -20,8 +20,8 @@ colour_sources = files(
     'LabS2LabQ.c',
     'LCh2Lab.c',
     'LCh2UCS.c',
-    'Oklab2XYZ.c',
     'Oklab2Oklch.c',
+    'Oklab2XYZ.c',
     'Oklch2Oklab.c',
     'profile_load.c',
     'profiles.c',
@@ -31,15 +31,15 @@ colour_sources = files(
     'scRGB2XYZ.c',
     'sRGB2HSV.c',
     'sRGB2scRGB.c',
-    'uhdr2scRGB.c',
     'UCS2LCh.c',
+    'uhdr2scRGB.c',
     'XYZ2CMYK.c',
     'XYZ2Lab.c',
-    'XYZ2scRGB.c',
     'XYZ2Oklab.c',
+    'XYZ2scRGB.c',
     'XYZ2Yxy.c',
     'Yxy2XYZ.c',
-  )
+)
 
 colour_headers = files(
     'pcolour.h',

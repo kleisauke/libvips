@@ -1,18 +1,18 @@
 draw_sources = files(
     'draw.c',
-    'drawink.c',
     'draw_circle.c',
     'draw_flood.c',
-    'draw_mask.c',
     'draw_image.c',
-    'draw_rect.c',
     'draw_line.c',
+    'draw_mask.c',
+    'draw_rect.c',
     'draw_smudge.c',
+    'drawink.c',
 )
 
 draw_headers = files(
-    'pdraw.h',
     'drawink.h',
+    'pdraw.h',
 )
 
 libvips_sources += draw_sources

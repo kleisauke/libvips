@@ -59,22 +59,22 @@ public_headers = files(
 )
 
 enum_headers = files(
-    'resample.h',
-    'memory.h',
-    'create.h',
-    'foreign.h',
     'arithmetic.h',
-    'conversion.h',
-    'util.h',
-    'image.h',
-    'colour.h',
-    'operation.h',
-    'convolution.h',
-    'morphology.h',
-    'draw.h',
     'basic.h',
+    'colour.h',
+    'conversion.h',
+    'convolution.h',
+    'create.h',
+    'draw.h',
+    'foreign.h',
+    'image.h',
+    'memory.h',
+    'morphology.h',
     'object.h',
-    'region.h'
+    'operation.h',
+    'region.h',
+    'resample.h',
+    'util.h',
 )
 
 if get_option('deprecated')
@@ -89,7 +89,7 @@ enumtypes = gnome.mkenums(
     h_template: 'enumtypes.h.in',
     c_template: 'enumtypes.c.in',
     install_header: true,
-    install_dir: get_option('prefix') / get_option('includedir') / 'vips'
+    install_dir: get_option('prefix') / get_option('includedir') / 'vips',
 )
 
 vips_verbose_config = []
@@ -134,7 +134,7 @@ version_header = configure_file(
     output: 'version.h',
     configuration: version_data,
     install: true,
-    install_dir: get_option('prefix') / get_option('includedir') / 'vips'
+    install_dir: get_option('prefix') / get_option('includedir') / 'vips',
 )
 
 libvips_sources += public_headers
@@ -144,17 +144,13 @@ libvips_sources += version_header
 install_headers(
     public_other_headers,
     public_headers,
-    subdir: 'vips'
+    subdir: 'vips',
 )
 
 libvips_includedir = include_directories('..')
 libvips_headers_dep = declare_dependency(
-    sources: [
-        public_headers,
-        enumtypes[1],
-        version_header,
-    ],
-    include_directories: libvips_includedir
+    sources: [public_headers, enumtypes[1], version_header],
+    include_directories: libvips_includedir,
 )
 
 libvips_deps += libvips_headers_dep

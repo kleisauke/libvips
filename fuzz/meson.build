@@ -7,7 +7,7 @@ endif
 
 if fuzzing_engine == 'none'
     standalone_engine = static_library('standalone_engine',
-        'StandaloneFuzzTargetMain.c'
+        'StandaloneFuzzTargetMain.c',
     )
     fuzz_deps += declare_dependency(link_with: standalone_engine)
 elif fuzzing_engine == 'libfuzzer'
@@ -19,7 +19,7 @@ fuzz_progs = [
     'thumbnail_fuzzer',
     'smartcrop_fuzzer',
     'mosaic_fuzzer',
-    'vips_fuzzer'
+    'vips_fuzzer',
 ]
 
 if libjpeg_dep.found()
@@ -31,7 +31,7 @@ foreach fuzz_prog : fuzz_progs
     fuzz_execs += executable(fuzz_prog,
         fuzz_prog + '.cc',
         dependencies: [libvips_dep, fuzz_deps],
-        link_args: fuzz_ldflags
+        link_args: fuzz_ldflags,
     )
 endforeach
 
@@ -94,7 +94,7 @@ foreach fuzz_basename, fuzz_save_suffix : fuzz_save_buffer_progs
         'generic_buffer_fuzzer.cc',
         dependencies: [libvips_dep, fuzz_deps],
         link_args: fuzz_ldflags,
-        cpp_args: '-DSAVE_SUFFIX="@0@"'.format(fuzz_save_suffix)
+        cpp_args: '-DSAVE_SUFFIX="@0@"'.format(fuzz_save_suffix),
     )
 endforeach
 
