@@ -9,8 +9,8 @@ project('vips', 'c', 'cpp',
         # do a release (optimised) build by default
         'buildtype=release',
         # turn off asserts etc. in release mode
-        'b_ndebug=if-release'
-    ]
+        'b_ndebug=if-release',
+    ],
 )
 
 version_parts = meson.project_version().split('.')
@@ -193,7 +193,7 @@ if broken_fmv
 endif
 cfg_var.set('HAVE_TARGET_CLONES', have_target_clones and not broken_fmv)
 
-func_names = [ '_aligned_malloc', 'posix_memalign', 'memalign' ]
+func_names = ['_aligned_malloc', 'posix_memalign', 'memalign']
 foreach func_name : func_names
     cfg_var.set('HAVE_' + func_name.to_upper(), cc.has_function(func_name))
 endforeach
@@ -241,7 +241,23 @@ if magick_dep.found()
         # the im6 API
         cfg_var.set('HAVE_MAGICK6', true)
         cfg_var.set('HAVE_NUMBER_SCENES', cc.has_member('struct _ImageInfo', 'number_scenes', prefix: magick_include, dependencies: magick_dep))
-        func_names = [ 'InheritException', 'AcquireExceptionInfo', 'SetImageProperty', 'SetImageExtent', 'AcquireImage', 'GetVirtualPixels', 'ResetImageProfileIterator', 'ResetImageAttributeIterator', 'ResetImagePropertyIterator', 'MagickCoreGenesis', 'SetImageOption', 'BlobToStringInfo', 'OptimizePlusImageLayers', 'OptimizeImageTransparency', 'GetMagicInfo' ]
+        func_names = [
+            'InheritException',
+            'AcquireExceptionInfo',
+            'SetImageProperty',
+            'SetImageExtent',
+            'AcquireImage',
+            'GetVirtualPixels',
+            'ResetImageProfileIterator',
+            'ResetImageAttributeIterator',
+            'ResetImagePropertyIterator',
+            'MagickCoreGenesis',
+            'SetImageOption',
+            'BlobToStringInfo',
+            'OptimizePlusImageLayers',
+            'OptimizeImageTransparency',
+            'GetMagicInfo',
+        ]
         foreach func_name : func_names
             cfg_var.set('HAVE_' + func_name.to_upper(), cc.has_function(func_name, prefix: magick_include, dependencies: magick_dep))
         endforeach
@@ -251,7 +267,7 @@ if magick_dep.found()
         cfg_var.set('HAVE_GETIMAGEMAGICK3', cc.compiles(magick_include + '\nint main() {(void)GetImageMagick(NULL, 0, NULL);}', name: 'GetImageMagick takes three arguments', dependencies: magick_dep))
     endif
 
-    magick_features = [ 'load', 'save' ]
+    magick_features = ['load', 'save']
     foreach feature : magick_features
         cfg_var.set('ENABLE_MAGICK' + feature.to_upper(), feature in get_option('magick-features'))
     endforeach
@@ -613,7 +629,14 @@ if libnifti_found
     cfg_var.set('HAVE_NIFTI', true)
 endif
 
-headers = [ 'sys/file.h', 'sys/param.h', 'sys/mman.h', 'unistd.h', 'io.h', 'direct.h' ]
+headers = [
+    'sys/file.h',
+    'sys/param.h',
+    'sys/mman.h',
+    'unistd.h',
+    'io.h',
+    'direct.h',
+]
 foreach name : headers
     cfg_var.set('HAVE_' + name.underscorify().to_upper(), cc.has_header(name))
 endforeach
@@ -652,7 +675,7 @@ cfg_var.set_quoted('VIPS_ICC_DIR', profile_dir)
 
 config_file = configure_file(
     configuration: cfg_var,
-    output: 'config.h'
+    output: 'config.h',
 )
 
 config_dep = declare_dependency(
@@ -667,68 +690,68 @@ gir = find_program('g-ir-scanner', required: get_option('introspection'))
 enable_introspection = gir.found() and (not meson.is_cross_build() or get_option('introspection').enabled())
 
 build_summary = {
-  'Build options':
-    {'enable debug': [get_option('debug')],
-     'enable deprecated': [get_option('deprecated')],
-     'enable modules': [modules_enabled],
-     'enable docs': [get_option('docs')],
-     'enable C++ docs': [get_option('cpp-docs')],
-     'enable introspection': [enable_introspection],
-     'enable examples': [get_option('examples')],
-     'enable C++ binding': [get_option('cplusplus')],
-     'enable RAD load/save': [get_option('radiance')],
-     'enable Analyze7 load': [get_option('analyze')],
-     'enable PPM load/save': [get_option('ppm')],
-     'enable GIF load': [get_option('nsgif')],
+    'Build options': {
+        'enable debug': [get_option('debug')],
+        'enable deprecated': [get_option('deprecated')],
+        'enable modules': [modules_enabled],
+        'enable docs': [get_option('docs')],
+        'enable C++ docs': [get_option('cpp-docs')],
+        'enable introspection': [enable_introspection],
+        'enable examples': [get_option('examples')],
+        'enable C++ binding': [get_option('cplusplus')],
+        'enable RAD load/save': [get_option('radiance')],
+        'enable Analyze7 load': [get_option('analyze')],
+        'enable PPM load/save': [get_option('ppm')],
+        'enable GIF load': [get_option('nsgif')],
     },
 }
 build_features = {
-  'Optional external packages':
-    {'FFTs': ['fftw', fftw_dep],
-     'SIMD support': ['libhwy or liborc', simd_package],
-     'ICC profile support': ['lcms2', lcms_dep],
-     'deflate compression': ['zlib', zlib_dep],
-     'text rendering': ['pangocairo', pangocairo_dep],
-     'font file support': ['fontconfig', fontconfig_found ? fontconfig_dep : disabler()],
-     'EXIF metadata support': ['libexif', libexif_dep],
+    'Optional external packages': {
+        'FFTs': ['fftw', fftw_dep],
+        'SIMD support': ['libhwy or liborc', simd_package],
+        'ICC profile support': ['lcms2', lcms_dep],
+        'deflate compression': ['zlib', zlib_dep],
+        'text rendering': ['pangocairo', pangocairo_dep],
+        'font file support': ['fontconfig', fontconfig_found ? fontconfig_dep : disabler()],
+        'EXIF metadata support': ['libexif', libexif_dep],
     },
-  'External image format libraries':
-    {'JPEG load/save': ['libjpeg', libjpeg_dep],
-     'UHDR load/save': ['libuhdr', libuhdr_dep],
-     'JXL load/save': ['libjxl', libjxl_found ? libjxl_dep : disabler(), libjxl_module],
-     'JPEG2000 load/save': ['OpenJPEG', libopenjp2_dep],
-     'PNG load/save': ['libpng or spng', png_package],
-     'image quantisation': ['imagequant or quantizr', quantisation_package],
-     'TIFF load/save': ['libtiff', libtiff_dep],
-     'image pyramid save': ['libarchive', libarchive_dep],
-     'HEIC/AVIF load/save': ['libheif', libheif_dep, libheif_module],
-     'WebP load/save': ['libwebp', libwebp_dep],
-     'PDF load': ['PDFium or Poppler', pdf_loader, libpoppler_module],
-     'SVG load': ['librsvg', librsvg_found ? librsvg_dep : disabler()],
-     'EXR load': ['OpenEXR', openexr_dep],
-     'WSI load': ['OpenSlide', openslide_dep, openslide_module],
-     'Matlab load': ['Matio', matio_dep],
-     'NIfTI load/save': ['libnifti', libnifti_found ? libnifti_dep : disabler()],
-     'FITS load/save': ['cfitsio', cfitsio_dep],
-     'GIF save': ['cgif', cgif_dep],
-     'RAW load': ['libraw', libraw_dep],
-     'Magick @0@'.format('/'.join(get_option('magick-features'))): [get_option('magick-package'), magick_dep, magick_module],
+    'External image format libraries': {
+        'JPEG load/save': ['libjpeg', libjpeg_dep],
+        'UHDR load/save': ['libuhdr', libuhdr_dep],
+        'JXL load/save': ['libjxl', libjxl_found ? libjxl_dep : disabler(), libjxl_module],
+        'JPEG2000 load/save': ['OpenJPEG', libopenjp2_dep],
+        'PNG load/save': ['libpng or spng', png_package],
+        'image quantisation': ['imagequant or quantizr', quantisation_package],
+        'TIFF load/save': ['libtiff', libtiff_dep],
+        'image pyramid save': ['libarchive', libarchive_dep],
+        'HEIC/AVIF load/save': ['libheif', libheif_dep, libheif_module],
+        'WebP load/save': ['libwebp', libwebp_dep],
+        'PDF load': ['PDFium or Poppler', pdf_loader, libpoppler_module],
+        'SVG load': ['librsvg', librsvg_found ? librsvg_dep : disabler()],
+        'EXR load': ['OpenEXR', openexr_dep],
+        'WSI load': ['OpenSlide', openslide_dep, openslide_module],
+        'Matlab load': ['Matio', matio_dep],
+        'NIfTI load/save': ['libnifti', libnifti_found ? libnifti_dep : disabler()],
+        'FITS load/save': ['cfitsio', cfitsio_dep],
+        'GIF save': ['cgif', cgif_dep],
+        'RAW load': ['libraw', libraw_dep],
+        'Magick @0@'.format('/'.join(get_option('magick-features'))): [get_option('magick-package'), magick_dep, magick_module],
     },
 }
 
 # external_deps can have duplicates (eg. cairo can appear several times),
 # which will make summary fail
 seen_deps = []
-foreach dep: external_deps + module_deps
+foreach dep : external_deps + module_deps
     if dep.type_name() != 'internal' and dep.name() not in seen_deps
-       summary(dep.name(), dep.version(), section: 'Dependencies')
-       seen_deps += dep.name()
+        summary(dep.name(), dep.version(), section: 'Dependencies')
+        seen_deps += dep.name()
     endif
 endforeach
 foreach section_title, section : build_summary
     summary(section, bool_yn: true, section: section_title)
 endforeach
-foreach section_title, section: build_features
+foreach section_title, section : build_features
     foreach key, arr : section
         dep_name = arr[0]
         found = arr[1].found()

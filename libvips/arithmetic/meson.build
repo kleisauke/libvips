@@ -19,8 +19,8 @@ arithmetic_sources = files(
     'hough_line.c',
     'invert.c',
     'linear.c',
-    'math2.c',
     'math.c',
+    'math2.c',
     'max.c',
     'maxpair.c',
     'measure.c',
@@ -48,8 +48,8 @@ arithmetic_headers = files(
     'nary.h',
     'parithmetic.h',
     'statistic.h',
-    'unaryconst.h',
     'unary.h',
+    'unaryconst.h',
 )
 
 libvips_sources += arithmetic_sources

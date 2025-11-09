@@ -1,25 +1,25 @@
 convolution_sources = files(
     'canny.c',
-    'edge.c',
-    'convolution.c',
-    'correlation.c',
+    'compass.c',
     'conv.c',
     'conva.c',
+    'convasep.c',
     'convf.c',
     'convi.c',
     'convi_hwy.cpp',
-    'convasep.c',
+    'convolution.c',
     'convsep.c',
-    'compass.c',
+    'correlation.c',
+    'edge.c',
     'fastcor.c',
-    'spcor.c',
-    'sharpen.c',
     'gaussblur.c',
+    'sharpen.c',
+    'spcor.c',
 )
 
 convolution_headers = files(
-    'pconvolution.h',
     'correlation.h',
+    'pconvolution.h',
 )
 
 libvips_sources += convolution_sources

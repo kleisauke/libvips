@@ -36,7 +36,7 @@ libvips_dep = declare_dependency(
 
 pkg.generate(
     libvips_lib,
-    requires: [ glib_dep, gio_dep, gobject_dep ],
+    requires: [glib_dep, gio_dep, gobject_dep],
     name: 'vips',
     description: 'Image processing library',
 )
@@ -53,15 +53,15 @@ if enable_introspection
         sources: libvips_sources,
         dependencies: libvips_deps,
         includes: ['GObject-2.0', 'Gio-2.0'],
-        install: true
+        install: true,
     )
 
     if get_option('vapi')
         gnome.generate_vapi(
             'vips',
             sources: vips_gir[0],
-            packages: [ 'glib-2.0', 'gio-2.0', 'gobject-2.0' ],
-            install: true
+            packages: ['glib-2.0', 'gio-2.0', 'gobject-2.0'],
+            install: true,
         )
     endif
 endif
@@ -81,7 +81,7 @@ if magick_module
         name_prefix: '',
         dependencies: [libvips_dep, magick_dep],
         install: true,
-        install_dir: module_dir
+        install_dir: module_dir,
     )
 endif
 
@@ -92,7 +92,7 @@ if libjxl_module
         name_prefix: '',
         dependencies: [libvips_dep, libjxl_dep, libjxl_threads_dep],
         install: true,
-        install_dir: module_dir
+        install_dir: module_dir,
     )
 endif
 
@@ -103,7 +103,7 @@ if libheif_module
         name_prefix: '',
         dependencies: [libvips_dep, libheif_dep],
         install: true,
-        install_dir: module_dir
+        install_dir: module_dir,
     )
 endif
 
@@ -114,7 +114,7 @@ if libpoppler_module
         name_prefix: '',
         dependencies: [libvips_dep, libpoppler_dep, cairo_dep],
         install: true,
-        install_dir: module_dir
+        install_dir: module_dir,
     )
 endif
 
@@ -125,6 +125,6 @@ if openslide_module
         name_prefix: '',
         dependencies: [libvips_dep, openslide_dep],
         install: true,
-        install_dir: module_dir
+        install_dir: module_dir,
     )
 endif

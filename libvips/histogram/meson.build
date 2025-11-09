@@ -1,23 +1,23 @@
 histogram_sources = files(
+    'case.c',
+    'hist_cum.c',
+    'hist_entropy.c',
+    'hist_equal.c',
+    'hist_ismonotonic.c',
+    'hist_local.c',
+    'hist_match.c',
+    'hist_norm.c',
+    'hist_plot.c',
+    'hist_unary.c',
     'histogram.c',
     'maplut.c',
-    'case.c',
-    'hist_unary.c',
-    'hist_cum.c',
-    'hist_norm.c',
-    'hist_equal.c',
-    'hist_plot.c',
-    'hist_match.c',
-    'hist_local.c',
     'percent.c',
-    'hist_ismonotonic.c',
-    'hist_entropy.c',
     'stdif.c',
 )
 
 histogram_headers = files(
-    'phistogram.h',
     'hist_unary.h',
+    'phistogram.h',
 )
 
 libvips_sources += histogram_sources

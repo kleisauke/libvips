@@ -22,21 +22,21 @@ libvips_cpp_dep = declare_dependency(
 
 pkg.generate(
     libvips_cpp_lib,
-    requires: [ libvips_lib, glib_dep, gobject_dep ],
+    requires: [libvips_lib, glib_dep, gobject_dep],
     name: 'vips-cpp',
     description: 'C++ API for vips8 image processing library',
 )
 
 custom_target('vips-operators-header',
-    command: [ 'gen-operators.py', '-g', 'h'],
+    command: ['gen-operators.py', '-g', 'h'],
     capture: true,
-    output: 'vips-operators.h'
+    output: 'vips-operators.h',
 )
 
 custom_target('vips-operators-source',
-    command: [ 'gen-operators.py', '-g', 'cpp'],
+    command: ['gen-operators.py', '-g', 'cpp'],
     capture: true,
-    output: 'vips-operators.cpp'
+    output: 'vips-operators.cpp',
 )
 
 if get_option('cpp-docs')
@@ -51,7 +51,7 @@ if get_option('cpp-docs')
         input: 'Doxyfile.in',
         output: 'Doxyfile',
         configuration: doxygen_data,
-        install: false
+        install: false,
     )
 
     html_target = custom_target('vips-cpp-docs',

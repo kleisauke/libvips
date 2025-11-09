@@ -1,10 +1,10 @@
 freqfilt_sources = files(
     'freqfilt.c',
+    'freqmult.c',
     'fwfft.c',
     'invfft.c',
-    'freqmult.c',
-    'spectrum.c',
     'phasecor.c',
+    'spectrum.c',
 )
 
 freqfilt_headers = files(
