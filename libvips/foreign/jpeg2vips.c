@@ -302,17 +302,55 @@ skip_input_data_mappable(j_decompress_ptr cinfo, long num_bytes)
 	}
 }
 
-static unsigned int
-get_character(j_decompress_ptr cinfo)
+/* Reads exactly 'length' bytes from JPEG source into 'buf'.
+ * Handles source buffer refills and suspension automatically.
+ */
+static void
+read_bytes(j_decompress_ptr cinfo, JOCTET *buf, size_t length)
+{
+	struct jpeg_source_mgr *src = cinfo->src;
+	size_t remaining = length;
+	size_t offset = 0;
+
+	while (remaining > 0) {
+		if (src->bytes_in_buffer == 0)
+			if (!(*src->fill_input_buffer)(cinfo))
+				ERREXIT(cinfo, JERR_CANT_SUSPEND);
+
+		size_t chunk = VIPS_MIN(remaining, src->bytes_in_buffer);
+		memcpy(buf + offset, src->next_input_byte, chunk);
+
+		src->next_input_byte += chunk;
+		src->bytes_in_buffer -= chunk;
+		offset += chunk;
+		remaining -= chunk;
+	}
+}
+
+/* Returns:
+ *   - pointer to contiguous bytes (inside JPEG buffer), or
+ *   - pointer to buf if copying was necessary.
+ *
+ * buf must hold at least `requested` bytes.
+ */
+static const JOCTET *
+get_bytes(j_decompress_ptr cinfo, size_t requested, JOCTET *buf)
 {
 	struct jpeg_source_mgr *src = cinfo->src;
 
-	if (src->bytes_in_buffer == 0)
-		if (!(*src->fill_input_buffer)(cinfo))
-			ERREXIT(cinfo, JERR_CANT_SUSPEND);
+	/* Fast path: enough bytes in buffer, return direct pointer.
+	 */
+	if (src->bytes_in_buffer >= requested) {
+		const JOCTET *p = src->next_input_byte;
+		src->next_input_byte += requested;
+		src->bytes_in_buffer -= requested;
+		return p;
+	}
 
-	src->bytes_in_buffer--;
-	return *src->next_input_byte++;
+	/* Slow path: copy into buf.
+	 */
+	read_bytes(cinfo, buf, requested);
+	return buf;
 }
 
 #ifdef HAVE_UHDR
@@ -321,8 +359,14 @@ mpf_sniffer(j_decompress_ptr cinfo)
 {
 	Source *src = (Source *) cinfo->src;
 
-	unsigned int length = get_character(cinfo) << 8;
-	length += get_character(cinfo);
+	JOCTET tmp[3];
+	const JOCTET *p;
+	unsigned int length;
+
+	/* Read length.
+	 */
+	p = get_bytes(cinfo, 2, tmp);
+	length = (p[0] << 8) | p[1];
 	if (length < 2)
 		return TRUE;
 	length -= 2;
@@ -331,12 +375,12 @@ mpf_sniffer(j_decompress_ptr cinfo)
 		return TRUE;
 	}
 
-	char header[3];
-	for (int i = 0; i < 3; i++)
-		header[i] = (char) get_character(cinfo);
+	/* Read "MPF" header.
+	 */
+	p = get_bytes(cinfo, 3, tmp);
 	length -= 3;
 
-	if (memcmp(header, "MPF", 3) == 0)
+	if (memcmp(p, "MPF", 3) == 0)
 		src->jpeg->is_uhdr = TRUE;
 
 	(*src->pub.skip_input_data)(cinfo, length);
@@ -349,8 +393,14 @@ exif_xmp_processor(j_decompress_ptr cinfo)
 {
 	Source *src = (Source *) cinfo->src;
 
-	unsigned int length = get_character(cinfo) << 8;
-	length += get_character(cinfo);
+	JOCTET tmp[4];
+	const JOCTET *p;
+	unsigned int length;
+
+	/* Read length.
+	 */
+	p = get_bytes(cinfo, 2, tmp);
+	length = (p[0] << 8) | p[1];
 	if (length < 2)
 		return TRUE;
 	length -= 2;
@@ -359,31 +409,29 @@ exif_xmp_processor(j_decompress_ptr cinfo)
 		return TRUE;
 	}
 
-	char header[4];
-	for (int i = 0; i < 4; i++)
-		header[i] = (char) get_character(cinfo);
+	/* Read "Exif" or "http" header.
+	 */
+	p = get_bytes(cinfo, 4, tmp);
+	length -= 4;
 
 	/* Only use the first possible EXIF data block.
 	 */
-	if (memcmp(header, "Exif", 4) == 0 &&
+	if (memcmp(p, "Exif", 4) == 0 &&
 		!src->exif_data) {
-		if (!(src->exif_data = vips_malloc(NULL, length)))
+		if (!(src->exif_data = vips_malloc(NULL, length + 4)))
 			ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 10);
 
-		memcpy(src->exif_data, header, 4);
-		for (unsigned int i = 4; i < length; i++)
-			src->exif_data[i] = get_character(cinfo);
+		memcpy(src->exif_data, p, 4);
+		read_bytes(cinfo, src->exif_data + 4, length);
 
-		src->exif_size = length;
+		src->exif_size = length + 4;
 
 		return TRUE;
 	}
 
-	length -= 4;
-
 	/* Only use the first possible XMP data block.
 	 */
-	if (memcmp(header, "http", 4) == 0 &&
+	if (memcmp(p, "http", 4) == 0 &&
 		!src->xmp_data) {
 		if (!(src->xmp_data = vips_malloc(NULL, length)))
 			ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 10);
@@ -392,8 +440,7 @@ exif_xmp_processor(j_decompress_ptr cinfo)
 		 * "http://ns.adobe.com/xap/1.0/" at the front, then a null character,
 		 * then the real XMP.
 		 */
-		for (unsigned int i = 0; i < length; i++)
-			src->xmp_data[i] = get_character(cinfo);
+		read_bytes(cinfo, src->xmp_data, length);
 
 		/* Search for a null char within the first few characters. 80
 		 * should be plenty for a basic URL.
@@ -426,8 +473,14 @@ icc_processor(j_decompress_ptr cinfo)
 {
 	Source *src = (Source *) cinfo->src;
 
-	unsigned int length = get_character(cinfo) << 8;
-	length += get_character(cinfo);
+	JOCTET tmp[12];
+	const JOCTET *p;
+	unsigned int length;
+
+	/* Read length.
+	 */
+	p = get_bytes(cinfo, 2, tmp);
+	length = (p[0] << 8) | p[1];
 	if (length < 2)
 		return TRUE;
 	length -= 2;
@@ -436,18 +489,21 @@ icc_processor(j_decompress_ptr cinfo)
 		return TRUE;
 	}
 
-	char header[12];
-	for (int i = 0; i < 12; i++)
-		header[i] = (char) get_character(cinfo);
+	/* Read "ICC_PROFILE\0" header.
+	 */
+	p = get_bytes(cinfo, 12, tmp);
 	length -= 12;
 
-	if (memcmp(header, "ICC_PROFILE\0", 12) != 0) {
+	if (memcmp(p, "ICC_PROFILE\0", 12) != 0) {
 		(*src->pub.skip_input_data)(cinfo, length);
 		return TRUE;
 	}
 
-	unsigned int seq_no = get_character(cinfo);
-	unsigned int total = get_character(cinfo);
+	/* Read sequence number and total.
+	 */
+	p = get_bytes(cinfo, 2, tmp);
+	unsigned int seq_no = p[0];
+	unsigned int total = p[1];
 	length -= 2;
 	if (seq_no < 1 ||
 		seq_no > total ||
@@ -463,8 +519,7 @@ icc_processor(j_decompress_ptr cinfo)
 	if (!(src->app2_data[seq_idx] = vips_malloc(NULL, length)))
 		ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 11);
 
-	for (unsigned int i = 0; i < length; i++)
-		src->app2_data[seq_idx][i] = get_character(cinfo);
+	read_bytes(cinfo, src->app2_data[seq_idx], length);
 
 	src->app2_size[seq_idx] = length;
 
@@ -476,8 +531,14 @@ iptc_processor(j_decompress_ptr cinfo)
 {
 	Source *src = (Source *) cinfo->src;
 
-	unsigned int length = get_character(cinfo) << 8;
-	length += get_character(cinfo);
+	JOCTET tmp[5];
+	const JOCTET *p;
+	unsigned int length;
+
+	/* Read length.
+	 */
+	p = get_bytes(cinfo, 2, tmp);
+	length = (p[0] << 8) | p[1];
 	if (length < 2)
 		return TRUE;
 	length -= 2;
@@ -486,26 +547,26 @@ iptc_processor(j_decompress_ptr cinfo)
 		return TRUE;
 	}
 
-	char header[5];
-	for (int i = 0; i < 5; i++)
-		header[i] = (char) get_character(cinfo);
+	/* Read "Photo" header.
+	 */
+	p = get_bytes(cinfo, 5, tmp);
+	length -= 5;
 
 	/* Only use the first possible IPTC data block.
 	 */
-	if (memcmp(header, "Photo", 5) != 0 ||
+	if (memcmp(p, "Photo", 5) != 0 ||
 		src->iptc_data) {
-		(*src->pub.skip_input_data)(cinfo, length - 5);
+		(*src->pub.skip_input_data)(cinfo, length);
 		return TRUE;
 	}
 
-	if (!(src->iptc_data = vips_malloc(NULL, length)))
+	if (!(src->iptc_data = vips_malloc(NULL, length + 5)))
 		ERREXIT1(cinfo, JERR_OUT_OF_MEMORY, 12);
 
-	memcpy(src->iptc_data, header, 5);
-	for (unsigned int i = 5; i < length; i++)
-		src->iptc_data[i] = get_character(cinfo);
+	memcpy(src->iptc_data, p, 5);
+	read_bytes(cinfo, src->iptc_data, length);
 
-	src->iptc_size = length;
+	src->iptc_size = length + 5;
 
 	return TRUE;
 }
