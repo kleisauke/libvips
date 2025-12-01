@@ -11,7 +11,7 @@
 VIPS_NAMESPACE_START
 
 VRegion
-VRegion::new_from_image(VImage image)
+VRegion::new_from_image(const VImage& image)
 {
 	VipsRegion *region;
 

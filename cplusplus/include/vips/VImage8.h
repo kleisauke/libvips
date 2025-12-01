@@ -293,7 +293,7 @@ public:
 	 * A copy is taken of the object.
 	 */
 	VOption *
-	set(const char *name, VObject value);
+	set(const char *name, const VObject &value);
 
 	/**
 	 * Set an array of integers as an input option.
@@ -929,7 +929,7 @@ public:
 	 * VImage::jpegload().
 	 */
 	static VImage
-	new_from_source(VSource source,
+	new_from_source(const VSource &source,
 		const char *option_string, VOption *options = nullptr);
 
 	/**
@@ -1060,7 +1060,7 @@ public:
 	/**
 	 * Write self to out. See VImage::new_memory() etc.
 	 */
-	VImage write(VImage out) const;
+	VImage write(const VImage &out) const;
 
 	/**
 	 * Write an image to a file.
@@ -1092,7 +1092,7 @@ public:
 	 * The available options depends on the file format. See
 	 * VImage::jpegsave(), for example.
 	 */
-	void write_to_target(const char *suffix, VTarget target,
+	void write_to_target(const char *suffix, const VTarget &target,
 		VOption *options = nullptr) const;
 
 	/**
@@ -1170,7 +1170,7 @@ public:
 	/**
 	 * Join two images bandwise.
 	 */
-	VImage bandjoin(VImage other, VOption *options = nullptr) const;
+	VImage bandjoin(const VImage &other, VOption *options = nullptr) const;
 
 	/**
 	 * Append a band to an image, with each element initialized to the
@@ -1195,7 +1195,7 @@ public:
 	/**
 	 * Composite other on top of self using the specified blending mode.
 	 */
-	VImage composite(VImage other, VipsBlendMode mode,
+	VImage composite(const VImage &other, VipsBlendMode mode,
 		VOption *options = nullptr) const;
 
 	/**
@@ -1259,7 +1259,7 @@ public:
 	 * black, 255 for white and 128 for don't care. See VImage::morph().
 	 */
 	VImage
-	dilate(VImage mask, VOption *options = nullptr) const
+	dilate(const VImage &mask, VOption *options = nullptr) const
 	{
 		return morph(mask, VIPS_OPERATION_MORPHOLOGY_DILATE,
 			options);
@@ -1271,7 +1271,7 @@ public:
 	 * black, 255 for white and 128 for don't care. See VImage::morph().
 	 */
 	VImage
-	erode(VImage mask, VOption *options = nullptr) const
+	erode(const VImage &mask, VOption *options = nullptr) const
 	{
 		return morph(mask, VIPS_OPERATION_MORPHOLOGY_ERODE,
 			options);
@@ -1542,7 +1542,7 @@ public:
 	 * Raise each pixel to the specified power.
 	 */
 	VImage
-	pow(VImage other, VOption *options = nullptr) const
+	pow(const VImage &other, VOption *options = nullptr) const
 	{
 		return math2(other, VIPS_OPERATION_MATH2_POW, options);
 	}
@@ -1571,7 +1571,7 @@ public:
 	 * Raise other to the power of each pixel (the opposite of pow).
 	 */
 	VImage
-	wop(VImage other, VOption *options = nullptr) const
+	wop(const VImage &other, VOption *options = nullptr) const
 	{
 		return math2(other, VIPS_OPERATION_MATH2_WOP, options);
 	}
@@ -1600,7 +1600,7 @@ public:
 	 * Calculate atan2 of each pixel.
 	 */
 	VImage
-	atan2(VImage other, VOption *options = nullptr) const
+	atan2(const VImage &other, VOption *options = nullptr) const
 	{
 		return math2(other, VIPS_OPERATION_MATH2_ATAN2, options);
 	}
@@ -1630,7 +1630,7 @@ public:
 	 * pixels from th (then) or el (else).
 	 */
 	VImage
-	ifthenelse(const std::vector<double> &th, VImage el,
+	ifthenelse(const std::vector<double> &th, const VImage &el,
 		VOption *options = nullptr) const
 	{
 		return ifthenelse(el.new_from_image(th), el, options);
@@ -1641,7 +1641,7 @@ public:
 	 * pixels from th (then) or el (else).
 	 */
 	VImage
-	ifthenelse(VImage th, const std::vector<double> &el,
+	ifthenelse(const VImage &th, const std::vector<double> &el,
 		VOption *options = nullptr) const
 	{
 		return ifthenelse(th, th.new_from_image(el), options);
@@ -1664,7 +1664,7 @@ public:
 	 * pixels from th (then) or el (else).
 	 */
 	VImage
-	ifthenelse(double th, VImage el, VOption *options = nullptr) const
+	ifthenelse(double th, const VImage &el, VOption *options = nullptr) const
 	{
 		return ifthenelse(to_vector(th), el, options);
 	}
@@ -1674,7 +1674,7 @@ public:
 	 * pixels from th (then) or el (else).
 	 */
 	VImage
-	ifthenelse(VImage th, double el, VOption *options = nullptr) const
+	ifthenelse(const VImage &th, double el, VOption *options = nullptr) const
 	{
 		return ifthenelse(th, to_vector(el), options);
 	}
@@ -1795,7 +1795,7 @@ public:
 	 * @param options Set of options.
 	 */
 	void
-	draw_mask(double ink, VImage mask, int x, int y, VOption *options = nullptr) const
+	draw_mask(double ink, const VImage &mask, int x, int y, VOption *options = nullptr) const
 	{
 		return draw_mask(to_vector(ink), mask, x, y, options);
 	}
@@ -1830,237 +1830,237 @@ public:
 	std::vector<double> operator()(int x, int y) const;
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator+(VImage a, VImage b);
+	operator+(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator+(double a, VImage b);
+	operator+(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator+(VImage a, double b);
+	operator+(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator+(const std::vector<double> &a, VImage b);
+	operator+(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator+(VImage a, const std::vector<double> &b);
+	operator+(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage &
-	operator+=(VImage &a, VImage b);
+	operator+=(VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator+=(VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator+=(VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator-(VImage a, VImage b);
+	operator-(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator-(double a, VImage b);
+	operator-(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator-(VImage a, double b);
+	operator-(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator-(const std::vector<double> &a, VImage b);
+	operator-(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator-(VImage a, const std::vector<double> &b);
+	operator-(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage &
-	operator-=(VImage &a, VImage b);
+	operator-=(VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator-=(VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator-=(VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator-(VImage a);
+	operator-(const VImage &a);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator*(VImage a, VImage b);
+	operator*(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator*(double a, VImage b);
+	operator*(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator*(VImage a, double b);
+	operator*(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator*(const std::vector<double> &a, VImage b);
+	operator*(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator*(VImage a, const std::vector<double> &b);
+	operator*(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage &
-	operator*=(VImage &a, VImage b);
+	operator*=(VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator*=(VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator*=(VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator/(VImage a, VImage b);
+	operator/(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator/(double a, VImage b);
+	operator/(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator/(VImage a, double b);
+	operator/(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator/(const std::vector<double> &a, VImage b);
+	operator/(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator/(VImage a, const std::vector<double> &b);
+	operator/(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage &
-	operator/=(VImage &a, VImage b);
+	operator/=(VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator/=(VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator/=(VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator%(VImage a, VImage b);
+	operator%(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator%(VImage a, double b);
+	operator%(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator%(VImage a, const std::vector<double> &b);
+	operator%(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage &
-	operator%=(VImage &a, VImage b);
+	operator%=(VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator%=(VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator%=(VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<(VImage a, VImage b);
+	operator<(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<(double a, VImage b);
+	operator<(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<(VImage a, double b);
+	operator<(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<(const std::vector<double> &a, VImage b);
+	operator<(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<(VImage a, const std::vector<double> &b);
+	operator<(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<=(VImage a, VImage b);
+	operator<=(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<=(double a, VImage b);
+	operator<=(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<=(VImage a, double b);
+	operator<=(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<=(const std::vector<double> &a, VImage b);
+	operator<=(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<=(VImage a, const std::vector<double> &b);
+	operator<=(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>(VImage a, VImage b);
+	operator>(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>(double a, VImage b);
+	operator>(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>(VImage a, double b);
+	operator>(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>(const std::vector<double> &a, VImage b);
+	operator>(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>(VImage a, const std::vector<double> &b);
+	operator>(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>=(VImage a, VImage b);
+	operator>=(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>=(double a, VImage b);
+	operator>=(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>=(VImage a, double b);
+	operator>=(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>=(const std::vector<double> &a, VImage b);
+	operator>=(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>=(VImage a, const std::vector<double> &b);
+	operator>=(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator==(VImage a, VImage b);
+	operator==(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator==(double a, VImage b);
+	operator==(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator==(VImage a, double b);
+	operator==(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator==(const std::vector<double> &a, VImage b);
+	operator==(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator==(VImage a, const std::vector<double> &b);
+	operator==(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator!=(VImage a, VImage b);
+	operator!=(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator!=(double a, VImage b);
+	operator!=(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator!=(VImage a, double b);
+	operator!=(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator!=(const std::vector<double> &a, VImage b);
+	operator!=(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator!=(VImage a, const std::vector<double> &b);
+	operator!=(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator&(VImage a, VImage b);
+	operator&(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator&(double a, VImage b);
+	operator&(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator&(VImage a, double b);
+	operator&(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator&(const std::vector<double> &a, VImage b);
+	operator&(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator&(VImage a, const std::vector<double> &b);
+	operator&(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage &
-	operator&=(VImage &a, VImage b);
+	operator&=(VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator&=(VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator&=(VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator|(VImage a, VImage b);
+	operator|(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator|(double a, VImage b);
+	operator|(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator|(VImage a, double b);
+	operator|(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator|(const std::vector<double> &a, VImage b);
+	operator|(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator|(VImage a, const std::vector<double> &b);
+	operator|(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage &
-	operator|=(VImage &a, VImage b);
+	operator|=(VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator|=(VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator|=(VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator^(VImage a, VImage b);
+	operator^(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator^(double a, VImage b);
+	operator^(double a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator^(VImage a, double b);
+	operator^(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator^(const std::vector<double> &a, VImage b);
+	operator^(const std::vector<double> &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator^(VImage a, const std::vector<double> &b);
+	operator^(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage &
-	operator^=(VImage &a, VImage b);
+	operator^=(VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator^=(VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator^=(VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<<(VImage a, VImage b);
+	operator<<(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<<(VImage a, double b);
+	operator<<(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator<<(VImage a, const std::vector<double> &b);
+	operator<<(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage &
-	operator<<=(VImage &a, VImage b);
+	operator<<=(VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator<<=(VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator<<=(VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>>(VImage a, VImage b);
+	operator>>(const VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>>(VImage a, double b);
+	operator>>(const VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage
-	operator>>(VImage a, const std::vector<double> &b);
+	operator>>(const VImage &a, const std::vector<double> &b);
 
 	friend VIPS_CPLUSPLUS_API VImage &
-	operator>>=(VImage &a, VImage b);
+	operator>>=(VImage &a, const VImage &b);
 	friend VIPS_CPLUSPLUS_API VImage &
 	operator>>=(VImage &a, double b);
 	friend VIPS_CPLUSPLUS_API VImage &

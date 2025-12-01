@@ -188,7 +188,7 @@ VOption::set(const char *name, const char *value)
 
 // input vips object (image, source, target, etc. etc.)
 VOption *
-VOption::set(const char *name, VObject value)
+VOption::set(const char *name, const VObject &value)
 {
 	Pair *pair = new Pair(name);
 	VipsObject *object = value.get_object();
@@ -610,7 +610,7 @@ VImage::new_from_buffer(const std::string &buf, const char *option_string,
 }
 
 VImage
-VImage::new_from_source(VSource source, const char *option_string,
+VImage::new_from_source(const VSource &source, const char *option_string,
 	VOption *options)
 {
 	const char *operation_name;
@@ -671,7 +671,7 @@ VImage::new_matrixv(int width, int height, ...)
 }
 
 VImage
-VImage::write(VImage out) const
+VImage::write(const VImage &out) const
 {
 	if (vips_image_write(this->get_image(), out.get_image()))
 		throw VError();
@@ -752,7 +752,7 @@ VImage::write_to_buffer(const char *suffix, void **buf, size_t *size,
 }
 
 void
-VImage::write_to_target(const char *suffix, VTarget target,
+VImage::write_to_target(const char *suffix, const VTarget &target,
 	VOption *options) const
 {
 	char filename[VIPS_PATH_MAX];
@@ -832,7 +832,7 @@ VImage::bandsplit(VOption *options) const
 }
 
 VImage
-VImage::bandjoin(VImage other, VOption *options) const
+VImage::bandjoin(const VImage &other, VOption *options) const
 {
 	VImage v[2] = { *this, other };
 	std::vector<VImage> vec(v, v + VIPS_NUMBER(v));
@@ -841,7 +841,7 @@ VImage::bandjoin(VImage other, VOption *options) const
 }
 
 VImage
-VImage::composite(VImage other, VipsBlendMode mode, VOption *options) const
+VImage::composite(const VImage &other, VipsBlendMode mode, VOption *options) const
 {
 	VImage v[2] = { *this, other };
 	std::vector<VImage> ivec(v, v + VIPS_NUMBER(v));
@@ -890,37 +890,37 @@ VImage::operator()(int x, int y) const
 }
 
 VImage
-operator+(const VImage a, const VImage b)
+operator+(const VImage &a, const VImage &b)
 {
 	return a.add(b);
 }
 
 VImage
-operator+(double a, const VImage b)
+operator+(double a, const VImage &b)
 {
 	return b.linear(1.0, a);
 }
 
 VImage
-operator+(const VImage a, double b)
+operator+(const VImage &a, double b)
 {
 	return a.linear(1.0, b);
 }
 
 VImage
-operator+(const std::vector<double> &a, const VImage b)
+operator+(const std::vector<double> &a, const VImage &b)
 {
 	return b.linear(1.0, a);
 }
 
 VImage
-operator+(const VImage a, const std::vector<double> &b)
+operator+(const VImage &a, const std::vector<double> &b)
 {
 	return a.linear(1.0, b);
 }
 
 VImage &
-operator+=(VImage &a, const VImage b)
+operator+=(VImage &a, const VImage &b)
 {
 	a = a + b;
 	return a;
@@ -941,37 +941,37 @@ operator+=(VImage &a, const std::vector<double> &b)
 }
 
 VImage
-operator-(const VImage a, const VImage b)
+operator-(const VImage &a, const VImage &b)
 {
 	return a.subtract(b);
 }
 
 VImage
-operator-(double a, const VImage b)
+operator-(double a, const VImage &b)
 {
 	return b.linear(-1.0, a);
 }
 
 VImage
-operator-(const VImage a, double b)
+operator-(const VImage &a, double b)
 {
 	return a.linear(1.0, -b);
 }
 
 VImage
-operator-(const std::vector<double> &a, const VImage b)
+operator-(const std::vector<double> &a, const VImage &b)
 {
 	return b.linear(-1.0, a);
 }
 
 VImage
-operator-(const VImage a, const std::vector<double> &b)
+operator-(const VImage &a, const std::vector<double> &b)
 {
 	return a.linear(1.0, vips::negate(b));
 }
 
 VImage &
-operator-=(VImage &a, const VImage b)
+operator-=(VImage &a, const VImage &b)
 {
 	a = a - b;
 	return a;
@@ -992,43 +992,43 @@ operator-=(VImage &a, const std::vector<double> &b)
 }
 
 VImage
-operator-(const VImage a)
+operator-(const VImage &a)
 {
 	return a * -1;
 }
 
 VImage
-operator*(const VImage a, const VImage b)
+operator*(const VImage &a, const VImage &b)
 {
 	return a.multiply(b);
 }
 
 VImage
-operator*(double a, const VImage b)
+operator*(double a, const VImage &b)
 {
 	return b.linear(a, 0.0);
 }
 
 VImage
-operator*(const VImage a, double b)
+operator*(const VImage &a, double b)
 {
 	return a.linear(b, 0.0);
 }
 
 VImage
-operator*(const std::vector<double> &a, const VImage b)
+operator*(const std::vector<double> &a, const VImage &b)
 {
 	return b.linear(a, 0.0);
 }
 
 VImage
-operator*(const VImage a, const std::vector<double> &b)
+operator*(const VImage &a, const std::vector<double> &b)
 {
 	return a.linear(b, 0.0);
 }
 
 VImage &
-operator*=(VImage &a, const VImage b)
+operator*=(VImage &a, const VImage &b)
 {
 	a = a * b;
 	return a;
@@ -1049,37 +1049,37 @@ operator*=(VImage &a, const std::vector<double> &b)
 }
 
 VImage
-operator/(const VImage a, const VImage b)
+operator/(const VImage &a, const VImage &b)
 {
 	return a.divide(b);
 }
 
 VImage
-operator/(double a, const VImage b)
+operator/(double a, const VImage &b)
 {
 	return b.pow(-1.0).linear(a, 0.0);
 }
 
 VImage
-operator/(const VImage a, double b)
+operator/(const VImage &a, double b)
 {
 	return a.linear(1.0 / b, 0.0);
 }
 
 VImage
-operator/(const std::vector<double> &a, const VImage b)
+operator/(const std::vector<double> &a, const VImage &b)
 {
 	return b.pow(-1.0).linear(a, 0.0);
 }
 
 VImage
-operator/(const VImage a, const std::vector<double> &b)
+operator/(const VImage &a, const std::vector<double> &b)
 {
 	return a.linear(vips::invert(b), 0.0);
 }
 
 VImage &
-operator/=(VImage &a, const VImage b)
+operator/=(VImage &a, const VImage &b)
 {
 	a = a / b;
 	return a;
@@ -1100,25 +1100,25 @@ operator/=(VImage &a, const std::vector<double> &b)
 }
 
 VImage
-operator%(const VImage a, const VImage b)
+operator%(const VImage &a, const VImage &b)
 {
 	return a.remainder(b);
 }
 
 VImage
-operator%(const VImage a, const double b)
+operator%(const VImage &a, const double b)
 {
 	return a.remainder_const(to_vector(b));
 }
 
 VImage
-operator%(const VImage a, const std::vector<double> &b)
+operator%(const VImage &a, const std::vector<double> &b)
 {
 	return a.remainder_const(b);
 }
 
 VImage &
-operator%=(VImage &a, const VImage b)
+operator%=(VImage &a, const VImage &b)
 {
 	a = a % b;
 	return a;
@@ -1139,217 +1139,217 @@ operator%=(VImage &a, const std::vector<double> &b)
 }
 
 VImage
-operator<(const VImage a, const VImage b)
+operator<(const VImage &a, const VImage &b)
 {
 	return a.relational(b, VIPS_OPERATION_RELATIONAL_LESS);
 }
 
 VImage
-operator<(const double a, const VImage b)
+operator<(const double a, const VImage &b)
 {
 	return b.relational_const(VIPS_OPERATION_RELATIONAL_MORE, to_vector(a));
 }
 
 VImage
-operator<(const VImage a, const double b)
+operator<(const VImage &a, const double b)
 {
 	return a.relational_const(VIPS_OPERATION_RELATIONAL_LESS, to_vector(b));
 }
 
 VImage
-operator<(const std::vector<double> &a, const VImage b)
+operator<(const std::vector<double> &a, const VImage &b)
 {
 	return b.relational_const(VIPS_OPERATION_RELATIONAL_MORE, a);
 }
 
 VImage
-operator<(const VImage a, const std::vector<double> &b)
+operator<(const VImage &a, const std::vector<double> &b)
 {
 	return a.relational_const(VIPS_OPERATION_RELATIONAL_LESS, b);
 }
 
 VImage
-operator<=(const VImage a, const VImage b)
+operator<=(const VImage &a, const VImage &b)
 {
 	return a.relational(b, VIPS_OPERATION_RELATIONAL_LESSEQ);
 }
 
 VImage
-operator<=(const double a, const VImage b)
+operator<=(const double a, const VImage &b)
 {
 	return b.relational_const(VIPS_OPERATION_RELATIONAL_MOREEQ, to_vector(a));
 }
 
 VImage
-operator<=(const VImage a, const double b)
+operator<=(const VImage &a, const double b)
 {
 	return a.relational_const(VIPS_OPERATION_RELATIONAL_LESSEQ, to_vector(b));
 }
 
 VImage
-operator<=(const std::vector<double> &a, const VImage b)
+operator<=(const std::vector<double> &a, const VImage &b)
 {
 	return b.relational_const(VIPS_OPERATION_RELATIONAL_MOREEQ, a);
 }
 
 VImage
-operator<=(const VImage a, const std::vector<double> &b)
+operator<=(const VImage &a, const std::vector<double> &b)
 {
 	return a.relational_const(VIPS_OPERATION_RELATIONAL_LESSEQ, b);
 }
 
 VImage
-operator>(const VImage a, const VImage b)
+operator>(const VImage &a, const VImage &b)
 {
 	return a.relational(b, VIPS_OPERATION_RELATIONAL_MORE);
 }
 
 VImage
-operator>(const double a, const VImage b)
+operator>(const double a, const VImage &b)
 {
 	return b.relational_const(VIPS_OPERATION_RELATIONAL_LESS, to_vector(a));
 }
 
 VImage
-operator>(const VImage a, const double b)
+operator>(const VImage &a, const double b)
 {
 	return a.relational_const(VIPS_OPERATION_RELATIONAL_MORE, to_vector(b));
 }
 
 VImage
-operator>(const std::vector<double> &a, const VImage b)
+operator>(const std::vector<double> &a, const VImage &b)
 {
 	return b.relational_const(VIPS_OPERATION_RELATIONAL_LESS, a);
 }
 
 VImage
-operator>(const VImage a, const std::vector<double> &b)
+operator>(const VImage &a, const std::vector<double> &b)
 {
 	return a.relational_const(VIPS_OPERATION_RELATIONAL_MORE, b);
 }
 
 VImage
-operator>=(const VImage a, const VImage b)
+operator>=(const VImage &a, const VImage &b)
 {
 	return a.relational(b, VIPS_OPERATION_RELATIONAL_MOREEQ);
 }
 
 VImage
-operator>=(const double a, const VImage b)
+operator>=(const double a, const VImage &b)
 {
 	return b.relational_const(VIPS_OPERATION_RELATIONAL_LESSEQ, to_vector(a));
 }
 
 VImage
-operator>=(const VImage a, const double b)
+operator>=(const VImage &a, const double b)
 {
 	return a.relational_const(VIPS_OPERATION_RELATIONAL_MOREEQ, to_vector(b));
 }
 
 VImage
-operator>=(const std::vector<double> &a, const VImage b)
+operator>=(const std::vector<double> &a, const VImage &b)
 {
 	return b.relational_const(VIPS_OPERATION_RELATIONAL_LESSEQ, a);
 }
 
 VImage
-operator>=(const VImage a, const std::vector<double> &b)
+operator>=(const VImage &a, const std::vector<double> &b)
 {
 	return a.relational_const(VIPS_OPERATION_RELATIONAL_MOREEQ, b);
 }
 
 VImage
-operator==(const VImage a, const VImage b)
+operator==(const VImage &a, const VImage &b)
 {
 	return a.relational(b, VIPS_OPERATION_RELATIONAL_EQUAL);
 }
 
 VImage
-operator==(const double a, const VImage b)
+operator==(const double a, const VImage &b)
 {
 	return b.relational_const(VIPS_OPERATION_RELATIONAL_EQUAL, to_vector(a));
 }
 
 VImage
-operator==(const VImage a, const double b)
+operator==(const VImage &a, const double b)
 {
 	return a.relational_const(VIPS_OPERATION_RELATIONAL_EQUAL, to_vector(b));
 }
 
 VImage
-operator==(const std::vector<double> &a, const VImage b)
+operator==(const std::vector<double> &a, const VImage &b)
 {
 	return b.relational_const(VIPS_OPERATION_RELATIONAL_EQUAL, a);
 }
 
 VImage
-operator==(const VImage a, const std::vector<double> &b)
+operator==(const VImage &a, const std::vector<double> &b)
 {
 	return a.relational_const(VIPS_OPERATION_RELATIONAL_EQUAL, b);
 }
 
 VImage
-operator!=(const VImage a, const VImage b)
+operator!=(const VImage &a, const VImage &b)
 {
 	return a.relational(b, VIPS_OPERATION_RELATIONAL_NOTEQ);
 }
 
 VImage
-operator!=(const double a, const VImage b)
+operator!=(const double a, const VImage &b)
 {
 	return b.relational_const(VIPS_OPERATION_RELATIONAL_NOTEQ, to_vector(a));
 }
 
 VImage
-operator!=(const VImage a, const double b)
+operator!=(const VImage &a, const double b)
 {
 	return a.relational_const(VIPS_OPERATION_RELATIONAL_NOTEQ, to_vector(b));
 }
 
 VImage
-operator!=(const std::vector<double> &a, const VImage b)
+operator!=(const std::vector<double> &a, const VImage &b)
 {
 	return b.relational_const(VIPS_OPERATION_RELATIONAL_NOTEQ, a);
 }
 
 VImage
-operator!=(const VImage a, const std::vector<double> &b)
+operator!=(const VImage &a, const std::vector<double> &b)
 {
 	return a.relational_const(VIPS_OPERATION_RELATIONAL_NOTEQ, b);
 }
 
 VImage
-operator&(const VImage a, const VImage b)
+operator&(const VImage &a, const VImage &b)
 {
 	return a.boolean(b, VIPS_OPERATION_BOOLEAN_AND);
 }
 
 VImage
-operator&(const double a, const VImage b)
+operator&(const double a, const VImage &b)
 {
 	return b.boolean_const(VIPS_OPERATION_BOOLEAN_AND, to_vector(a));
 }
 
 VImage
-operator&(const VImage a, const double b)
+operator&(const VImage &a, const double b)
 {
 	return a.boolean_const(VIPS_OPERATION_BOOLEAN_AND, to_vector(b));
 }
 
 VImage
-operator&(const std::vector<double> &a, const VImage b)
+operator&(const std::vector<double> &a, const VImage &b)
 {
 	return b.boolean_const(VIPS_OPERATION_BOOLEAN_AND, a);
 }
 
 VImage
-operator&(const VImage a, const std::vector<double> &b)
+operator&(const VImage &a, const std::vector<double> &b)
 {
 	return a.boolean_const(VIPS_OPERATION_BOOLEAN_AND, b);
 }
 
 VImage &
-operator&=(VImage &a, const VImage b)
+operator&=(VImage &a, const VImage &b)
 {
 	a = a & b;
 	return a;
@@ -1370,37 +1370,37 @@ operator&=(VImage &a, const std::vector<double> &b)
 }
 
 VImage
-operator|(const VImage a, const VImage b)
+operator|(const VImage &a, const VImage &b)
 {
 	return a.boolean(b, VIPS_OPERATION_BOOLEAN_OR);
 }
 
 VImage
-operator|(const double a, const VImage b)
+operator|(const double a, const VImage &b)
 {
 	return b.boolean_const(VIPS_OPERATION_BOOLEAN_OR, to_vector(a));
 }
 
 VImage
-operator|(const VImage a, const double b)
+operator|(const VImage &a, const double b)
 {
 	return a.boolean_const(VIPS_OPERATION_BOOLEAN_OR, to_vector(b));
 }
 
 VImage
-operator|(const std::vector<double> &a, const VImage b)
+operator|(const std::vector<double> &a, const VImage &b)
 {
 	return b.boolean_const(VIPS_OPERATION_BOOLEAN_OR, a);
 }
 
 VImage
-operator|(const VImage a, const std::vector<double> &b)
+operator|(const VImage &a, const std::vector<double> &b)
 {
 	return a.boolean_const(VIPS_OPERATION_BOOLEAN_OR, b);
 }
 
 VImage &
-operator|=(VImage &a, const VImage b)
+operator|=(VImage &a, const VImage &b)
 {
 	a = a | b;
 	return a;
@@ -1421,37 +1421,37 @@ operator|=(VImage &a, const std::vector<double> &b)
 }
 
 VImage
-operator^(const VImage a, const VImage b)
+operator^(const VImage &a, const VImage &b)
 {
 	return a.boolean(b, VIPS_OPERATION_BOOLEAN_EOR);
 }
 
 VImage
-operator^(const double a, const VImage b)
+operator^(const double a, const VImage &b)
 {
 	return b.boolean_const(VIPS_OPERATION_BOOLEAN_EOR, to_vector(a));
 }
 
 VImage
-operator^(const VImage a, const double b)
+operator^(const VImage &a, const double b)
 {
 	return a.boolean_const(VIPS_OPERATION_BOOLEAN_EOR, to_vector(b));
 }
 
 VImage
-operator^(const std::vector<double> &a, const VImage b)
+operator^(const std::vector<double> &a, const VImage &b)
 {
 	return b.boolean_const(VIPS_OPERATION_BOOLEAN_EOR, a);
 }
 
 VImage
-operator^(const VImage a, const std::vector<double> &b)
+operator^(const VImage &a, const std::vector<double> &b)
 {
 	return a.boolean_const(VIPS_OPERATION_BOOLEAN_EOR, b);
 }
 
 VImage &
-operator^=(VImage &a, const VImage b)
+operator^=(VImage &a, const VImage &b)
 {
 	a = a ^ b;
 	return a;
@@ -1472,25 +1472,25 @@ operator^=(VImage &a, const std::vector<double> &b)
 }
 
 VImage
-operator<<(const VImage a, const VImage b)
+operator<<(const VImage &a, const VImage &b)
 {
 	return a.boolean(b, VIPS_OPERATION_BOOLEAN_LSHIFT);
 }
 
 VImage
-operator<<(const VImage a, const double b)
+operator<<(const VImage &a, const double b)
 {
 	return a.boolean_const(VIPS_OPERATION_BOOLEAN_LSHIFT, to_vector(b));
 }
 
 VImage
-operator<<(const VImage a, const std::vector<double> &b)
+operator<<(const VImage &a, const std::vector<double> &b)
 {
 	return a.boolean_const(VIPS_OPERATION_BOOLEAN_LSHIFT, b);
 }
 
 VImage &
-operator<<=(VImage &a, const VImage b)
+operator<<=(VImage &a, const VImage &b)
 {
 	a = a << b;
 	return a;
@@ -1511,25 +1511,25 @@ operator<<=(VImage &a, const std::vector<double> &b)
 }
 
 VImage
-operator>>(const VImage a, const VImage b)
+operator>>(const VImage &a, const VImage &b)
 {
 	return a.boolean(b, VIPS_OPERATION_BOOLEAN_RSHIFT);
 }
 
 VImage
-operator>>(const VImage a, const double b)
+operator>>(const VImage &a, const double b)
 {
 	return a.boolean_const(VIPS_OPERATION_BOOLEAN_RSHIFT, to_vector(b));
 }
 
 VImage
-operator>>(const VImage a, const std::vector<double> &b)
+operator>>(const VImage &a, const std::vector<double> &b)
 {
 	return a.boolean_const(VIPS_OPERATION_BOOLEAN_RSHIFT, b);
 }
 
 VImage &
-operator>>=(VImage &a, const VImage b)
+operator>>=(VImage &a, const VImage &b)
 {
 	a = a << b;
 	return a;

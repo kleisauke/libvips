@@ -53,7 +53,7 @@ public:
 	 * Create a VRegion from an image.
 	 */
 	static VRegion
-	new_from_image(VImage image);
+	new_from_image(const VImage &image);
 
 	/**
 	 * Get a pointer to the underlying VipsRegion object.
