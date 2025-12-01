@@ -45,7 +45,7 @@ VIPS_NAMESPACE_START
 
 VIPS_CPLUSPLUS_API std::vector<double> to_vectorv(int n, ...);
 VIPS_CPLUSPLUS_API std::vector<double> to_vector(double value);
-VIPS_CPLUSPLUS_API std::vector<double> to_vector(int n, double array[]);
+VIPS_CPLUSPLUS_API std::vector<double> to_vector(int n, const double array[]);
 VIPS_CPLUSPLUS_API std::vector<double> negate(std::vector<double> value);
 VIPS_CPLUSPLUS_API std::vector<double> invert(std::vector<double> value);
 

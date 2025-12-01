@@ -77,7 +77,7 @@ to_vector(double value)
 }
 
 std::vector<double>
-to_vector(int n, double array[])
+to_vector(int n, const double array[])
 {
 	std::vector<double> vector(n);
 
