@@ -164,7 +164,7 @@ vips__open_image_write(const char *filename, gboolean temp)
 		g_info("vips__open_image_write: O_TMPFILE not available");
 #endif /*!O_TMPFILE*/
 
-#ifdef O_TMPFILE
+#if defined(O_TMPFILE) && !defined(__EMSCRIPTEN__)
 	/* Linux-only extension creates an unlinked file. CREAT and TRUNC must
 	 * be clear. The filename arg to open() must name a directory.
 	 *
@@ -182,7 +182,7 @@ vips__open_image_write(const char *filename, gboolean temp)
 			g_info("vips__open_image_write: O_TMPFILE failed!");
 		g_free(dirname);
 	}
-#endif /*O_TMPFILE*/
+#endif /*defined(O_TMPFILE) && !defined(__EMSCRIPTEN__)*/
 
 	flags = MODE_WRITE;
 
