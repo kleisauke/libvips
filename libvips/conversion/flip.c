@@ -65,6 +65,7 @@
 
 #include "pconversion.h"
 
+
 typedef struct _VipsFlip {
 	VipsConversion parent_instance;
 
@@ -135,7 +136,6 @@ vips_flip_horizontal_gen(VipsRegion *out_region,
 	VipsRect *r = &out_region->valid;
 	VipsRect in;
 	VipsPel *p, *q;
-	int x, y, z;
 
 	int le = r->left;
 	int ri = VIPS_RECT_RIGHT(r);
@@ -164,18 +164,13 @@ vips_flip_horizontal_gen(VipsRegion *out_region,
 
 	/* Loop, copying and reversing lines.
 	 */
-	for (y = to; y < bo; y++) {
+	for (int y = to; y < bo; y++) {
 		p = VIPS_REGION_ADDR(ir, lastx, y);
 		q = VIPS_REGION_ADDR(out_region, le, y);
 
-		for (x = le; x < ri; x++) {
-			/* Copy the pel.
-			 */
-			for (z = 0; z < ps; z++)
-				q[z] = p[z];
+		for (int x = le; x < ri; x++) {
+			VIPS_MEMCPY(q, p, ps);
 
-			/* Skip forwards in out, back in in.
-			 */
 			q += ps;
 			p -= ps;
 		}
@@ -190,32 +185,35 @@ vips_flip_build(VipsObject *object)
 	VipsConversion *conversion = VIPS_CONVERSION(object);
 	VipsFlip *flip = (VipsFlip *) object;
 
+	VipsImage *in;
 	VipsGenerateFn generate_fn;
 
 	if (VIPS_OBJECT_CLASS(vips_flip_parent_class)->build(object))
 		return -1;
 
-	if (vips_image_pio_input(flip->in))
+	in = flip->in;
+
+	if (vips_image_pio_input(in))
 		return -1;
 
 	if (vips_image_pipelinev(conversion->out,
-			VIPS_DEMAND_STYLE_THINSTRIP, flip->in, NULL))
+			VIPS_DEMAND_STYLE_THINSTRIP, in, NULL))
 		return -1;
 
 	if (flip->direction == VIPS_DIRECTION_HORIZONTAL) {
 		generate_fn = vips_flip_horizontal_gen;
-		conversion->out->Xoffset = flip->in->Xsize;
+		conversion->out->Xoffset = in->Xsize;
 		conversion->out->Yoffset = 0;
 	}
 	else {
 		generate_fn = vips_flip_vertical_gen;
 		conversion->out->Xoffset = 0;
-		conversion->out->Yoffset = flip->in->Ysize;
+		conversion->out->Yoffset = in->Ysize;
 	}
 
 	if (vips_image_generate(conversion->out,
 			vips_start_one, generate_fn, vips_stop_one,
-			flip->in, flip))
+			in, flip))
 		return -1;
 
 	return 0;

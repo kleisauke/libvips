@@ -94,6 +94,12 @@
 #include <limits.h>
 #include <string.h>
 
+/* For vips__win32_terminate().
+ */
+#ifdef G_OS_WIN32
+#include <windows.h>
+#endif /*G_OS_WIN32*/
+
 #define VIPS_DISABLE_DEPRECATION_WARNINGS
 #include <vips/vips.h>
 #include <vips/vector.h>
@@ -119,6 +125,10 @@ static char *vips__argv0 = NULL;
 /* Keep a copy of the last component of argv0 here.
  */
 static char *vips__prgname = NULL;
+
+/* Disable DoS checks in loaders.
+ */
+static gboolean vips__unlimited = FALSE;
 
 /* Leak check on exit.
  */
@@ -497,6 +507,9 @@ vips_init(const char *argv0)
 	if (g_getenv("VIPS_TRACE"))
 		vips_cache_set_trace(TRUE);
 
+	if (g_getenv("VIPS_UNLIMITED"))
+		vips_unlimited_set(TRUE);
+
 	const char *pipe_read_limit;
 	if ((pipe_read_limit = g_getenv("VIPS_PIPE_READ_LIMIT")))
 		vips_pipe_read_limit_set(vips__parse_size(pipe_read_limit));
@@ -582,7 +595,9 @@ vips_init(const char *argv0)
 
 	/* Start up packages.
 	 */
+#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
 	vips_system_get_type();
+#endif
 	vips_arithmetic_operation_init();
 	vips_conversion_operation_init();
 	vips_create_operation_init();
@@ -780,6 +795,15 @@ vips_lib_info_cb(const gchar *option_name, const gchar *value,
 }
 
 static gboolean
+vips_set_unlimited_cb(const gchar *option_name, const gchar *value,
+	gpointer data, GError **error)
+{
+	vips_unlimited_set(TRUE);
+
+	return TRUE;
+}
+
+static gboolean
 vips_set_fatal_cb(const gchar *option_name, const gchar *value,
 	gpointer data, GError **error)
 {
@@ -858,6 +882,9 @@ static GOptionEntry option_entries[] = {
 	{ "vips-fatal", 0, G_OPTION_FLAG_HIDDEN | G_OPTION_FLAG_NO_ARG,
 		G_OPTION_ARG_CALLBACK, (gpointer) &vips_set_fatal_cb,
 		N_("abort on first error or warning"), NULL },
+	{ "vips-unlimited", 0, G_OPTION_FLAG_NO_ARG,
+		G_OPTION_ARG_CALLBACK, (gpointer) &vips_set_unlimited_cb,
+		N_("disable DoS checks in loaders"), NULL },
 	{ "vips-concurrency", 0, 0,
 		G_OPTION_ARG_INT, &vips__concurrency,
 		N_("evaluate with N concurrent threads"), "N" },
@@ -1296,6 +1323,41 @@ vips_leak_set(gboolean leak)
 	vips__leak = leak;
 }
 
+/**
+ * vips_unlimited_set:
+ * @unlimited: turn DoS checking on or off
+ *
+ * Set to disable libvips denial of service checking. Setting this to TRUE
+ * will make loaders `unlimited` flags default TRUE.
+ *
+ * See also `--vips-unlimited`, [func@add_option_entries] and the
+ * `VIPS_UNLIMITED` environment variable.
+ *
+ * You should call this very early in your program.
+ */
+void
+vips_unlimited_set(gboolean unlimited)
+{
+#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+	vips__unlimited = unlimited;
+#endif /*FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION*/
+}
+
+/**
+ * vips_unlimited_get:
+ *
+ * Return the current state of the DoS checks.
+ *
+ * You should call this very early in your program.
+ *
+ * Returns: The current state of the DoS checks.
+ */
+gboolean
+vips_unlimited_get(void)
+{
+	return vips__unlimited;
+}
+
 static void *
 vips_block_untrusted_set_operation(VipsOperationClass *class, gboolean *state)
 {
@@ -1331,4 +1393,26 @@ vips_block_untrusted_set(gboolean state)
 {
 	vips_class_map_all(g_type_from_name("VipsOperation"),
 		(VipsClassMapFn) vips_block_untrusted_set_operation, &state);
+}
+
+/* win32 can occasionally deadlock on main() return for exes built with clang,
+ * see: https://github.com/libvips/libvips/discussions/4690
+ *
+ * This function will terminate the process prematurely on win32, bypassing
+ * normal process exit, but does nothing on other platforms.
+ */
+void
+vips__win32_terminate(int ret)
+{
+#ifdef G_OS_WIN32
+	/* These won't be flushed on a disorderly exit.
+	 */
+	fflush(stdout);
+	fflush(stderr);
+
+	/* Maybe add some other stuff!
+	 */
+
+	TerminateProcess(GetCurrentProcess(), ret);
+#endif /*G_OS_WIN32*/
 }

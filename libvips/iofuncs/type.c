@@ -336,8 +336,9 @@ vips_area_free_array_object(GObject **array, VipsArea *area)
  * vips_area_new_array_object: (constructor)
  * @n: number of elements in the array
  *
- * An area which holds an array of [class@GObject.Object] s. See [ctor@Area.new_array]. When
- * the area is freed, each [class@GObject.Object] will be unreffed.
+ * An area which holds an array of [class@GObject.Object] s. See
+ * [ctor@Area.new_array]. When the area is freed, each [class@GObject.Object]
+ * will be unreffed.
  *
  * Add an extra `NULL` element at the end, handy for eg.
  * [func@Image.pipeline_array] etc.
@@ -424,15 +425,13 @@ G_DEFINE_BOXED_TYPE_WITH_CODE(VipsArea, vips_area,
 static void
 transform_int_save_string(const GValue *src_value, GValue *dest_value)
 {
-	vips_value_set_save_stringf(dest_value,
-		"%d", g_value_get_int(src_value));
+	vips_value_set_save_stringf(dest_value, "%d", g_value_get_int(src_value));
 }
 
 static void
 transform_save_string_int(const GValue *src_value, GValue *dest_value)
 {
-	g_value_set_int(dest_value,
-		atoi(vips_value_get_save_string(src_value)));
+	g_value_set_int(dest_value, atoi(vips_value_get_save_string(src_value)));
 }
 
 static void
@@ -442,8 +441,7 @@ transform_double_save_string(const GValue *src_value, GValue *dest_value)
 
 	/* Need to be locale independent.
 	 */
-	g_ascii_dtostr(buf, G_ASCII_DTOSTR_BUF_SIZE,
-		g_value_get_double(src_value));
+	g_ascii_dtostr(buf, G_ASCII_DTOSTR_BUF_SIZE, g_value_get_double(src_value));
 	vips_value_set_save_string(dest_value, buf);
 }
 
@@ -451,8 +449,7 @@ static void
 transform_save_string_double(const GValue *src_value, GValue *dest_value)
 {
 	g_value_set_double(dest_value,
-		g_ascii_strtod(vips_value_get_save_string(src_value),
-			NULL));
+		g_ascii_strtod(vips_value_get_save_string(src_value), NULL));
 }
 
 static void
@@ -462,8 +459,7 @@ transform_float_save_string(const GValue *src_value, GValue *dest_value)
 
 	/* Need to be locale independent.
 	 */
-	g_ascii_dtostr(buf, G_ASCII_DTOSTR_BUF_SIZE,
-		g_value_get_float(src_value));
+	g_ascii_dtostr(buf, G_ASCII_DTOSTR_BUF_SIZE, g_value_get_float(src_value));
 	vips_value_set_save_string(dest_value, buf);
 }
 
@@ -471,8 +467,7 @@ static void
 transform_save_string_float(const GValue *src_value, GValue *dest_value)
 {
 	g_value_set_float(dest_value,
-		g_ascii_strtod(vips_value_get_save_string(src_value),
-			NULL));
+		g_ascii_strtod(vips_value_get_save_string(src_value), NULL));
 }
 
 /* Save meta fields to the header. We have a new string type for header fields
@@ -510,7 +505,9 @@ G_DEFINE_BOXED_TYPE_WITH_CODE(VipsSaveString, vips_save_string,
 							  g_value_register_transform_func(
 								  g_define_type_id,
 								  G_TYPE_FLOAT,
-								  transform_save_string_float);)
+								  transform_save_string_float);
+
+)
 
 /* Transform a refstring to a G_TYPE_STRING and back.
  */
@@ -920,6 +917,8 @@ transform_array_int_save_string(const GValue *src_value, GValue *dest_value)
 static void
 transform_g_string_array_int(const GValue *src_value, GValue *dest_value)
 {
+	static const char *delimiters = "\t;, ";
+
 	char *str;
 	int n;
 	char *p, *q;
@@ -933,7 +932,7 @@ transform_g_string_array_int(const GValue *src_value, GValue *dest_value)
 	str = g_value_dup_string(src_value);
 
 	n = 0;
-	for (p = str; (q = vips_break_token(p, "\t;, ")); p = q)
+	for (p = str; (q = vips_break_token(p, delimiters)); p = q)
 		n += 1;
 
 	g_free(str);
@@ -944,7 +943,7 @@ transform_g_string_array_int(const GValue *src_value, GValue *dest_value)
 	str = g_value_dup_string(src_value);
 
 	i = 0;
-	for (p = str; (q = vips_break_token(p, "\t; ")); p = q) {
+	for (p = str; (q = vips_break_token(p, delimiters)); p = q) {
 		if (sscanf(p, "%d", &array[i]) != 1) {
 			/* Set array to length zero to indicate an error.
 			 */
@@ -1126,8 +1125,11 @@ vips_array_double_get(VipsArrayDouble *array, int *n)
 	return VIPS_ARRAY_ADDR(array, 0);
 }
 
+typedef void (*SetStringFn)(GValue *dest_value, const char *str);
+
 static void
-transform_array_double_g_string(const GValue *src_value, GValue *dest_value)
+array_double_to_value(const GValue *src_value,
+	GValue *dest_value, SetStringFn set)
 {
 	int n;
 	double *array;
@@ -1137,34 +1139,45 @@ transform_array_double_g_string(const GValue *src_value, GValue *dest_value)
 	int i;
 
 	if ((array = vips_value_get_array_double(src_value, &n)))
-		for (i = 0; i < n; i++)
-			/* Use space as a separator since ',' may be a decimal
-			 * point in this locale.
-			 */
-			vips_buf_appendf(&buf, "%g ", array[i]);
+		for (i = 0; i < n; i++) {
+			// locale independent
+			vips_buf_appendg(&buf, array[i]);
+			vips_buf_appends(&buf, " ");
+		}
 
-	g_value_set_string(dest_value, vips_buf_all(&buf));
+	set(dest_value, vips_buf_all(&buf));
+}
+
+static void
+transform_array_double_g_string(const GValue *src_value, GValue *dest_value)
+{
+	array_double_to_value(src_value, dest_value, g_value_set_string);
+}
+
+static void
+transform_array_double_save_string(const GValue *src_value, GValue *dest_value)
+{
+	array_double_to_value(src_value, dest_value, vips_value_set_save_string);
 }
 
 /* It'd be great to be able to write a generic string->array function, but
- * it doesn't seem possible.
+ * it doesn't seem to be possible.
  */
 static void
-transform_g_string_array_double(const GValue *src_value, GValue *dest_value)
+string_to_array_double(const char *input, GValue *dest_value)
 {
+	static const char *delimiters = "\t;, ";
+
 	char *str;
 	int n;
 	char *p, *q;
 	int i;
 	double *array;
 
-	/* Walk the string to get the number of elements.
-	 * We need a copy of the string, since we insert \0 during scan.
-	 */
-	str = g_value_dup_string(src_value);
+	str = g_strdup(input);
 
 	n = 0;
-	for (p = str; (q = vips_break_token(p, "\t;, ")); p = q)
+	for (p = str; (q = vips_break_token(p, delimiters)); p = q)
 		n += 1;
 
 	g_free(str);
@@ -1172,10 +1185,11 @@ transform_g_string_array_double(const GValue *src_value, GValue *dest_value)
 	vips_value_set_array_double(dest_value, NULL, n);
 	array = vips_value_get_array_double(dest_value, NULL);
 
-	str = g_value_dup_string(src_value);
+	str = g_strdup(input);
 
 	i = 0;
-	for (p = str; (q = vips_break_token(p, "\t; ")); p = q) {
+	for (p = str; (q = vips_break_token(p, delimiters)); p = q) {
+		// this is locale-independent
 		if (vips_strtod(p, &array[i])) {
 			/* Set array to length zero to indicate an error.
 			 */
@@ -1191,7 +1205,19 @@ transform_g_string_array_double(const GValue *src_value, GValue *dest_value)
 	g_free(str);
 }
 
-/* We need a arraydouble, we have a double, make a one-element array.
+static void
+transform_g_string_array_double(const GValue *src_value, GValue *dest_value)
+{
+	string_to_array_double(g_value_get_string(src_value), dest_value);
+}
+
+static void
+transform_save_string_array_double(const GValue *src_value, GValue *dest_value)
+{
+	string_to_array_double(vips_value_get_save_string(src_value), dest_value);
+}
+
+/* We need an arraydouble, we have a double, make a one-element array.
  */
 static void
 transform_double_array_double(const GValue *src_value, GValue *dest_value)
@@ -1238,6 +1264,7 @@ transform_double_enum(const GValue *src_value, GValue *dest_value)
 G_DEFINE_BOXED_TYPE_WITH_CODE(VipsArrayDouble, vips_array_double,
 							  (GBoxedCopyFunc) vips_area_copy,
 							  (GBoxedFreeFunc) vips_area_unref,
+
 							  g_value_register_transform_func(
 								  g_define_type_id,
 								  G_TYPE_STRING,
@@ -1247,6 +1274,16 @@ G_DEFINE_BOXED_TYPE_WITH_CODE(VipsArrayDouble, vips_array_double,
 								  G_TYPE_STRING,
 								  g_define_type_id,
 								  transform_g_string_array_double);
+
+							  g_value_register_transform_func(
+								  g_define_type_id,
+								  VIPS_TYPE_SAVE_STRING,
+								  transform_array_double_save_string);
+
+							  g_value_register_transform_func(
+								  VIPS_TYPE_SAVE_STRING,
+								  g_define_type_id,
+								  transform_save_string_array_double);
 
 							  g_value_register_transform_func(
 								  G_TYPE_DOUBLE,
@@ -1261,7 +1298,9 @@ G_DEFINE_BOXED_TYPE_WITH_CODE(VipsArrayDouble, vips_array_double,
 							  g_value_register_transform_func(
 								  G_TYPE_DOUBLE,
 								  G_TYPE_ENUM,
-								  transform_double_enum);)
+								  transform_double_enum);
+
+)
 
 /**
  * vips_array_image_new: (constructor)
@@ -1347,6 +1386,8 @@ vips_array_image_newv(int n, ...)
 VipsArrayImage *
 vips_array_image_new_from_string(const char *string, VipsAccess access)
 {
+	static const char *delimiters = " \n\t\r";
+
 	char *str;
 	int n;
 	VipsArea *area;
@@ -1360,7 +1401,7 @@ vips_array_image_new_from_string(const char *string, VipsAccess access)
 	str = g_strdup(string);
 
 	n = 0;
-	for (p = str; (q = vips_break_token(p, " \n\t\r")); p = q)
+	for (p = str; (q = vips_break_token(p, delimiters)); p = q)
 		n += 1;
 
 	g_free(str);
@@ -1373,7 +1414,7 @@ vips_array_image_new_from_string(const char *string, VipsAccess access)
 	str = g_strdup(string);
 
 	i = 0;
-	for (p = str; (q = vips_break_token(p, " \n\t\r")); p = q) {
+	for (p = str; (q = vips_break_token(p, delimiters)); p = q) {
 		if (!(array[i] = vips_image_new_from_file(p,
 				  "access", access,
 				  NULL))) {
@@ -1932,7 +1973,8 @@ vips_value_get_array_object(const GValue *value, int *n)
  * @value: (out): [struct@GObject.Value] to set
  * @n: the number of elements
  *
- * Set @value to hold an array of [class@GObject.Object]. Pass in the array length in @n.
+ * Set @value to hold an array of [class@GObject.Object]. Pass in the array
+ * length in @n.
  *
  * ::: seealso
  *     [func@value_get_array_object].

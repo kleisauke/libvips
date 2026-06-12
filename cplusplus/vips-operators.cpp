@@ -3,6 +3,18 @@
 // clang-format off
 
 VImage
+VImage::CICP2scRGB(VOption *options) const
+{
+	VImage out;
+
+	call("CICP2scRGB", (options ? options : VImage::option())
+			->set("in", *this)
+			->set("out", &out));
+
+	return out;
+}
+
+VImage
 VImage::CMC2LCh(VOption *options) const
 {
 	VImage out;
@@ -171,6 +183,42 @@ VImage::LabS2LabQ(VOption *options) const
 }
 
 VImage
+VImage::Oklab2Oklch(VOption *options) const
+{
+	VImage out;
+
+	call("Oklab2Oklch", (options ? options : VImage::option())
+			->set("in", *this)
+			->set("out", &out));
+
+	return out;
+}
+
+VImage
+VImage::Oklab2XYZ(VOption *options) const
+{
+	VImage out;
+
+	call("Oklab2XYZ", (options ? options : VImage::option())
+			->set("in", *this)
+			->set("out", &out));
+
+	return out;
+}
+
+VImage
+VImage::Oklch2Oklab(VOption *options) const
+{
+	VImage out;
+
+	call("Oklch2Oklab", (options ? options : VImage::option())
+			->set("in", *this)
+			->set("out", &out));
+
+	return out;
+}
+
+VImage
 VImage::XYZ2CMYK(VOption *options) const
 {
 	VImage out;
@@ -188,6 +236,18 @@ VImage::XYZ2Lab(VOption *options) const
 	VImage out;
 
 	call("XYZ2Lab", (options ? options : VImage::option())
+			->set("in", *this)
+			->set("out", &out));
+
+	return out;
+}
+
+VImage
+VImage::XYZ2Oklab(VOption *options) const
+{
+	VImage out;
+
+	call("XYZ2Oklab", (options ? options : VImage::option())
 			->set("in", *this)
 			->set("out", &out));
 
@@ -841,6 +901,42 @@ VImage::dECMC(VImage right, VOption *options) const
 			->set("left", *this)
 			->set("out", &out)
 			->set("right", right));
+
+	return out;
+}
+
+VImage
+VImage::dcrawload(const char *filename, VOption *options)
+{
+	VImage out;
+
+	call("dcrawload", (options ? options : VImage::option())
+			->set("out", &out)
+			->set("filename", filename));
+
+	return out;
+}
+
+VImage
+VImage::dcrawload_buffer(VipsBlob *buffer, VOption *options)
+{
+	VImage out;
+
+	call("dcrawload_buffer", (options ? options : VImage::option())
+			->set("out", &out)
+			->set("buffer", buffer));
+
+	return out;
+}
+
+VImage
+VImage::dcrawload_source(VSource source, VOption *options)
+{
+	VImage out;
+
+	call("dcrawload_source", (options ? options : VImage::option())
+			->set("out", &out)
+			->set("source", source));
 
 	return out;
 }
@@ -1998,6 +2094,18 @@ VImage::magickload_buffer(VipsBlob *buffer, VOption *options)
 	call("magickload_buffer", (options ? options : VImage::option())
 			->set("out", &out)
 			->set("buffer", buffer));
+
+	return out;
+}
+
+VImage
+VImage::magickload_source(VSource source, VOption *options)
+{
+	VImage out;
+
+	call("magickload_source", (options ? options : VImage::option())
+			->set("out", &out)
+			->set("source", source));
 
 	return out;
 }
@@ -3709,6 +3817,82 @@ VImage::transpose3d(VOption *options) const
 			->set("out", &out));
 
 	return out;
+}
+
+VImage
+VImage::uhdr2scRGB(VOption *options) const
+{
+	VImage out;
+
+	call("uhdr2scRGB", (options ? options : VImage::option())
+			->set("in", *this)
+			->set("out", &out));
+
+	return out;
+}
+
+VImage
+VImage::uhdrload(const char *filename, VOption *options)
+{
+	VImage out;
+
+	call("uhdrload", (options ? options : VImage::option())
+			->set("out", &out)
+			->set("filename", filename));
+
+	return out;
+}
+
+VImage
+VImage::uhdrload_buffer(VipsBlob *buffer, VOption *options)
+{
+	VImage out;
+
+	call("uhdrload_buffer", (options ? options : VImage::option())
+			->set("out", &out)
+			->set("buffer", buffer));
+
+	return out;
+}
+
+VImage
+VImage::uhdrload_source(VSource source, VOption *options)
+{
+	VImage out;
+
+	call("uhdrload_source", (options ? options : VImage::option())
+			->set("out", &out)
+			->set("source", source));
+
+	return out;
+}
+
+void
+VImage::uhdrsave(const char *filename, VOption *options) const
+{
+	call("uhdrsave", (options ? options : VImage::option())
+			->set("in", *this)
+			->set("filename", filename));
+}
+
+VipsBlob *
+VImage::uhdrsave_buffer(VOption *options) const
+{
+	VipsBlob *buffer;
+
+	call("uhdrsave_buffer", (options ? options : VImage::option())
+			->set("in", *this)
+			->set("buffer", &buffer));
+
+	return buffer;
+}
+
+void
+VImage::uhdrsave_target(VTarget target, VOption *options) const
+{
+	call("uhdrsave_target", (options ? options : VImage::option())
+			->set("in", *this)
+			->set("target", target));
 }
 
 VImage

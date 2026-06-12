@@ -18,7 +18,8 @@ fuzz_progs = [
     'sharpen_fuzzer',
     'thumbnail_fuzzer',
     'smartcrop_fuzzer',
-    'mosaic_fuzzer'
+    'mosaic_fuzzer',
+    'vips_fuzzer'
 ]
 
 if libjpeg_dep.found()
@@ -104,23 +105,7 @@ fuzz_execs += executable('generic_buffer_with_args_fuzzer',
     link_args: fuzz_ldflags,
 )
 
-# If the fuzzing engine is not OSS-Fuzz, build the unit tests to be run on CI
-if fuzzing_engine != 'oss-fuzz'
-    test_fuzz = configure_file(
-        input: 'test_fuzz.sh',
-        output: 'test_fuzz.sh',
-        copy: true,
-    )
-
-    test(
-        'fuzz',
-        test_fuzz,
-        workdir: meson.current_build_dir(),
-        depends: [
-            fuzz_execs,
-        ],
-        # Increase the timeout as running the tests with sanitizers
-        # enabled could be slower than the default 30 seconds.
-        timeout: 120,
-    )
-endif
+executable('generate_vips_dict',
+    'generate_vips_dict.c',
+    dependencies: libvips_dep,
+)

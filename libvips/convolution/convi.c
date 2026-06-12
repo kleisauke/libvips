@@ -119,6 +119,7 @@
 #include <glib/gi18n-lib.h>
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
 
@@ -248,6 +249,7 @@ vips_convi_stop(void *vseq, void *a, void *b)
 	VIPS_FREE(seq->t1);
 	VIPS_FREE(seq->t2);
 #endif /*HAVE_ORC*/
+	VIPS_FREE(seq);
 
 	return 0;
 }
@@ -261,7 +263,7 @@ vips_convi_start(VipsImage *out, void *a, void *b)
 	VipsConvi *convi = (VipsConvi *) b;
 	VipsConviSequence *seq;
 
-	if (!(seq = VIPS_NEW(out, VipsConviSequence)))
+	if (!(seq = VIPS_NEW(NULL, VipsConviSequence)))
 		return NULL;
 
 	seq->convi = convi;
@@ -700,12 +702,12 @@ vips_convi_gen_vector(VipsRegion *out_region,
 		int *restrict offsets = seq->offsets; \
 \
 		for (x = 0; x < sz; x++) { \
-			int sum; \
+			int64_t sum; \
 			int i; \
 \
 			sum = 0; \
 			for (i = 0; i < nnz; i++) \
-				sum += t[i] * p[offsets[i]]; \
+				sum += (int64_t) t[i] * p[offsets[i]]; \
 \
 			sum = CLIP(((sum + rounding) / scale) + offset); \
 \
@@ -982,6 +984,10 @@ vips_convi_intize(VipsConvi *convi, VipsImage *M)
 	 * signed 8 bit.
 	 */
 	shift = ceil(log2(mx) + 1);
+	if (shift > 6 || shift < -24) {
+		g_info("vips_convi_intize: invalid shift");
+		return -1;
+	}
 
 #ifdef HAVE_HWY
 	/* Make sure we have enough range.
@@ -1100,10 +1106,7 @@ vips_convi_intize(VipsConvi *convi, VipsImage *M)
 
 		true_value = VIPS_CLIP(0, true_sum, 255);
 
-		if (convi->exp > 0)
-			int_value = (int_sum + (1 << (convi->exp - 1))) >> convi->exp;
-		else
-			int_value = VIPS_LSHIFT_INT(int_sum, convi->exp);
+		int_value = (int_sum + (1 << (convi->exp - 1))) >> convi->exp;
 		int_value = VIPS_CLIP(0, int_value, 255);
 
 		if (abs(true_value - int_value) > 2) {

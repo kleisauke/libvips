@@ -1,124 +1,68 @@
-# an unlocked FALSE/TRUE assignment, which is fine
-race:vips_region_prepare_to
-race:render_kill
-race:render_reschedule
+### These suppressions assume that GLib was built with TSan instrumentation ###
 
-# an unlocked NULL assignment, which is fine
-race:render_thread
+## The suppressions below match only the top frame of report stacks
 
-# unlocked read of pixels-processed-so-far, which is fine
-race:vips_sink_base_progress
-race:wbuffer_allocate_fn
-race:sink_memory_area_allocate_fn
+# Unsynchronized read/write of pool->stop and pool->error
+race_top:vips_threadpool_run
+race_top:vips_threadpool_wait
+race_top:vips_thread_main_loop
+race_top:vips_worker_work_unit
 
-# use of *stop from generate funcs is unlocked, but fine
-race:vips_threadpool_run
+# Unsynchronized write of image->time
+race_top:g_timer_elapsed
+race_top:g_timer_start
+race_top:vips_progress_add
+race_top:vips_progress_update
 
-# guarded with vips_tracked_mutex, so it should be fine
-race:vips_tracked_mem
-race:vips_tracked_allocs
-race:vips_tracked_files
+# Unsynchronized TRUE assignment to statistic->stop
+race_top:vips_max_scan
+race_top:vips_min_scan
 
-# guarded with set->lock, so it should be fine
-race:vips_threadset_work
-race:vips_threadset_add
+# Unsynchronized TRUE assignment to wbuffer->kill
+race_top:wbuffer_free
 
-# guarded with vips_cache_lock, so it should be fine
-race:vips_cache_table
-race:vips_cache_drop_all
-race:vips_cache_get_first
-race:vips_cache_get_lru_cb
-race:vips_cache_remove
-race:vips_cache_trim
+# Unsynchronized FALSE assignment to dest->invalid
+race_top:vips_region_prepare_to
 
-# guarded with vips__global_lock, so it should be fine
-race:vips_error_freeze_count
-race:vips__link_make
-race:vips__link_map
-race:vips__link_break_all
-race:tile_name
-race:vips_image_sanity
+# Unsynchronized FALSE/TRUE assignment
+race_top:vips_image_set_kill
 
-# guarded with vips_text_lock, so it should be fine
-race:vips_text_build
+# Unsynchronized singleton init of a local static variable
+race_top:vips_getpagesize
+race_top:vips_get_disc_threshold
 
-# the double-buffered output and write-behind thread are non-racy
-race:wbuffer_new
-race:wbuffer_write
-race:wbuffer_work_fn
-race:wbuffer_free
-race:write_thread_state_new
+# Unsynchronized read of sink_base->processed
+race_top:vips_sink_base_progress
 
-# thread-local variables (i.e. GPrivate) are harmless
-race:vips_thread_profile_key
-race:buffer_thread_key
+# Unsynchronized read of write->buf->write_errno
+race_top:write_check_error
 
-# glib signals are probably non-racy
-race:vips_image_preeval
-race:vips_image_eval
-race:vips_image_posteval
-race:vips_image_written
-race:vips_image_real_written
-race:vips_image_save_cb
-race:render_close_cb
-race:readjpeg_close_cb
+# Unsynchronized read of image fields
+race_top:vips__image_copy_fields_array
+race_top:vips__link_make
 
-# semaphores are probably non-racy
-race:vips_semaphore_*
+# GClosure mixes atomic compare and exchange with non atomic reads
+# (read of cl->n_guards and cl->derivative_flag is non atomic)
+# https://gitlab.gnome.org/GNOME/glib/-/issues/1672
+race_top:closure_invoke_notifiers
+race_top:g_cclosure_marshal_VOID__POINTER
+race_top:vips_INT__VOID
 
-# guarded with pool->allocate_lock, so it should be fine
-race:vips_worker_work_unit
-race:sink_call_start
-race:sink_call_stop
-race:vips_hist_find_start
-race:vips_hist_find_indexed_start
-race:vips_hist_find_stop
-race:vips_hough_new_accumulator
-race:vips_statistic_scan_start
-race:vips_statistic_scan_stop
-race:vips_max_stop
-race:vips_values_add
-race:vips_deviate_stop
-race:vips_arithmetic_start
-race:histogram_new
+## The suppressions below match all frames of report stacks
 
-# per-thread state allocate/dispose functions are non-racy
-race:sink_thread_state_class_init
-race:vips_thread_state_init
-race:vips_thread_state_build
-race:vips_thread_state_set
-race:vips_thread_state_dispose
-race:write_thread_state_new
-race:vips_sink_base_init
-race:vips_sink_thread_state_new
-race:sink_memory_init
-race:sink_memory_thread_state_new
-race:sink_memory_free
-race:sink_thread_state_build
-race:sink_thread_state_dispose
-race:buffer_cache_free
-race:sink_init
-race:sink_free
-race:vips_sequential_dispose
-race:vips_block_cache_dispose
-race:vips_image_init
-race:vips_image_build
-race:vips_image_finalize
-race:vips_image_dispose
-race:vips_threadset_free
+# Unsynchronized read of once->status from g_once
+# https://gitlab.gnome.org/GNOME/glib/-/issues/1672
+race:g_once_impl
 
-# guarded with image->sslock, so it should be fine
-race:vips__region_start
-race:vips__region_stop
-race:vips_region_dispose
-race:vips__region_take_ownership
-
-# is fine now, see: https://github.com/libvips/libvips/pull/1211
-race:vips_image_temp_name
-
-# is fine now, see: https://github.com/libvips/libvips/pull/1483
-race:meta_new
-race:meta_cp
-race:vips_image_set
-race:vips__image_copy_fields_array
-race:vips__image_meta_copy
+# TSan may produce false positives for callbacks invoked from
+# non-instrumented code. Such callbacks should be listed below.
+race:readjpeg_emit_message
+race:source_fill_input_buffer
+race:source_fill_input_buffer_mappable
+race:vips_foreign_load_heif_read
+race:vips_foreign_load_heif_wait_for_file_size
+race:vips_foreign_load_jp2k_read_source
+race:vips_foreign_load_jp2k_seek_source
+race:vips_foreign_load_jp2k_skip_source
+race:vips_foreign_load_png_stream
+race:vips_png_read_source

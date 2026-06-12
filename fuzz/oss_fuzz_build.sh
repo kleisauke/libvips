@@ -100,11 +100,17 @@ cmake \
 cmake --build . --target install
 popd
 
-# libspng
-pushd $SRC/libspng
-meson setup build --prefix=$WORK --libdir=lib --default-library=static --buildtype=debugoptimized \
-  -Dstatic_zlib=true -Dbuild_examples=false
-meson install -C build --tag devel
+# libpng
+pushd $SRC/libpng
+autoreconf -fi
+./configure \
+  --prefix=$WORK \
+  --disable-shared \
+  --disable-tools \
+  --without-binconfigs \
+  --disable-unversioned-libpng-config \
+  --disable-dependency-tracking
+make install dist_man_MANS=
 popd
 
 # libwebp
@@ -188,15 +194,71 @@ cmake \
 cmake --build . --target install
 popd
 
-# FIXME: Workaround for https://github.com/mesonbuild/meson/issues/14640
-export LDFLAGS+=" -Wl,-rpath=\$ORIGIN/lib"
+# libjxl
+pushd $SRC/libjxl
+# libvips always decodes to pixels, so build with
+# -DJPEGXL_ENABLE_TRANSCODE_JPEG=FALSE
+cmake \
+  -GNinja \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_INSTALL_PREFIX=$WORK \
+  -DCMAKE_FIND_ROOT_PATH=$WORK \
+  -DBUILD_SHARED_LIBS=FALSE \
+  -DBUILD_TESTING=FALSE \
+  -DJPEGXL_ENABLE_BENCHMARK=FALSE \
+  -DJPEGXL_ENABLE_EXAMPLES=FALSE \
+  -DJPEGXL_ENABLE_FUZZERS=FALSE \
+  -DJPEGXL_ENABLE_JPEGLI=FALSE \
+  -DJPEGXL_ENABLE_MANPAGES=FALSE \
+  -DJPEGXL_ENABLE_SJPEG=FALSE \
+  -DJPEGXL_ENABLE_SKCMS=FALSE \
+  -DJPEGXL_ENABLE_TOOLS=FALSE \
+  -DJPEGXL_ENABLE_TRANSCODE_JPEG=FALSE \
+  -DJPEGXL_FORCE_SYSTEM_BROTLI=TRUE \
+  -DJPEGXL_FORCE_SYSTEM_HWY=TRUE \
+  -DJPEGXL_FORCE_SYSTEM_LCMS2=TRUE \
+  .
+cmake --build . --target install
+popd
+
+# libultrahdr
+pushd $SRC/libultrahdr
+cmake \
+  -GNinja \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_INSTALL_PREFIX=$WORK \
+  -DBUILD_SHARED_LIBS=FALSE \
+  -DUHDR_BUILD_EXAMPLES=FALSE \
+  -DUHDR_MAX_DIMENSION=65500 \
+  .
+cmake --build . --target install
+popd
+
+TSAN_ARGS=""
+if [ "$SANITIZER" = "undefined" ]; then
+  # Allow UBSan shift errors to be recoverable to ensure our suppression rules
+  # are enforced. OSS-Fuzz uses `-fno-sanitize-recover=shift` by default.
+  #export CFLAGS+=" -fsanitize-recover=shift"
+  #export CXXFLAGS+=" -fsanitize-recover=shift"
+  # FIXME: Once PR https://github.com/llvm/llvm-project/pull/194862 is merged
+  # and available in OSS-Fuzz we can re-enable the above flags instead.
+  export CFLAGS+=" -fsanitize-ignorelist=$PWD/suppressions/ubsan_ignorelist.txt"
+  export CXXFLAGS+=" -fsanitize-ignorelist=$PWD/suppressions/ubsan_ignorelist.txt"
+elif [ "$SANITIZER" = "thread" ]; then
+  # TSan may report false positives when callbacks cross boundaries between
+  # instrumented and non-instrumented code. To avoid this, built GLib with
+  # TSan instrumentation as well.
+  # https://github.com/google/sanitizers/wiki/threadsanitizercppmanual#non-instrumented-code
+  TSAN_ARGS="--force-fallback-for=glib -Dglib:glib_debug=disabled -Dglib:nls=disabled -Dglib:sysprof=disabled -Dglib:tests=false"
+fi
 
 # libvips
 # Disable building man pages, gettext po files, tools, and tests
-sed -i "/subdir('man')/{N;N;N;d;}" meson.build
-meson setup build --prefix=$WORK --libdir=lib --prefer-static --default-library=static --buildtype=debugoptimized \
-  -Dbackend_max_links=4 -Ddeprecated=false -Dexamples=false -Dcplusplus=false -Dmodules=disabled \
-  -Dfuzzing_engine=oss-fuzz -Dfuzzer_ldflags="$LIB_FUZZING_ENGINE"
+meson setup build --prefix=$WORK --libdir=lib --prefer-static --default-library=static --buildtype=debug $TSAN_ARGS \
+  -Dbackend_max_links=4 -Dexamples=false -Dman=false -Dpo=false \
+  -Dtests=false -Dtools=false -Dcplusplus=false -Dmodules=disabled -Dfuzz=true \
+  -Dfuzzing_engine=oss-fuzz -Dfuzzer_ldflags="$LIB_FUZZING_ENGINE" \
+  -Dcpp_link_args="$LDFLAGS -Wl,-rpath=\$ORIGIN/lib"
 meson install -C build --tag devel
 
 # Copy fuzz executables to $OUT
@@ -206,15 +268,16 @@ find build/fuzz -maxdepth 1 -executable -type f -exec cp -v '{}' $OUT \;
 mkdir -p $OUT/lib
 cp $WORK/lib/*.so $OUT/lib
 
-# Merge the seed corpus in a single directory, exclude files larger than 4k
-mkdir -p fuzz/corpus
-find \
-  $SRC/afl-testcases/{gif*,jpeg*,png,tiff,webp}/full/images \
-  fuzz/*_fuzzer_corpus \
-  test/test-suite/images \
-  -type f -size -4k \
-  -exec bash -c 'hash=($(sha1sum {})); mv {} fuzz/corpus/$hash' \;
-zip -jrq $OUT/seed_corpus.zip fuzz/corpus
+pushd $SRC/seed-corpora
+zip -rq $OUT/seed_corpus.zip \
+  afl-testcases/{gif*,jpeg*,png,tiff,webp} \
+  common \
+  vips
+popd
+
+# Merge the test images in the seed corpus, exclude files larger than 4k
+find test/test-suite/images -type f -size -4k | \
+  zip -r -@ $OUT/seed_corpus.zip
 
 # Link corpus
 for fuzzer in $OUT/*_fuzzer; do
@@ -222,6 +285,10 @@ for fuzzer in $OUT/*_fuzzer; do
   ln -sf "seed_corpus.zip" "$OUT/${target}_seed_corpus.zip"
 done
 
-# Copy options and dictionary files to $OUT
+# Generate dictionary for vips_fuzzer
+LD_LIBRARY_PATH="$OUT/lib" $OUT/generate_vips_dict > "$OUT/vips_fuzzer.dict"
+rm -v $OUT/generate_vips_dict
+
+# Copy options and remaining dictionary files to $OUT
 find fuzz -name '*_fuzzer.dict' -exec cp -v '{}' $OUT \;
 find fuzz -name '*_fuzzer.options' -exec cp -v '{}' $OUT \;

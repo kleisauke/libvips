@@ -89,6 +89,8 @@
  * 	- add exif read/write
  * 3/2/23 MathemanFlo
  * 	- add bits per sample metadata
+ * 23/12/25 Starbix
+ *  - add support for reading cICP chunk
  */
 
 /*
@@ -129,6 +131,7 @@
 #include <glib/gi18n-lib.h>
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -356,6 +359,122 @@ read_new(VipsSource *source, VipsImage *out,
 	return read;
 }
 
+static const char *
+skip_line(const char *p)
+{
+	if (!p)
+		return NULL;
+	while (*p && *p != '\n')
+		p++;
+	if (*p == '\n')
+		p++;
+	return p;
+}
+
+static const char *
+read_length(const char *p, size_t *length)
+{
+	if (!p)
+		return NULL;
+
+	char *q;
+	errno = 0;
+	gint64 i = g_ascii_strtoll(p, &q, 10);
+	// limit the length to 10MB for sanity
+	if (errno || q == p || i <= 0 || i > 10 * 1024 * 1024)
+		return NULL;
+
+	*length = i;
+	return q;
+}
+
+static const char *
+skip_whitespace(const char *p)
+{
+	if (p)
+		p += strspn(p, " \n");
+
+	return p;
+}
+
+static const char *
+read_hex_pair(const char *p, uint8_t *value)
+{
+	if (!p || !p[0] || !p[1])
+		return NULL;
+
+	const char val[3] = {p[0], p[1], '\0'};
+	char *q;
+	errno = 0;
+	uint8_t i = (uint8_t) g_ascii_strtoll(val, &q, 16);
+	if (errno || q == val)
+		return NULL;
+
+	*value = i;
+	return p + 2;
+
+}
+
+/* Parse a "Raw profile type exif" text chunk and extract binary EXIF data.
+ * Returns a newly allocated buffer with the EXIF data, or NULL on failure.
+ * The caller must g_free() the returned buffer.
+ *
+ * The format is (after zlib decompression by libpng):
+ * - A line with the profile type (e.g., "exif")
+ * - A line with the byte count in decimal
+ * - Hex-encoded binary data (may contain whitespace)
+ * source: https://clanmills.com/exiv2/book/ -> "PNG and the Zlib compression library"
+ */
+static uint8_t *
+vips__parse_raw_profile(const char *text, size_t *data_size)
+{
+	const char *p = text;
+
+	// Raw profile should start with a new line
+	p = skip_line(p);
+	if (!p) {
+		g_warning("pngload: malformed raw profile");
+		return NULL;
+	}
+
+	// Skip profile type (e.g. "exif")
+	p = skip_line(p);
+
+	// number of hex pairs to read
+	size_t length;
+	p = read_length(p, &length);
+	if (!p) {
+		g_warning("pngload: malformed raw profile");
+		return NULL;
+	}
+
+	// Decode EXIF hex string
+	uint8_t *data = VIPS_ARRAY(NULL, length, uint8_t);
+	if (!data)
+		return NULL;
+
+	size_t i;
+	for (i = 0; i < length; i++) {
+		uint8_t value;
+
+		p = skip_whitespace(p);
+		p = read_hex_pair(p, &value);
+		if (!p) {
+			break;
+		}
+		data[i] = value;
+	}
+
+	if (i < length) {
+		g_warning("pngload: malformed raw profile");
+		VIPS_FREE(data);
+		return NULL;
+	}
+
+	*data_size = length;
+	return data;
+}
+
 /* Set the png text data as metadata on the vips image. These are always
  * null-terminated strings.
  */
@@ -374,6 +493,21 @@ vips__set_text(VipsImage *out, int i, const char *key, const char *text)
 		vips_image_set_blob_copy(out,
 			VIPS_META_XMP_NAME, text, strlen(text));
 	}
+	else if (strcmp(key, "Raw profile type exif") == 0 ||
+		strcmp(key, "Raw profile type APP1") == 0) {
+		/* EXIF data stored in ImageMagick/exiftool format.
+		 * Only set if we don't already have EXIF from eXIf chunk.
+		 */
+		if (!vips_image_get_typeof(out, VIPS_META_EXIF_NAME)) {
+			size_t exif_length;
+			uint8_t *exif_data = vips__parse_raw_profile(text, &exif_length);
+			if (exif_data) {
+				vips_image_set_blob(out, VIPS_META_EXIF_NAME,
+					(VipsCallbackFn) g_free,
+					exif_data, exif_length);
+			}
+		}
+	}
 	else {
 		/* Save as a string comment. Some PNGs have EXIF data as
 		 * text segments, but the correct way to support this is with
@@ -390,7 +524,7 @@ vips__set_text(VipsImage *out, int i, const char *key, const char *text)
 /* Read a png header.
  */
 static int
-png2vips_header(Read *read, VipsImage *out)
+png2vips_header(Read *read, VipsImage *out, gboolean header_only)
 {
 	png_uint_32 width, height;
 	int bitdepth, color_type;
@@ -546,6 +680,24 @@ png2vips_header(Read *read, VipsImage *out)
 			VIPS_META_ICC_NAME, profile, proflen);
 	}
 
+	/* Read cICP chunk and set if present.
+	 */
+#if PNG_LIBPNG_VER >= 10645
+	png_byte colour_primaries;
+	png_byte transfer_characteristics;
+	png_byte matrix_coefficients;
+	png_byte full_range_flag;
+
+	if (png_get_cICP(read->pPng, read->pInfo,
+		&colour_primaries, &transfer_characteristics,
+		&matrix_coefficients, &full_range_flag)) {
+		vips_image_set_int(out, "cicp-colour-primaries", colour_primaries);
+		vips_image_set_int(out, "cicp-transfer-characteristics", transfer_characteristics);
+		vips_image_set_int(out, "cicp-matrix-coefficients", matrix_coefficients);
+		vips_image_set_int(out, "cicp-full-range-flag", full_range_flag);
+	}
+#endif
+
 	/* Some libpng warn you to call png_set_interlace_handling(); here, but
 	 * that can actually break interlace on older libpngs.
 	 *
@@ -556,19 +708,35 @@ png2vips_header(Read *read, VipsImage *out)
 #endif
 
 	/* Sanity-check line size.
+	 *
+	 * Don't do this for header read, since we don't want to force a
+	 * malloc if all we are doing is looking at fields.
 	 */
-	png_read_update_info(read->pPng, read->pInfo);
-	if (png_get_rowbytes(read->pPng, read->pInfo) !=
-		VIPS_IMAGE_SIZEOF_LINE(out)) {
-		vips_error("vipspng",
-			"%s", _("unable to read PNG header"));
-		return -1;
+	if (!header_only) {
+		png_read_update_info(read->pPng, read->pInfo);
+		if (png_get_rowbytes(read->pPng, read->pInfo) !=
+			VIPS_IMAGE_SIZEOF_LINE(out)) {
+			vips_error("vipspng",
+				"%s", _("unable to read PNG header"));
+			return -1;
+		}
 	}
 
 	/* Let our caller know. These are very expensive to decode.
 	 */
 	if (interlace_type != PNG_INTERLACE_NONE)
 		vips_image_set_int(out, "interlaced", 1);
+
+#ifdef PNG_eXIf_SUPPORTED
+	{
+		png_uint_32 num_exif;
+		png_bytep exif;
+
+		if (png_get_eXIf_1(read->pPng, read->pInfo, &num_exif, &exif))
+			vips_image_set_blob_copy(out, VIPS_META_EXIF_NAME,
+				exif, num_exif);
+	}
+#endif /*PNG_eXIf_SUPPORTED*/
 
 	if (png_get_text(read->pPng, read->pInfo,
 			&text_ptr, &num_text) > 0) {
@@ -644,17 +812,6 @@ png2vips_header(Read *read, VipsImage *out)
 		}
 	}
 #endif /*PNG_bKGD_SUPPORTED*/
-
-#ifdef PNG_eXIf_SUPPORTED
-	{
-		png_uint_32 num_exif;
-		png_bytep exif;
-
-		if (png_get_eXIf_1(read->pPng, read->pInfo, &num_exif, &exif))
-			vips_image_set_blob_copy(out, VIPS_META_EXIF_NAME,
-				exif, num_exif);
-	}
-#endif /*PNG_eXIf_SUPPORTED*/
 
 	return 0;
 }
@@ -776,14 +933,14 @@ png2vips_image(Read *read, VipsImage *out)
 		 * buffer, then copy to out.
 		 */
 		t[0] = vips_image_new_memory();
-		if (png2vips_header(read, t[0]) ||
+		if (png2vips_header(read, t[0], FALSE) ||
 			png2vips_interlace(read, t[0]) ||
 			vips_image_write(t[0], out))
 			return -1;
 	}
 	else {
 		t[0] = vips_image_new();
-		if (png2vips_header(read, t[0]) ||
+		if (png2vips_header(read, t[0], FALSE) ||
 			vips_image_generate(t[0],
 				NULL, png2vips_generate, NULL,
 				read, NULL) ||
@@ -815,8 +972,8 @@ vips__png_header_source(VipsSource *source, VipsImage *out,
 {
 	Read *read;
 
-	if (!(read = read_new(source, out, TRUE, unlimited)) ||
-		png2vips_header(read, out))
+	if (!(read = read_new(source, out, VIPS_FAIL_ON_NONE, unlimited)) ||
+		png2vips_header(read, out, TRUE))
 		return -1;
 
 	vips_source_minimise(source);
@@ -850,7 +1007,7 @@ vips__png_isinterlaced_source(VipsSource *source)
 
 	image = vips_image_new();
 
-	if (!(read = read_new(source, image, TRUE, FALSE))) {
+	if (!(read = read_new(source, image, VIPS_FAIL_ON_NONE, FALSE))) {
 		g_object_unref(image);
 		return -1;
 	}
@@ -1219,6 +1376,30 @@ write_vips(Write *write,
 		if (vips_png_add_original_icc(write))
 			return -1;
 	}
+
+#if PNG_LIBPNG_VER >= 10645
+	int colour_primaries;
+	int transfer_characteristics;
+	int matrix_coefficients;
+	int full_range_flag;
+
+	if (vips_image_get_typeof(in, "cicp-colour-primaries") &&
+		!vips_image_get_int(in, "cicp-colour-primaries",
+			&colour_primaries) &&
+		!vips_image_get_int(in, "cicp-transfer-characteristics",
+			&transfer_characteristics) &&
+		!vips_image_get_int(in, "cicp-matrix-coefficients",
+			&matrix_coefficients) &&
+		!vips_image_get_int(in, "cicp-full-range-flag",
+			&full_range_flag)) {
+
+		png_set_cICP(write->pPng, write->pInfo,
+			(png_byte) colour_primaries,
+			(png_byte) transfer_characteristics,
+			0, /* PNG pixel data is always RGB */
+			(png_byte) full_range_flag);
+	}
+#endif
 
 	// the profile writers grab the setjmp, restore it
 	if (setjmp(png_jmpbuf(write->pPng)))

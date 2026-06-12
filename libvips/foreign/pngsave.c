@@ -120,10 +120,13 @@ vips_foreign_save_png_build(VipsObject *object)
 			: 8;
 
 	/* Deprecated "colours" arg just sets bitdepth large enough to hold
-	 * that many colours.
+	 * that many colours. Round up to valid PNG depth (1,2,4,8).
 	 */
-	if (vips_object_argument_isset(object, "colours"))
-		png->bitdepth = ceil(log2(png->colours));
+	if (vips_object_argument_isset(object, "colours")) {
+		int bits = g_bit_storage(png->colours - 1);
+
+		png->bitdepth = 1 << g_bit_storage(bits - 1);
+	}
 
 	/* The bitdepth param can change the interpretation.
 	 */
@@ -312,8 +315,10 @@ vips_foreign_save_png_target_build(VipsObject *object)
 	VipsForeignSavePng *png = (VipsForeignSavePng *) object;
 	VipsForeignSavePngTarget *target = (VipsForeignSavePngTarget *) object;
 
-	png->target = target->target;
-	g_object_ref(png->target);
+	if (target->target) {
+		png->target = target->target;
+		g_object_ref(png->target);
+	}
 
 	return VIPS_OBJECT_CLASS(vips_foreign_save_png_target_parent_class)
 		->build(object);
@@ -362,7 +367,8 @@ vips_foreign_save_png_file_build(VipsObject *object)
 	VipsForeignSavePng *png = (VipsForeignSavePng *) object;
 	VipsForeignSavePngFile *file = (VipsForeignSavePngFile *) object;
 
-	if (!(png->target = vips_target_new_to_file(file->filename)))
+	if (file->filename &&
+		!(png->target = vips_target_new_to_file(file->filename)))
 		return -1;
 
 	return VIPS_OBJECT_CLASS(vips_foreign_save_png_file_parent_class)->
@@ -379,7 +385,7 @@ vips_foreign_save_png_file_class_init(VipsForeignSavePngFileClass *class)
 	gobject_class->get_property = vips_object_get_property;
 
 	object_class->nickname = "pngsave";
-	object_class->description = _("save image to png file");
+	object_class->description = _("save image to file as png");
 	object_class->build = vips_foreign_save_png_file_build;
 
 	VIPS_ARG_STRING(class, "filename", 1,
@@ -438,7 +444,7 @@ vips_foreign_save_png_buffer_class_init(VipsForeignSavePngBufferClass *class)
 	gobject_class->get_property = vips_object_get_property;
 
 	object_class->nickname = "pngsave_buffer";
-	object_class->description = _("save image to png buffer");
+	object_class->description = _("save image to buffer as png");
 	object_class->build = vips_foreign_save_png_buffer_build;
 
 	VIPS_ARG_BOXED(class, "buffer", 1,

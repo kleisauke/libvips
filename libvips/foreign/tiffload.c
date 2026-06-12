@@ -130,6 +130,9 @@ static VipsForeignFlags
 vips_foreign_load_tiff_get_flags(VipsForeignLoad *load)
 {
 	VipsForeignLoadTiff *tiff = (VipsForeignLoadTiff *) load;
+	
+	if (!tiff->source)
+		return 0;
 
 	return vips_foreign_load_tiff_get_flags_source(tiff->source);
 }
@@ -236,7 +239,7 @@ vips_foreign_load_tiff_init(VipsForeignLoadTiff *tiff)
 	tiff->page = 0;
 	tiff->n = 1;
 	tiff->subifd = -1;
-	tiff->unlimited = FALSE;
+	tiff->unlimited = vips_unlimited_get();
 }
 
 typedef struct _VipsForeignLoadTiffSource {
@@ -329,8 +332,7 @@ vips_foreign_load_tiff_file_build(VipsObject *object)
 	VipsForeignLoadTiffFile *file = (VipsForeignLoadTiffFile *) object;
 
 	if (file->filename &&
-		!(tiff->source =
-				vips_source_new_from_file(file->filename)))
+		!(tiff->source = vips_source_new_from_file(file->filename)))
 		return -1;
 
 	return VIPS_OBJECT_CLASS(vips_foreign_load_tiff_file_parent_class)
@@ -505,7 +507,7 @@ vips_foreign_load_tiff_buffer_init(VipsForeignLoadTiffBuffer *buffer)
  * default, loaders are permissive, that is, [enum@Vips.FailOn.NONE].
  *
  * When using libtiff 4.7.0+, the TIFF loader will limit memory allocation
- * for tag processing to 20MB to prevent denial of service attacks.
+ * for decoding each input file to 50MB to prevent denial of service attacks.
  * Set @unlimited to remove this limit.
  *
  * Any ICC profile is read and attached to the VIPS image as

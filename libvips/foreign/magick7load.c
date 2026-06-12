@@ -329,8 +329,8 @@ vips_foreign_load_magick7_build(VipsObject *object)
 		magick_set_number_scenes(magick7->image_info,
 			magick7->page, magick7->n);
 
-	return VIPS_OBJECT_CLASS(vips_foreign_load_magick7_parent_class)->
-		build(object);
+	return VIPS_OBJECT_CLASS(vips_foreign_load_magick7_parent_class)
+		->build(object);
 }
 
 static void
@@ -452,12 +452,11 @@ vips_foreign_load_magick7_parse(VipsForeignLoadMagick7 *magick7,
 	printf("image->rows = %zd\n", image->rows);
 #endif /*DEBUG*/
 
-	/* Ysize updated below once we have worked out how many frames to load.
+	/* Ysize updated again below once we have worked out how many frames to
+	 * load.
 	 */
-	out->Coding = VIPS_CODING_NONE;
 	out->Xsize = image->columns;
 	out->Ysize = image->rows;
-	magick7->frame_height = image->rows;
 	out->Bands = magick7_get_bands(image);
 	if (out->Xsize <= 0 ||
 		out->Ysize <= 0 ||
@@ -470,6 +469,9 @@ vips_foreign_load_magick7_parse(VipsForeignLoadMagick7 *magick7,
 			out->Xsize, out->Ysize, out->Bands);
 		return -1;
 	}
+
+	out->Coding = VIPS_CODING_NONE;
+	magick7->frame_height = image->rows;
 
 	/* Depth can be 'fractional'. You'd think we should use
 	 * GetImageDepth() but that seems to compute something very complex.
@@ -539,37 +541,6 @@ vips_foreign_load_magick7_parse(VipsForeignLoadMagick7 *magick7,
 	// revise the interpretation if it seems crazy
 	out->Type = vips_image_guess_interpretation(out);
 
-	if (vips_image_pipelinev(out, VIPS_DEMAND_STYLE_SMALLTILE, NULL))
-		return -1;
-
-	/* Get all the string metadata.
-	 */
-	ResetImagePropertyIterator(image);
-	while ((key = GetNextImageProperty(image))) {
-		char name_text[256];
-		VipsBuf name = VIPS_BUF_STATIC(name_text);
-		const char *value;
-
-		value = GetImageProperty(image, key, magick7->exception);
-		if (!value) {
-			vips_foreign_load_magick7_error(magick7);
-			return -1;
-		}
-		vips_buf_appendf(&name, "magick-%s", key);
-		vips_image_set_string(out, vips_buf_all(&name), value);
-	}
-
-	/* Set vips metadata from ImageMagick profiles.
-	 */
-	if (magick_set_vips_profile(out, image))
-		return -1;
-
-	/* Something like "BMP".
-	 */
-	if (strlen(magick7->image->magick) > 0)
-		vips_image_set_string(out, "magick-format",
-			magick7->image->magick);
-
 	magick7->n_pages = GetImageListLength(GetFirstImageInList(image));
 #ifdef DEBUG
 	printf("image has %d pages\n", magick7->n_pages);
@@ -615,11 +586,47 @@ vips_foreign_load_magick7_parse(VipsForeignLoadMagick7 *magick7,
 	/* So we can finally set the height.
 	 */
 	if (magick7->n_frames > 1) {
-		vips_image_set_int(out, VIPS_META_PAGE_HEIGHT, out->Ysize);
-		out->Ysize *= magick7->n_frames;
+		vips_image_set_int(out, VIPS_META_PAGE_HEIGHT, magick7->frame_height);
+
+		guint64 total_y;
+		if (!g_uint64_checked_mul(&total_y,
+			(guint64)out->Ysize, magick7->n_frames) ||
+			total_y > VIPS_MAX_COORD) {
+			vips_error(class->nickname, "%s", _("image dimensions overflow"));
+			return -1;
+		}
+
+		out->Ysize = total_y;
 	}
 
 	vips_image_set_int(out, VIPS_META_N_PAGES, magick7->n_pages);
+
+	/* Get all the string metadata.
+	 */
+	ResetImagePropertyIterator(image);
+	while ((key = GetNextImageProperty(image))) {
+		char name_text[256];
+		VipsBuf name = VIPS_BUF_STATIC(name_text);
+		const char *value;
+
+		value = GetImageProperty(image, key, magick7->exception);
+		if (!value) {
+			vips_foreign_load_magick7_error(magick7);
+			return -1;
+		}
+		vips_buf_appendf(&name, "magick-%s", key);
+		vips_image_set_string(out, vips_buf_all(&name), value);
+	}
+
+	/* Set vips metadata from ImageMagick profiles.
+	 */
+	if (magick_set_vips_profile(out, image))
+		return -1;
+
+	/* Something like "BMP".
+	 */
+	if (strlen(magick7->image->magick) > 0)
+		vips_image_set_string(out, "magick-format", magick7->image->magick);
 
 	vips_image_set_int(out, VIPS_META_ORIENTATION,
 		VIPS_CLIP(1, image->orientation, 8));
@@ -727,15 +734,14 @@ vips_foreign_load_magick7_load(VipsForeignLoadMagick7 *magick7)
 	printf("vips_foreign_load_magick7_load: %p\n", magick7);
 #endif /*DEBUG*/
 
-	if (vips_foreign_load_magick7_parse(magick7,
-			magick7->image, load->out))
+	if (vips_foreign_load_magick7_parse(magick7, magick7->image, load->out) ||
+		vips_image_pipelinev(load->out, VIPS_DEMAND_STYLE_SMALLTILE, NULL))
 		return -1;
 
 	/* Record frame pointers.
 	 */
 	g_assert(!magick7->frames);
-	if (!(magick7->frames =
-				VIPS_ARRAY(NULL, magick7->n_frames, Image *)))
+	if (!(magick7->frames = VIPS_ARRAY(NULL, magick7->n_frames, Image *)))
 		return -1;
 	p = magick7->image;
 	for (i = 0; i < magick7->n_frames; i++) {
@@ -936,6 +942,112 @@ vips_foreign_load_magick7_buffer_class_init(
 
 static void
 vips_foreign_load_magick7_buffer_init(VipsForeignLoadMagick7Buffer *buffer)
+{
+}
+
+typedef struct _VipsForeignLoadMagick7Source {
+	VipsForeignLoadMagick7 parent_object;
+
+	VipsSource *source;
+
+} VipsForeignLoadMagick7Source;
+
+typedef VipsForeignLoadMagick7Class VipsForeignLoadMagick7SourceClass;
+
+G_DEFINE_TYPE(VipsForeignLoadMagick7Source, vips_foreign_load_magick7_source,
+	vips_foreign_load_magick7_get_type());
+
+static gboolean
+vips_foreign_load_magick7_source_is_a_source(VipsSource *source)
+{
+	const unsigned char *p;
+
+	// just use the first 100 bytes, we don't want to force too much into
+	// memory
+	return (p = vips_source_sniff(source, 100)) &&
+		magick_ismagick(p, 100);
+}
+
+/* Unfortunately, libMagick7 does not support header-only reads very well. See
+ *
+ * http://www.imagemagick7.org/discourse-server/viewtopic.php?f=1&t=20017
+ *
+ * Test especially with BMP, GIF, TGA. So we are forced to read the entire
+ * image in the @header() method.
+ */
+static int
+vips_foreign_load_magick7_source_header(VipsForeignLoad *load)
+{
+	VipsForeignLoadMagick7 *magick7 = (VipsForeignLoadMagick7 *) load;
+	VipsForeignLoadMagick7Source *magick7_source =
+		(VipsForeignLoadMagick7Source *) load;
+
+#ifdef DEBUG
+	printf("vips_foreign_load_magick7_source_header: %p\n", load);
+#endif /*DEBUG*/
+
+	if (vips_source_is_file(magick7_source->source)) {
+		const char *filename =
+			vips_connection_filename(VIPS_CONNECTION(magick7_source->source));
+
+		g_strlcpy(magick7->image_info->filename, filename, MaxTextExtent);
+		magick_sniff_file(magick7->image_info, filename);
+		magick7->image = ReadImage(magick7->image_info, magick7->exception);
+	}
+	else {
+		size_t length;
+		const void *data;
+
+		if (!(data = vips_source_map(magick7_source->source, &length)))
+			return -1;
+
+		magick_sniff_bytes(magick7->image_info, data, length);
+		magick7->image = BlobToImage(magick7->image_info, data, length,
+			magick7->exception);
+	}
+
+	/* It would be great if we could PingImage and just read the header,
+	 * but sadly many IM coders do not support ping. The critical one for
+	 * us is DICOM. TGA also has issues.
+	 */
+	if (!magick7->image) {
+		vips_foreign_load_magick7_error(magick7);
+		return -1;
+	}
+
+	if (vips_foreign_load_magick7_load(magick7))
+		return -1;
+
+	return 0;
+}
+
+static void
+vips_foreign_load_magick7_source_class_init(
+	VipsForeignLoadMagick7SourceClass *class)
+{
+	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
+	VipsObjectClass *object_class = (VipsObjectClass *) class;
+	VipsForeignLoadClass *load_class = (VipsForeignLoadClass *) class;
+
+	gobject_class->set_property = vips_object_set_property;
+	gobject_class->get_property = vips_object_get_property;
+
+	object_class->nickname = "magickload_source";
+	object_class->description = _("load source with ImageMagick7");
+
+	load_class->is_a_source = vips_foreign_load_magick7_source_is_a_source;
+	load_class->header = vips_foreign_load_magick7_source_header;
+
+	VIPS_ARG_OBJECT(class, "source", 1,
+		_("Source"),
+		_("Source to load from"),
+		VIPS_ARGUMENT_REQUIRED_INPUT,
+		G_STRUCT_OFFSET(VipsForeignLoadMagick7Source, source),
+		VIPS_TYPE_SOURCE);
+}
+
+static void
+vips_foreign_load_magick7_source_init(VipsForeignLoadMagick7Source *source)
 {
 }
 

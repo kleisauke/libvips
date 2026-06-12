@@ -166,6 +166,7 @@ void vips_threadset_free(VipsThreadset *set);
 
 VIPS_API void vips__worker_lock(GMutex *mutex);
 VIPS_API void vips__worker_cond_wait(GCond *cond, GMutex *mutex);
+gboolean vips__worker_exit(void);
 
 void vips__cache_init(void);
 
@@ -310,6 +311,8 @@ guint64 vips__parse_size(const char *size_string);
 /* TODO(kleisauke): VIPS_API is required by vipsthumbnail.
  */
 VIPS_API
+int vips__substitutec(char *buf, size_t len, char c, char *sub);
+VIPS_API
 int vips__substitute(char *buf, size_t len, char *sub);
 
 int vips_check_coding_labq(const char *domain, VipsImage *im);
@@ -429,6 +432,8 @@ const char *vips__icc_dir(void);
 const char *vips__windows_prefix(void);
 
 char *vips__get_iso8601(void);
+
+gboolean vips__image_is_cicp_hdr(VipsImage *image);
 
 #ifdef __cplusplus
 }

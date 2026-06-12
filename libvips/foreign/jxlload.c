@@ -103,6 +103,8 @@ typedef struct _VipsForeignLoadJxl {
 	size_t xmp_size;
 	uint8_t *xmp_data;
 
+	JxlColorEncoding color_encoding;
+
 	int frame_count;
 	GArray *delay;
 
@@ -250,8 +252,11 @@ vips_foreign_load_jxl_set_box_buffer(VipsForeignLoadJxl *jxl)
 
 	*jxl->box_data = new_data;
 
-	JxlDecoderSetBoxBuffer(jxl->decoder,
-		new_data + box_size, INPUT_BUFFER_SIZE);
+	if (JxlDecoderSetBoxBuffer(jxl->decoder,
+			new_data + box_size, INPUT_BUFFER_SIZE) != JXL_DEC_SUCCESS) {
+		vips_foreign_load_jxl_error(jxl, "JxlDecoderSetBoxBuffer");
+		return -1;
+	}
 
 	return 0;
 }
@@ -336,10 +341,6 @@ vips_foreign_load_jxl_print_status(JxlDecoderStatus status)
 
 	case JXL_DEC_BASIC_INFO:
 		printf("JXL_DEC_BASIC_INFO\n");
-		break;
-
-	case JXL_DEC_EXTENSIONS:
-		printf("JXL_DEC_EXTENSIONS\n");
 		break;
 
 	case JXL_DEC_COLOR_ENCODING:
@@ -512,8 +513,9 @@ vips_foreign_load_jxl_process(VipsForeignLoadJxl *jxl)
 			return JXL_DEC_ERROR;
 
 		if (jxl->bytes_in_buffer)
-			JxlDecoderSetInput(jxl->decoder,
-				jxl->input_buffer, jxl->bytes_in_buffer);
+			if (JxlDecoderSetInput(jxl->decoder,
+					jxl->input_buffer, jxl->bytes_in_buffer) != JXL_DEC_SUCCESS)
+				return JXL_DEC_ERROR;
 
 		if (!bytes_read)
 			JxlDecoderCloseInput(jxl->decoder);
@@ -606,7 +608,7 @@ vips_foreign_load_jxl_generate(VipsRegion *out_region,
 	VipsRect *r = &out_region->valid;
 	VipsForeignLoadJxl *jxl = (VipsForeignLoadJxl *) a;
 
-	/* jxl>frame_no numbers from 1.
+	/* jxl->frame_no numbers from 1.
 	 */
 	int frame = 1 + r->top / jxl->info.ysize + jxl->page;
 	int line = r->top % jxl->info.ysize;
@@ -632,8 +634,8 @@ vips_foreign_load_jxl_generate(VipsRegion *out_region,
 static int
 vips_foreign_load_jxl_fix_exif(VipsForeignLoadJxl *jxl)
 {
-	if (!jxl->exif_data ||
-		vips_isprefix("Exif", (char *) jxl->exif_data))
+	if (!jxl->exif_data || (jxl->exif_size >= 6 &&
+		vips_isprefix("Exif\0\0", (char *) jxl->exif_data)))
 		return 0;
 
 	if (jxl->exif_size < 4) {
@@ -662,6 +664,126 @@ vips_foreign_load_jxl_fix_exif(VipsForeignLoadJxl *jxl)
 	jxl->exif_data = new_data;
 
 	return 0;
+}
+
+/* Known custom primaries xy coordinates from H.273 Table 2.
+ * Used to recover the CICP code when libjxl reports
+ * JXL_PRIMARIES_CUSTOM.
+ */
+static const struct {
+	int cicp;
+	double red_xy[2], green_xy[2], blue_xy[2];
+} custom_primaries_map[] = {
+	{ VIPS_CICP_COLOUR_PRIMARIES_BT470M,
+		{0.67, 0.33}, {0.21, 0.71}, {0.14, 0.08} },
+	{ VIPS_CICP_COLOUR_PRIMARIES_BT470BG,
+		{0.64, 0.33}, {0.29, 0.60}, {0.15, 0.06} },
+	{ VIPS_CICP_COLOUR_PRIMARIES_BT601,
+		{0.630, 0.340}, {0.310, 0.595}, {0.155, 0.070} },
+	{ VIPS_CICP_COLOUR_PRIMARIES_GENERIC_FILM,
+		{0.681, 0.319}, {0.243, 0.692}, {0.145, 0.049} },
+	{ VIPS_CICP_COLOUR_PRIMARIES_EBU3213,
+		{0.630, 0.340}, {0.295, 0.605}, {0.155, 0.077} },
+};
+
+/* Match custom JXL primaries xy coordinates against known H.273
+ * primaries. Returns the CICP code or UNSPECIFIED if no match.
+ */
+static int
+vips_foreign_load_jxl_match_custom_primaries(const JxlColorEncoding *enc)
+{
+	for (int i = 0; i < G_N_ELEMENTS(custom_primaries_map); i++)
+		if (fabs(enc->primaries_red_xy[0] - custom_primaries_map[i].red_xy[0]) < 1e-4 &&
+			fabs(enc->primaries_red_xy[1] - custom_primaries_map[i].red_xy[1]) < 1e-4 &&
+			fabs(enc->primaries_green_xy[0] - custom_primaries_map[i].green_xy[0]) < 1e-4 &&
+			fabs(enc->primaries_green_xy[1] - custom_primaries_map[i].green_xy[1]) < 1e-4 &&
+			fabs(enc->primaries_blue_xy[0] - custom_primaries_map[i].blue_xy[0]) < 1e-4 &&
+			fabs(enc->primaries_blue_xy[1] - custom_primaries_map[i].blue_xy[1]) < 1e-4)
+			return custom_primaries_map[i].cicp;
+
+	return VIPS_CICP_COLOUR_PRIMARIES_UNSPECIFIED;
+}
+
+/* Map a JxlColorEncoding to CICP metadata on a VipsImage.
+ * Only covers RGB colour spaces; returns without setting anything
+ * for greyscale or XYB.
+ */
+static void
+vips_foreign_load_jxl_set_cicp(const JxlColorEncoding *enc, VipsImage *out)
+{
+	/* JXL primaries -> H.273 colour primaries.
+	 */
+	static const struct {
+		JxlPrimaries jxl;
+		int cicp;
+	} primaries_map[] = {
+		{ JXL_PRIMARIES_SRGB, VIPS_CICP_COLOUR_PRIMARIES_BT709 },
+		{ JXL_PRIMARIES_2100, VIPS_CICP_COLOUR_PRIMARIES_BT2020 },
+	};
+
+	/* JXL transfer function -> H.273 transfer characteristics.
+	 */
+	static const struct {
+		JxlTransferFunction jxl;
+		int cicp;
+	} transfer_map[] = {
+		{ JXL_TRANSFER_FUNCTION_709, VIPS_CICP_TRANSFER_BT709 },
+		{ JXL_TRANSFER_FUNCTION_UNKNOWN, VIPS_CICP_TRANSFER_UNSPECIFIED },
+		{ JXL_TRANSFER_FUNCTION_LINEAR, VIPS_CICP_TRANSFER_LINEAR },
+		{ JXL_TRANSFER_FUNCTION_SRGB, VIPS_CICP_TRANSFER_SRGB },
+		{ JXL_TRANSFER_FUNCTION_PQ, VIPS_CICP_TRANSFER_PQ },
+		{ JXL_TRANSFER_FUNCTION_DCI, VIPS_CICP_TRANSFER_SMPTE428 },
+		{ JXL_TRANSFER_FUNCTION_HLG, VIPS_CICP_TRANSFER_HLG },
+	};
+
+	if (enc->color_space != JXL_COLOR_SPACE_RGB)
+		return;
+
+	/* Primaries: P3 needs white-point disambiguation, custom
+	 * primaries are matched by xy coordinates.
+	 */
+	int cp = VIPS_CICP_COLOUR_PRIMARIES_UNSPECIFIED;
+	if (enc->primaries == JXL_PRIMARIES_P3) {
+		if (enc->white_point == JXL_WHITE_POINT_D65)
+			cp = VIPS_CICP_COLOUR_PRIMARIES_SMPTE432;
+		else if (enc->white_point == JXL_WHITE_POINT_DCI)
+			cp = VIPS_CICP_COLOUR_PRIMARIES_SMPTE431;
+	}
+	else if (enc->primaries == JXL_PRIMARIES_CUSTOM) {
+		cp = vips_foreign_load_jxl_match_custom_primaries(enc);
+	}
+	else {
+		for (int i = 0; i < G_N_ELEMENTS(primaries_map); i++)
+			if (primaries_map[i].jxl == enc->primaries) {
+				cp = primaries_map[i].cicp;
+				break;
+			}
+	}
+	vips_image_set_int(out, "cicp-colour-primaries", cp);
+
+	/* Transfer function: gamma needs special handling.
+	 */
+	int tc = VIPS_CICP_TRANSFER_UNSPECIFIED;
+	if (enc->transfer_function == JXL_TRANSFER_FUNCTION_GAMMA) {
+		/* libjxl stores gamma as the OETF exponent (1/display_gamma).
+		 * BT.470M = 1/2.2, BT.470BG = 1/2.8.
+		 */
+		if (fabs(enc->gamma - 1.0 / 2.2) < 1e-6)
+			tc = VIPS_CICP_TRANSFER_BT470M;
+		else if (fabs(enc->gamma - 1.0 / 2.8) < 1e-6)
+			tc = VIPS_CICP_TRANSFER_BT470BG;
+	}
+	else {
+		for (int i = 0; i < G_N_ELEMENTS(transfer_map); i++)
+			if (transfer_map[i].jxl == enc->transfer_function) {
+				tc = transfer_map[i].cicp;
+				break;
+			}
+	}
+	vips_image_set_int(out, "cicp-transfer-characteristics", tc);
+
+	vips_image_set_int(out, "cicp-matrix-coefficients", 0);
+	vips_image_set_int(out, "cicp-full-range-flag", 1);
 }
 
 static int
@@ -803,6 +925,8 @@ vips_foreign_load_jxl_set_header(VipsForeignLoadJxl *jxl, VipsImage *out)
 		jxl->icc_size = 0;
 	}
 
+	vips_foreign_load_jxl_set_cicp(&jxl->color_encoding, out);
+
 	if (jxl->exif_data &&
 		jxl->exif_size > 0) {
 		vips_image_set_blob(out, VIPS_META_EXIF_NAME,
@@ -858,7 +982,11 @@ vips_foreign_load_jxl_header(VipsForeignLoad *load)
 
 	if (vips_foreign_load_jxl_fill_input(jxl, 0) < 0)
 		return -1;
-	JxlDecoderSetInput(jxl->decoder, jxl->input_buffer, jxl->bytes_in_buffer);
+	if (JxlDecoderSetInput(jxl->decoder,
+			jxl->input_buffer, jxl->bytes_in_buffer) != JXL_DEC_SUCCESS) {
+		vips_foreign_load_jxl_error(jxl, "JxlDecoderSetInput");
+		return -1;
+	}
 
 	jxl->frame_count = 0;
 
@@ -946,6 +1074,23 @@ vips_foreign_load_jxl_header(VipsForeignLoad *load)
 			break;
 
 		case JXL_DEC_COLOR_ENCODING:
+			/* Try to get the structured color encoding first.
+			 * This may fail if the image has an attached ICC
+			 * profile instead.
+			 */
+			if (JxlDecoderGetColorAsEncodedProfile(jxl->decoder,
+#ifndef HAVE_LIBJXL_0_9
+					&jxl->format,
+#endif
+					JXL_COLOR_PROFILE_TARGET_DATA,
+					&jxl->color_encoding) != JXL_DEC_SUCCESS)
+				/* Mark as unknown so we don't use it.
+				 * JXL_COLOR_SPACE_RGB is 0, so a plain memset
+				 * would incorrectly look like valid RGB.
+				 */
+				jxl->color_encoding.color_space =
+					JXL_COLOR_SPACE_UNKNOWN;
+
 			if (JxlDecoderGetICCProfileSize(jxl->decoder,
 #ifndef HAVE_LIBJXL_0_9
 					&jxl->format,
@@ -1065,8 +1210,11 @@ vips_foreign_load_jxl_load(VipsForeignLoad *load)
 
 	if (vips_foreign_load_jxl_fill_input(jxl, 0) < 0)
 		return -1;
-	JxlDecoderSetInput(jxl->decoder,
-		jxl->input_buffer, jxl->bytes_in_buffer);
+	if (JxlDecoderSetInput(jxl->decoder,
+			jxl->input_buffer, jxl->bytes_in_buffer) != JXL_DEC_SUCCESS) {
+		vips_foreign_load_jxl_error(jxl, "JxlDecoderSetInput");
+		return -1;
+	}
 
 	if (jxl->n > 1) {
 		if (vips_image_generate(t[0],

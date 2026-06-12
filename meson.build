@@ -1,11 +1,11 @@
 project('vips', 'c', 'cpp',
-    version: '8.18.0',
+    version: '8.19.0',
     meson_version: '>=0.55',
     default_options: [
         # this is what glib uses (one of our required deps), so we use it too
         'c_std=gnu99',
-        # we use some C++11 features
-        'cpp_std=c++11',
+        # we use some C++14 features
+        'cpp_std=c++14',
         # do a release (optimised) build by default
         'buildtype=release',
         # turn off asserts etc. in release mode
@@ -24,8 +24,8 @@ version_patch = version_parts[2]
 #   binary interface changes backwards compatible?: increment age
 #   binary interface changes not backwards compatible?: reset age to 0
 library_revision = 0
-library_current = 62
-library_age = 20
+library_current = 63
+library_age = 21
 library_version = '@0@.@1@.@2@'.format(library_current - library_age, library_age, library_revision)
 darwin_versions = [library_current + 1, '@0@.@1@'.format(library_current + 1, library_revision)]
 
@@ -53,6 +53,10 @@ cpp = meson.get_compiler('cpp')
 
 # Prevent use of void* pointer arithmetic to support MSVC
 add_project_arguments(cc.get_supported_arguments('-Werror=pointer-arith'), language: ['cpp', 'c'])
+
+if host_os == 'windows'
+    add_project_arguments(['-DUNICODE', '-D_UNICODE'], language: ['cpp', 'c'])
+endif
 
 # libFuzzer related things
 fuzzing_engine = get_option('fuzzing_engine')
@@ -172,7 +176,21 @@ if meson.can_run_host_binaries()
 else
     have_target_clones = cc.links(target_clones_check, args: '-Werror', name: 'Has target_clones attribute')
 endif
-cfg_var.set('HAVE_TARGET_CLONES', have_target_clones)
+# `target_clones` attribute is incompatible with:
+# - ThreadSanitizer on Clang and GCC
+#   https://github.com/llvm/llvm-project/issues/163369
+#   https://gcc.gnu.org/PR122894
+# - Profile-guided optimization on GCC
+#   https://gcc.gnu.org/PR122895
+cflags = ' '.join(get_option('c_args'))
+broken_fmv = get_option('b_sanitize') == 'thread' or \
+             get_option('b_pgo') != 'off' or \
+             cflags.contains('-fprofile-generate') or \
+             cflags.contains('-fprofile-use')
+if broken_fmv
+    warning('Broken FMV support detected: disabling `target_clones` support')
+endif
+cfg_var.set('HAVE_TARGET_CLONES', have_target_clones and not broken_fmv)
 
 func_names = [ '_aligned_malloc', 'posix_memalign', 'memalign' ]
 foreach func_name : func_names
@@ -188,7 +206,7 @@ if zlib_dep.found()
     cfg_var.set('HAVE_ZLIB', true)
 endif
 
-libarchive_dep = dependency('libarchive', version: '>=3.0.0', required: get_option('archive'))
+libarchive_dep = dependency('libarchive', version: '>=3.2.0', required: get_option('archive'))
 if libarchive_dep.found()
     external_deps += libarchive_dep
     cfg_var.set('HAVE_LIBARCHIVE', true)
@@ -312,32 +330,42 @@ if libjpeg_dep.found()
     cfg_var.set('HAVE_JPEG_EXT_PARAMS', cc.has_function('jpeg_c_bool_param_supported', prefix: '#include <stdio.h>\n#include <jpeglib.h>', dependencies: libjpeg_dep))
 endif
 
+# we need libjpeg for uhdrload and save
+libuhdr_dep = disabler()
+if libjpeg_dep.found()
+    libuhdr_dep = dependency('libuhdr', required: get_option('uhdr'))
+    if libuhdr_dep.found()
+        external_deps += libuhdr_dep
+        cfg_var.set('HAVE_UHDR', true)
+    endif
+endif
+
 # png package we use
 png_package = disabler()
 
-# Look for libspng first
-# - it's sometimes called "spng.pc", sometimes "libspng.pc", we must search for
-#   both
-# - we need 0.7+ for PNG write support
-# TODO: simplify this when requiring meson>=0.60.0
-spng_dep = dependency('spng', version: '>=0.7', required: false)
-if not spng_dep.found()
-    spng_dep = dependency('libspng', version: '>=0.7', required: get_option('spng'))
-endif
-if not get_option('spng').disabled() and spng_dep.found()
-    external_deps += spng_dep
-    cfg_var.set('HAVE_SPNG', true)
-    png_package = spng_dep
+# look for libpng first
+png_dep = dependency('libpng', version: '>=1.2.9', required: get_option('png'))
+if png_dep.found()
+    external_deps += png_dep
+    cfg_var.set('HAVE_PNG', true)
+    cfg_var.set('HAVE_PNG_SET_CHUNK_MALLOC_MAX', cc.has_function('png_set_chunk_malloc_max', prefix: '#include <png.h>', dependencies: png_dep))
+    png_package = png_dep
 endif
 
-# only if libspng not found
+# only if libpng not found
 if not png_package.found()
-    png_dep = dependency('libpng', version: '>=1.2.9', required: get_option('png'))
-    if png_dep.found()
-        external_deps += png_dep
-        cfg_var.set('HAVE_PNG', true)
-        cfg_var.set('HAVE_PNG_SET_CHUNK_MALLOC_MAX', cc.has_function('png_set_chunk_malloc_max', prefix: '#include <png.h>', dependencies: png_dep))
-        png_package = png_dep
+    # - it's sometimes called "spng.pc", sometimes "libspng.pc", we must search for
+    #   both
+    # - we need 0.7+ for PNG write support
+    # TODO: simplify this when requiring meson>=0.60.0
+    spng_dep = dependency('spng', version: '>=0.7', required: false)
+    if not spng_dep.found()
+        spng_dep = dependency('libspng', version: '>=0.7', required: get_option('spng'))
+    endif
+    if not get_option('spng').disabled() and spng_dep.found()
+        external_deps += spng_dep
+        cfg_var.set('HAVE_SPNG', true)
+        png_package = spng_dep
     endif
 endif
 
@@ -427,7 +455,8 @@ if openexr_dep.found()
     cfg_var.set('HAVE_OPENEXR', true)
 endif
 
-libraw_dep = dependency('libraw_r', required: get_option('raw'))
+# require 0.14 for LIBRAW_COMPILE_CHECK_VERSION_NOTLESS
+libraw_dep = dependency('libraw_r', version: '>=0.14', required: get_option('raw'))
 if libraw_dep.found()
     external_deps += libraw_dep
     cfg_var.set('HAVE_LIBRAW', true)
@@ -453,10 +482,15 @@ if libhwy_dep.found()
     cfg_var.set('HAVE_HWY_1_1_0', libhwy_dep.version().version_compare('>=1.1.0'))
     # Always disable SSSE3 since it is rare to have SSSE3 but not SSE4
     disabled_targets = ['HWY_SSSE3']
+    # Avoid disabling the AVX3_DL target, see: https://github.com/google/highway/pull/1356
+    #disabled_targets += ['HWY_AVX3_DL']
+    # Always disable special AVX512 targets since the FP16/BF16 ops they introduce are unused.
+    disabled_targets += ['HWY_AVX3_ZEN4', 'HWY_AVX3_SPR']
+    if libhwy_dep.version().version_compare('>=1.3.0')
+        disabled_targets += ['HWY_AVX10_2']
+    endif
     # Optionally, build without AVX512 support (helps to reduce binary size at the cost of performance)
     #disabled_targets += ['HWY_AVX3']
-    #disabled_targets += ['HWY_AVX3_ZEN4']
-    #disabled_targets += ['HWY_AVX3_SPR']
     add_project_arguments('-DHWY_DISABLED_TARGETS=@0@'.format('|'.join(disabled_targets)), language: ['cpp'])
     simd_package = libhwy_dep
 endif
@@ -500,6 +534,7 @@ if libheif_dep.found()
     cfg_var.set('HAVE_HEIF', true)
     # added in 1.10.0
     cfg_var.set('HAVE_HEIF_ENCODER_PARAMETER_GET_VALID_INTEGER_VALUES', cpp.has_function('heif_encoder_parameter_get_valid_integer_values', prefix: '#include <libheif/heif.h>', dependencies: libheif_dep))
+    cfg_var.set('HAVE_HEIF_ENCODING_OPTIONS_SAVE_TWO_COLR_BOXES', cpp.has_member('struct heif_encoding_options', 'save_two_colr_boxes_when_ICC_and_nclx_available', prefix: '#include <libheif/heif.h>', dependencies: libheif_dep))
     # added in 1.11.0
     cfg_var.set('HAVE_HEIF_ENCODING_OPTIONS_OUTPUT_NCLX_PROFILE', cpp.has_member('struct heif_encoding_options', 'output_nclx_profile', prefix: '#include <libheif/heif.h>', dependencies: libheif_dep))
     # heif_init added in 1.13.0
@@ -529,10 +564,10 @@ if libjxl_found
         external_deps += libjxl_threads_dep
     endif
     cfg_var.set('HAVE_LIBJXL', true)
+    # need v0.8+ for bitdepth support
+    cfg_var.set('HAVE_LIBJXL_0_8', libjxl_dep.version().version_compare('>=0.8'))
     # need v0.9+ for chunked write
-    if libjxl_dep.version().version_compare('>=0.9')
-        cfg_var.set('HAVE_LIBJXL_0_9', '1')
-    endif
+    cfg_var.set('HAVE_LIBJXL_0_9', libjxl_dep.version().version_compare('>=0.9'))
 endif
 
 # only if pdfium not found
@@ -684,9 +719,10 @@ build_features = {
     },
   'External image format libraries':
     {'JPEG load/save': ['libjpeg', libjpeg_dep],
+     'UHDR load/save': ['libuhdr', libuhdr_dep],
      'JXL load/save': ['libjxl', libjxl_found ? libjxl_dep : disabler(), libjxl_module],
      'JPEG2000 load/save': ['OpenJPEG', libopenjp2_dep],
-     'PNG load/save': ['libspng or libpng', png_package],
+     'PNG load/save': ['libpng or spng', png_package],
      'image quantisation': ['imagequant or quantizr', quantisation_package],
      'TIFF load/save': ['libtiff', libtiff_dep],
      'image pyramid save': ['libarchive', libarchive_dep],
@@ -731,18 +767,26 @@ endforeach
 
 subdir('libvips')
 if get_option('docs')
-  subdir('doc')
+    subdir('doc')
 endif
 if get_option('examples')
-  subdir('examples')
+    subdir('examples')
 endif
 if get_option('cplusplus')
-  subdir('cplusplus')
+    subdir('cplusplus')
 endif
-
-# these lines removed by a regexp for oss-fuzz builds, don't touch!
-subdir('man')
-subdir('po')
-subdir('tools')
-subdir('test')
-subdir('fuzz')
+if get_option('man') and get_option('tools')
+    subdir('man')
+endif
+if get_option('po')
+    subdir('po')
+endif
+if get_option('tools')
+    subdir('tools')
+endif
+if get_option('tests')
+    subdir('test')
+endif
+if get_option('fuzz')
+    subdir('fuzz')
+endif

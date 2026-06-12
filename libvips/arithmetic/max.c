@@ -210,7 +210,7 @@ vips_max_build(VipsObject *object)
 	/* For speed we accumulate max ** 2 for complex.
 	 */
 	if (vips_band_format_iscomplex(
-			vips_image_get_format(statistic->in))) {
+			vips_image_get_format(statistic->ready))) {
 		int i;
 
 		for (i = 0; i < values->n; i++)
@@ -359,7 +359,7 @@ vips_max_stop(VipsStatistic *statistic, void *seq)
 			TYPE mod2 = p[0] * p[0] + p[1] * p[1]; \
 \
 			if (!isnan(mod2)) \
-				vips_values_add(values, p[i], x + i / bands, y); \
+				vips_values_add(values, mod2, x + i / bands, y); \
 \
 			p += 2; \
 		} \
@@ -384,12 +384,12 @@ vips_max_scan(VipsStatistic *statistic, void *seq,
 	int x, int y, void *in, int n)
 {
 	VipsValues *values = (VipsValues *) seq;
-	const int bands = vips_image_get_bands(statistic->in);
+	const int bands = vips_image_get_bands(statistic->ready);
 	const int sz = n * bands;
 
 	int i;
 
-	switch (vips_image_get_format(statistic->in)) {
+	switch (vips_image_get_format(statistic->ready)) {
 	case VIPS_FORMAT_UCHAR:
 		LOOPU(unsigned char, UCHAR_MAX);
 		break;

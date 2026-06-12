@@ -416,6 +416,169 @@ class TestForeign:
         # and this should fail with a warning once more
         x = im.avg()
 
+    @skip_if_no("uhdrload")
+    def test_uhdrload(self):
+        # decode as sRGB + gainmap
+        im = pyvips.Image.uhdrload(UHDR_FILE)
+
+        assert im.width == 3840
+        assert im.height == 2160
+        assert im.bands == 3
+        assert im.format == "uchar"
+        assert im.interpretation == "srgb"
+
+        for name in ["gainmap-max-content-boost",
+                     "gainmap-min-content-boost",
+                     "gainmap-gamma",
+                     "gainmap-offset-sdr",
+                     "gainmap-offset-hdr"]:
+            value = im.get(name)
+            assert isinstance(value, list)
+            assert len(value) == 3
+
+        for name in ["gainmap-hdr-capacity-min",
+                     "gainmap-hdr-capacity-max",
+                     "gainmap-use-base-cg"]:
+            value = im.get(name)
+            assert isinstance(value, (int, float))
+
+        assert im.get("gainmap-scale-factor") == 4
+
+        value = im.get("gainmap-data")
+        assert len(value) > 10000
+
+        value = im.get("icc-profile-data")
+        assert len(value) > 100
+
+    @skip_if_no("uhdrsave")
+    def test_uhdrsave(self):
+        im = pyvips.Image.uhdrload(UHDR_FILE)
+        data = im.uhdrsave_buffer()
+        im2 = pyvips.Image.uhdrload_buffer(data)
+
+        assert im2.width == 3840
+        assert im2.height == 2160
+        assert im2.bands == 3
+        assert im2.format == "uchar"
+        assert im2.interpretation == "srgb"
+        value = im2.get("gainmap-data")
+        assert len(value) > 10000
+
+    @skip_if_no("uhdrsave")
+    def test_uhdrsave_roundtrip(self):
+        im = pyvips.Image.uhdrload(UHDR_FILE)
+        data = im.uhdrsave_buffer()
+        im_hdr2 = pyvips.Image.uhdrload_buffer(data).uhdr2scRGB()
+        im_hdr = pyvips.Image.uhdrload(UHDR_FILE).uhdr2scRGB()
+
+        assert (im_hdr2 - im_hdr).abs().avg() < 0.02
+
+    @skip_if_no("uhdrsave")
+    def test_uhdrsave_roundtrip_hdr(self):
+        im = pyvips.Image.uhdrload(UHDR_FILE).uhdr2scRGB()
+        data = im.uhdrsave_buffer()
+        im2 = pyvips.Image.uhdrload_buffer(data).uhdr2scRGB()
+
+        assert (im2 - im).abs().avg() < 0.05
+
+    @skip_if_no("uhdrsave")
+    def test_uhdrsave_gainmap_scale_factor(self):
+        scrgb = self.colour.colourspace("scrgb")
+
+        data = scrgb.uhdrsave_buffer()
+        im = pyvips.Image.uhdrload_buffer(data)
+        assert im.get("gainmap-scale-factor") == 2
+
+        data = scrgb.uhdrsave_buffer(gainmap_scale_factor=4)
+        im = pyvips.Image.uhdrload_buffer(data)
+        assert im.get("gainmap-scale-factor") == 4
+
+    @skip_if_no("uhdrsave")
+    def test_uhdrsave_optimize_coding(self):
+        im = pyvips.Image.uhdrload(UHDR_FILE)
+
+        data = im.uhdrsave_buffer(Q=80)
+        data_opt = im.uhdrsave_buffer(Q=80, optimize_coding=True)
+
+        assert len(data_opt) < len(data)
+
+    @skip_if_no("uhdrsave")
+    def test_uhdrsave_interlace(self):
+        im = pyvips.Image.uhdrload(UHDR_FILE)
+
+        data = im.uhdrsave_buffer(Q=80)
+        data_interlace = im.uhdrsave_buffer(Q=80, interlace=True)
+
+        assert len(data) != len(data_interlace)
+
+    @skip_if_no("uhdrload")
+    def test_uhdr_thumbnail(self):
+        im = pyvips.Image.uhdrload(UHDR_FILE)
+        thumb = pyvips.Image.thumbnail(UHDR_FILE, 128)
+        buf = thumb.uhdrsave_buffer()
+        im2 = pyvips.Image.uhdrload_buffer(buf)
+
+        gainmap_data_before = im.get("gainmap-data")
+        gainmap_data_after = im2.get("gainmap-data")
+        assert len(gainmap_data_after) < len(gainmap_data_before)
+
+        gainmap_before = pyvips.Image.jpegload_buffer(gainmap_data_before)
+        gainmap_after = pyvips.Image.jpegload_buffer(gainmap_data_after)
+        assert gainmap_before.width > gainmap_after.width
+        assert gainmap_before.height > gainmap_after.height
+
+    @skip_if_no("uhdrload")
+    def test_uhdr_thumbnail_crop(self):
+        thumb = pyvips.Image.thumbnail(UHDR_FILE, 128, crop="centre")
+        buf = thumb.uhdrsave_buffer()
+        im2 = pyvips.Image.uhdrload_buffer(buf)
+
+        gainmap_data_after = im2.get("gainmap-data")
+        gainmap_after = pyvips.Image.jpegload_buffer(gainmap_data_after)
+        assert abs(gainmap_after.width - gainmap_after.height) < 5
+
+    @skip_if_no("uhdrload")
+    @skip_if_no("dzsave")
+    def test_uhdr_dzsave(self):
+        filename = temp_filename(self.tempdir, '')
+        uhdr = pyvips.Image.uhdrload(UHDR_FILE)
+
+        gainmap_data_before = uhdr.get("gainmap-data")
+        gainmap_before = pyvips.Image.jpegload_buffer(gainmap_data_before)
+        hscale = uhdr.width / gainmap_before.width
+        vscale = uhdr.height / gainmap_before.height
+
+        uhdr.dzsave(filename, keep="gainmap")
+
+        # _files/12 is the full res image
+        deepest = 12
+
+        for [level, tile_x, tile_y] in [
+                [deepest, 0, 0],
+                [deepest, 3, 1],
+                [10, 1, 0],
+                [9, 0, 0]
+            ]:
+            tile_path = f"{filename}_files/{level}/{tile_x}_{tile_y}.jpeg"
+
+            tile = pyvips.Image.uhdrload(tile_path)
+            gainmap_data_after = tile.get("gainmap-data")
+            gainmap_after = pyvips.Image.jpegload_buffer(gainmap_data_after)
+
+            # rounding plus overlaps
+            assert abs(gainmap_after.width - tile.width / hscale) < 2
+            assert abs(gainmap_after.height - tile.height / vscale) < 2
+
+            shrunk_gainmap = gainmap_before.resize(1 / (1 << (deepest - level)),
+                                                   kernel="linear")
+            left = tile_x * tile.width / hscale
+            top = tile_y * tile.height / vscale
+            expected_gainmap_after = shrunk_gainmap.crop(left,
+                                                         top,
+                                                         gainmap_after.width,
+                                                         gainmap_after.height)
+            assert abs(expected_gainmap_after.avg() - gainmap_after.avg()) < 1
+
     @skip_if_no("pngload")
     def test_png(self):
         def png_valid(im):
@@ -526,6 +689,27 @@ class TestForeign:
             # ... and check if it was correctly shifted down
             # https://github.com/libvips/libvips/issues/4568
             assert (self.colour - rgb).abs().max() == 0
+
+        # sanity-check MULTIBAND save, this will be remapped
+        # to its standard RGB-like or greyscale equivalent
+        for i in range(1, 5):
+            im = pyvips.Image.black(16, 16, bands=i)
+            im.pngsave_buffer()
+
+        # https://github.com/libvips/lua-vips/issues/93
+        im = pyvips.Image.new_from_array([1, 2, 3, 4])
+        buf = im.pngsave_buffer()
+        im2 = pyvips.Image.new_from_buffer(buf, "")
+
+        assert im.avg() == im2.avg()
+
+        # https://github.com/libvips/ruby-vips/issues/431
+        im = pyvips.Image.new_from_array([1, 2, 3, 4])
+        im = im.bandjoin([im, im]).cast("uchar")
+        buf = im.pngsave_buffer(bitdepth=1)
+        im2 = pyvips.Image.new_from_buffer(buf, "")
+
+        assert im.avg() == im2.avg()
 
     @skip_if_no("tiffload")
     def test_tiff(self):
@@ -687,6 +871,16 @@ class TestForeign:
         assert x1.xres == 100
         assert x1.yres == 200
 
+        filename = temp_filename(self.tempdir, '.tif')
+        x = pyvips.Image.new_from_file(TIF_FILE)
+        x = x.copy(xres=100, yres=200)
+        x.remove("resolution-unit")
+        x.write_to_file(filename)
+        x1 = pyvips.Image.new_from_file(filename)
+        assert x1.get("resolution-unit") == "in"
+        assert x1.xres == 100
+        assert x1.yres == 200
+
         if sys.platform == "darwin":
             with open(TIF2_FILE, 'rb') as f:
                 buf = bytearray(f.read())
@@ -759,6 +953,13 @@ class TestForeign:
             z = y.hist_find(band=0)
             assert z(0, 0)[0] + z(255, 0)[0] == y.width * y.height
 
+        # metadata tile-width and tile-height should be correct
+        x = pyvips.Image.new_from_file(TIF_FILE)
+        buf = x.tiffsave_buffer(tile=True, tile_width=192, tile_height=224)
+        y = pyvips.Image.new_from_buffer(buf, "")
+        assert y.get("tile-width") == 192
+        assert y.get("tile-height") == 224
+
     @skip_if_no("tiffload")
     @pytest.mark.xfail(raises=AssertionError, reason="fails when libtiff was configured with --disable-old-jpeg")
     def test_tiff_ojpeg(self):
@@ -769,6 +970,8 @@ class TestForeign:
             assert im.height == 213
             assert im.bands == 4
             assert im.get("bits-per-sample") == 8
+            assert im.get("tile-width") == 240
+            assert im.get("tile-height") == 224
 
         self.file_loader("tiffload", TIF_OJPEG_TILE_FILE, tiff_ojpeg_tile_valid)
         self.buffer_loader("tiffload_buffer", TIF_OJPEG_TILE_FILE, tiff_ojpeg_tile_valid)
@@ -806,6 +1009,9 @@ class TestForeign:
 
         self.file_loader("magickload", BMP_FILE, bmp_valid)
         self.buffer_loader("magickload_buffer", BMP_FILE, bmp_valid)
+        source = pyvips.Source.new_from_file(BMP_FILE)
+        x = pyvips.Image.new_from_source(source, "")
+        bmp_valid(x)
 
         # we should have rgb or rgba for svg files ... different versions of
         # IM handle this differently. GM even gives 1 band.
@@ -877,10 +1083,11 @@ class TestForeign:
         assert im.width == 433
         assert im.height == 433
 
-
         # load should see metadata like eg. icc profiles
         im = pyvips.Image.magickload(JPEG_FILE)
         assert len(im.get("icc-profile-data")) == 564
+
+        im = pyvips.Image.magickload(JPEG_FILE)
 
     # added in 8.7
     @skip_if_no("magicksave")
@@ -941,6 +1148,15 @@ class TestForeign:
         b1 = im.webpsave_buffer(Q=10)
         b2 = im.webpsave_buffer(Q=90)
         assert len(b2) > len(b1)
+
+        # test exact mode
+        im = pyvips.Image.new_from_file(RGBA_FILE)
+        buf = im.webpsave_buffer(lossless=True, exact=True)
+        im2 = pyvips.Image.new_from_buffer(buf, "")
+        assert (im - im2).abs().max() == 0
+        buf = im.webpsave_buffer(lossless=True)
+        im2 = pyvips.Image.new_from_buffer(buf, "")
+        assert (im - im2).abs().max() != 0
 
         # try saving an image with an ICC profile and reading it back ... if we
         # can do it, our webp supports metadata load/save
@@ -1067,6 +1283,8 @@ class TestForeign:
             assert im.width == 2220
             assert im.height == 2967
             assert im.bands == 4
+            assert im.get("tile-width") == 240
+            assert im.get("tile-height") == 240
 
         self.file_loader("openslideload", OPENSLIDE_FILE, openslide_valid)
 
@@ -1095,6 +1313,46 @@ class TestForeign:
         x = pyvips.Image.new_from_file(PDF_FILE, dpi=144)
         assert abs(im.width * 2 - x.width) < 2
         assert abs(im.height * 2 - x.height) < 2
+
+        im = pyvips.Image.new_from_file(PDF_PAGE_BOX_FILE)
+        assert im.width == 709
+        assert im.height == 955
+        assert im.get("pdf-creator") == "Adobe InDesign 20.4 (Windows)"
+        assert im.get("pdf-producer") == "Adobe PDF Library 17.0"
+
+        pdfloadOp = pyvips.Operation.new_from_name("pdfload").get_description()
+
+        if "poppler" in pdfloadOp:
+            # only crop is implemented, ignore requested page box
+            im = pyvips.Image.new_from_file(PDF_FILE, page_box="art")
+            assert im.width == 1134
+            assert im.height == 680
+            im = pyvips.Image.new_from_file(PDF_PAGE_BOX_FILE, page_box="art")
+            assert im.width == 709
+            assert im.height == 955
+
+        if "pdfium" in pdfloadOp:
+            im = pyvips.Image.new_from_file(PDF_FILE, page_box="art")
+            assert im.width == 1121
+            assert im.height == 680
+            im = pyvips.Image.new_from_file(PDF_FILE, page_box="trim") # missing, will fallback to crop
+            assert im.width == 1134
+            assert im.height == 680
+            im = pyvips.Image.new_from_file(PDF_PAGE_BOX_FILE, page_box="media")
+            assert im.width == 822
+            assert im.height == 1069
+            im = pyvips.Image.new_from_file(PDF_PAGE_BOX_FILE, page_box="crop")
+            assert im.width == 709
+            assert im.height == 955
+            im = pyvips.Image.new_from_file(PDF_PAGE_BOX_FILE, page_box="bleed")
+            assert im.width == 652
+            assert im.height == 899
+            im = pyvips.Image.new_from_file(PDF_PAGE_BOX_FILE, page_box="trim")
+            assert im.width == 595
+            assert im.height == 842
+            im = pyvips.Image.new_from_file(PDF_PAGE_BOX_FILE, page_box="art")
+            assert im.width == 539
+            assert im.height == 785
 
     @skip_if_no("gifload")
     def test_gifload(self):
@@ -1255,6 +1513,9 @@ class TestForeign:
         im = pyvips.Image.new_from_file(SVG_FILE, stylesheet=b'path{stroke:#f00;stroke-width:1em;}')
         assert im.avg() > 5
 
+        with pytest.raises(pyvips.error.Error):
+            im = pyvips.Image.new_from_file(TRUNCATED_SVGZ_FILE)
+
     def test_csv(self):
         self.save_load("%s.csv", self.mono)
 
@@ -1294,15 +1555,15 @@ class TestForeign:
                 im = im.rad2float()
 
             assert_almost_equal_objects(im(10, 10),
-                                        [0.533, 0.564, 0.693],
-                                        threshold=0.01)
+                                        [13.3, 10.8, 9.5],
+                                        threshold=0.1)
 
-            assert_almost_equal_objects(im(1592, 855),
-                                        [1580, 1364, 1276],
-                                        threshold=0.01)
+            assert_almost_equal_objects(im(85, 59),
+                                        [4720, 4336, 4528],
+                                        threshold=1)
 
-            assert im.width == 1655
-            assert im.height == 1764
+            assert im.width == 141
+            assert im.height == 980
             assert im.bands == 3
 
         self.file_loader("radload", RAD_FILE, hdr_valid)
@@ -1403,9 +1664,35 @@ class TestForeign:
 
         # 256x256 tiles, no overlap
         assert os.path.exists(filename + "/ImageProperties.xml")
+        with open(filename + "/ImageProperties.xml", 'rb') as f:
+            buf = f.read()
+        assert buf == (b'<IMAGE_PROPERTIES WIDTH="290" HEIGHT="442" '
+                       b'NUMTILES="5" NUMIMAGES="1" VERSION="1.8" '
+                       b'TILESIZE="256" />\n')
         x = pyvips.Image.new_from_file(filename + "/TileGroup0/1-0-0.jpg")
         assert x.width == 256
         assert x.height == 256
+
+        # IIIF v2
+        im = pyvips.Image.black(3509, 2506, bands=3)
+        filename = temp_filename(self.tempdir, '')
+        im.dzsave(filename, layout="iiif")
+        assert os.path.exists(filename + "/info.json")
+        assert os.path.exists(filename + "/0,0,512,512/512,/0/default.jpg")
+        assert os.path.exists(filename + "/2560,2048,512,458/512,/0/default.jpg")
+        x = pyvips.Image.new_from_file(filename + "/full/439,/0/default.jpg")
+        assert x.width == 439
+        assert x.height == 314
+
+        # IIIF v3
+        filename = temp_filename(self.tempdir, '')
+        im.dzsave(filename, layout="iiif3")
+        assert os.path.exists(filename + "/info.json")
+        assert os.path.exists(filename + "/0,0,512,512/512,512/0/default.jpg")
+        assert os.path.exists(filename + "/2560,2048,512,458/512,458/0/default.jpg")
+        x = pyvips.Image.new_from_file(filename + "/full/439,314/0/default.jpg")
+        assert x.width == 439
+        assert x.height == 314
 
         # test zip output
         filename = temp_filename(self.tempdir, '.zip')
@@ -1550,6 +1837,11 @@ class TestForeign:
             assert y.get("exif-ifd0-XPComment").startswith("banana")
 
     @skip_if_no("heifsave")
+    def test_avifsave_tune(self):
+        buf = self.colour.heifsave_buffer(compression="av1", tune="ssim")
+        assert len(buf) > 10000
+
+    @skip_if_no("heifsave")
     @pytest.mark.xfail(raises=pyvips.error.Error, reason="requires libheif built with patent-encumbered HEVC dependencies")
     def test_heicsave_16_to_12(self):
         rgb16 = self.colour.colourspace("rgb16")
@@ -1599,6 +1891,8 @@ class TestForeign:
             assert im.height == 400
             assert im.bands == 3
             assert im.get("bits-per-sample") == 8
+            assert im.get("tile-width") == 800
+            assert im.get("tile-height") == 400
 
         self.file_loader("jp2kload", JP2K_FILE, jp2k_valid)
         self.buffer_loader("jp2kload_buffer", JP2K_FILE, jp2k_valid)
@@ -1642,6 +1936,16 @@ class TestForeign:
         b1 = self.colour.jp2ksave_buffer(subsample_mode="on")
         b2 = self.colour.jp2ksave_buffer(subsample_mode="off")
         assert len(b2) > len(b1)
+
+        # regression test for OOB read with odd dimensions and chroma
+        # subsampling, see https://github.com/libvips/libvips/pull/5020
+        im = pyvips.Image.black(22, 3, bands=3)
+        im.jp2ksave_buffer(subsample_mode="on")
+
+        # regression test for heap buffer overflow with chroma subsampling
+        # on non-RGB images, see https://github.com/libvips/libvips/pull/5030
+        im = pyvips.Image.black(32, 32, bands=1)
+        im.jp2ksave_buffer(subsample_mode="on")
 
         # enabling lossless should mean a bigger buffer
         b1 = self.colour.jp2ksave_buffer(lossless=False)
@@ -1705,6 +2009,12 @@ class TestForeign:
         lossy = self.colour.jxlsave_buffer()
         lossless = self.colour.jxlsave_buffer(lossless=True)
         assert len(lossy) < len(lossless) / 5
+
+        # bitdepth=8 should be saved as uchar
+        buf = rgb16.jxlsave_buffer(bitdepth=8)
+        im = pyvips.Image.jxlload_buffer(buf)
+        assert im.format == "uchar"
+        assert im.get("bits-per-sample") == 8
 
     @skip_if_no("gifload")
     @skip_if_no("gifsave")

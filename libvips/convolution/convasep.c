@@ -78,6 +78,7 @@
 #include <glib/gi18n-lib.h>
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <math.h>
@@ -186,10 +187,8 @@ vips_convasep_decompose(VipsConvasep *convasep)
 	max = 0;
 	min = 0;
 	for (x = 0; x < convasep->width; x++) {
-		if (coeff[x] > max)
-			max = coeff[x];
-		if (coeff[x] < min)
-			min = coeff[x];
+		max = VIPS_MAX(max, coeff[x]);
+		min = VIPS_MIN(min, coeff[x]);
 	}
 
 	/* The zero axis must fall on a layer boundary. Estimate the
@@ -200,7 +199,7 @@ vips_convasep_decompose(VipsConvasep *convasep)
 	layers_above = ceil(max / depth);
 	depth = max / layers_above;
 	layers_below = floor(min / depth);
-	layers = layers_above - layers_below;
+	layers = VIPS_CLIP(1, (int64_t) layers_above - layers_below, 1000);
 
 	VIPS_DEBUG_MSG("depth = %g, layers = %d\n", depth, layers);
 
@@ -303,9 +302,7 @@ vips_convasep_decompose(VipsConvasep *convasep)
 	for (z = 0; z < convasep->width; z++)
 		sum += coeff[z];
 
-	convasep->divisor = rint(sum * area / scale);
-	if (convasep->divisor == 0)
-		convasep->divisor = 1;
+	convasep->divisor = VIPS_MAX(1, rint(sum * area / scale));
 	convasep->rounding = (convasep->divisor + 1) / 2;
 	convasep->offset = offset;
 
@@ -346,8 +343,7 @@ typedef struct {
 	/* The sums for each line. int for integer types, double for floating
 	 * point types.
 	 */
-	int *isum;
-	double *dsum;
+	void *sum;
 
 	int last_stride; /* Avoid recalcing offsets, if we can */
 } VipsConvasepSeq;
@@ -362,8 +358,8 @@ vips_convasep_stop(void *vseq, void *a, void *b)
 	VIPS_UNREF(seq->ir);
 	VIPS_FREE(seq->start);
 	VIPS_FREE(seq->end);
-	VIPS_FREE(seq->isum);
-	VIPS_FREE(seq->dsum);
+	VIPS_FREE(seq->sum);
+	VIPS_FREE(seq);
 
 	return 0;
 }
@@ -378,7 +374,7 @@ vips_convasep_start(VipsImage *out, void *a, void *b)
 
 	VipsConvasepSeq *seq;
 
-	if (!(seq = VIPS_NEW(out, VipsConvasepSeq)))
+	if (!(seq = VIPS_NEW(NULL, VipsConvasepSeq)))
 		return NULL;
 
 	/* Init!
@@ -387,18 +383,17 @@ vips_convasep_start(VipsImage *out, void *a, void *b)
 	seq->ir = vips_region_new(in);
 	seq->start = VIPS_ARRAY(NULL, convasep->n_lines, int);
 	seq->end = VIPS_ARRAY(NULL, convasep->n_lines, int);
-	seq->isum = NULL;
-	seq->dsum = NULL;
+
 	if (vips_band_format_isint(out->BandFmt))
-		seq->isum = VIPS_ARRAY(NULL, convasep->n_lines, int);
+		seq->sum = VIPS_ARRAY(NULL, convasep->n_lines, int);
 	else
-		seq->dsum = VIPS_ARRAY(NULL, convasep->n_lines, double);
+		seq->sum = VIPS_ARRAY(NULL, convasep->n_lines, double);
 	seq->last_stride = -1;
 
 	if (!seq->ir ||
 		!seq->start ||
 		!seq->end ||
-		(!seq->isum && !seq->dsum)) {
+		!seq->sum) {
 		vips_convasep_stop(seq, in, convasep);
 		return NULL;
 	}
@@ -454,14 +449,14 @@ vips_convasep_start(VipsImage *out, void *a, void *b)
  * them separate for easy debugging.
  */
 
-#define HCONV_INT(TYPE, CLIP) \
+#define HCONV_INT(ACC, TYPE, CLIP) \
 	{ \
 		for (i = 0; i < bands; i++) { \
-			int *isum = seq->isum; \
+			ACC *isum = (ACC *) seq->sum; \
 \
 			TYPE *q; \
 			TYPE *p; \
-			int sum; \
+			int64_t sum; \
 \
 			p = i + (TYPE *) VIPS_REGION_ADDR(ir, r->left, r->top + y); \
 			q = i + (TYPE *) VIPS_REGION_ADDR(out_region, r->left, r->top + y); \
@@ -471,7 +466,7 @@ vips_convasep_start(VipsImage *out, void *a, void *b)
 				isum[z] = 0; \
 				for (x = seq->start[z]; x < seq->end[z]; x += istride) \
 					isum[z] += p[x]; \
-				sum += convasep->factor[z] * isum[z]; \
+				sum += (int64_t) convasep->factor[z] * isum[z]; \
 			} \
 \
 			/* Don't add offset ... we only want to do that once, do it on \
@@ -487,7 +482,7 @@ vips_convasep_start(VipsImage *out, void *a, void *b)
 				for (z = 0; z < n_lines; z++) { \
 					isum[z] += p[seq->end[z]]; \
 					isum[z] -= p[seq->start[z]]; \
-					sum += convasep->factor[z] * isum[z]; \
+					sum += (int64_t) convasep->factor[z] * isum[z]; \
 				} \
 				p += istride; \
 				sum = (sum + convasep->rounding) / convasep->divisor; \
@@ -501,7 +496,7 @@ vips_convasep_start(VipsImage *out, void *a, void *b)
 #define HCONV_FLOAT(TYPE) \
 	{ \
 		for (i = 0; i < bands; i++) { \
-			double *dsum = seq->dsum; \
+			double *dsum = (double *) seq->sum; \
 \
 			TYPE *q; \
 			TYPE *p; \
@@ -596,27 +591,27 @@ vips_convasep_generate_horizontal(VipsRegion *out_region,
 	for (y = 0; y < r->height; y++) {
 		switch (in->BandFmt) {
 		case VIPS_FORMAT_UCHAR:
-			HCONV_INT(unsigned char, CLIP_UCHAR);
+			HCONV_INT(unsigned int, unsigned char, CLIP_UCHAR);
 			break;
 
 		case VIPS_FORMAT_CHAR:
-			HCONV_INT(signed char, CLIP_CHAR);
+			HCONV_INT(signed int, signed char, CLIP_CHAR);
 			break;
 
 		case VIPS_FORMAT_USHORT:
-			HCONV_INT(unsigned short, CLIP_USHORT);
+			HCONV_INT(unsigned int, unsigned short, CLIP_USHORT);
 			break;
 
 		case VIPS_FORMAT_SHORT:
-			HCONV_INT(signed short, CLIP_SHORT);
+			HCONV_INT(signed int, signed short, CLIP_SHORT);
 			break;
 
 		case VIPS_FORMAT_UINT:
-			HCONV_INT(unsigned int, CLIP_NONE);
+			HCONV_INT(unsigned int, unsigned int, CLIP_NONE);
 			break;
 
 		case VIPS_FORMAT_INT:
-			HCONV_INT(signed int, CLIP_NONE);
+			HCONV_INT(signed int, signed int, CLIP_NONE);
 			break;
 
 		case VIPS_FORMAT_FLOAT:
@@ -637,14 +632,14 @@ vips_convasep_generate_horizontal(VipsRegion *out_region,
 	return 0;
 }
 
-#define VCONV_INT(TYPE, CLIP) \
+#define VCONV_INT(ACC, TYPE, CLIP) \
 	{ \
 		for (x = 0; x < sz; x++) { \
-			int *isum = seq->isum; \
+			ACC *isum = (ACC *) seq->sum; \
 \
 			TYPE *q; \
 			TYPE *p; \
-			int sum; \
+			int64_t sum; \
 \
 			p = x + (TYPE *) VIPS_REGION_ADDR(ir, r->left, r->top); \
 			q = x + (TYPE *) VIPS_REGION_ADDR(out_region, r->left, r->top); \
@@ -654,7 +649,7 @@ vips_convasep_generate_horizontal(VipsRegion *out_region,
 				isum[z] = 0; \
 				for (y = seq->start[z]; y < seq->end[z]; y += istride) \
 					isum[z] += p[y]; \
-				sum += convasep->factor[z] * isum[z]; \
+				sum += (int64_t) convasep->factor[z] * isum[z]; \
 			} \
 			sum = (sum + convasep->rounding) / convasep->divisor + \
 				convasep->offset; \
@@ -667,7 +662,7 @@ vips_convasep_generate_horizontal(VipsRegion *out_region,
 				for (z = 0; z < n_lines; z++) { \
 					isum[z] += p[seq->end[z]]; \
 					isum[z] -= p[seq->start[z]]; \
-					sum += convasep->factor[z] * isum[z]; \
+					sum += (int64_t) convasep->factor[z] * isum[z]; \
 				} \
 				p += istride; \
 				sum = (sum + convasep->rounding) / convasep->divisor + \
@@ -682,7 +677,7 @@ vips_convasep_generate_horizontal(VipsRegion *out_region,
 #define VCONV_FLOAT(TYPE) \
 	{ \
 		for (x = 0; x < sz; x++) { \
-			double *dsum = seq->dsum; \
+			double *dsum = (double *) seq->sum; \
 \
 			TYPE *q; \
 			TYPE *p; \
@@ -772,27 +767,27 @@ vips_convasep_generate_vertical(VipsRegion *out_region,
 
 	switch (in->BandFmt) {
 	case VIPS_FORMAT_UCHAR:
-		VCONV_INT(unsigned char, CLIP_UCHAR);
+		VCONV_INT(unsigned int, unsigned char, CLIP_UCHAR);
 		break;
 
 	case VIPS_FORMAT_CHAR:
-		VCONV_INT(signed char, CLIP_CHAR);
+		VCONV_INT(signed int, signed char, CLIP_CHAR);
 		break;
 
 	case VIPS_FORMAT_USHORT:
-		VCONV_INT(unsigned short, CLIP_USHORT);
+		VCONV_INT(unsigned int, unsigned short, CLIP_USHORT);
 		break;
 
 	case VIPS_FORMAT_SHORT:
-		VCONV_INT(signed short, CLIP_SHORT);
+		VCONV_INT(signed int, signed short, CLIP_SHORT);
 		break;
 
 	case VIPS_FORMAT_UINT:
-		VCONV_INT(unsigned int, CLIP_NONE);
+		VCONV_INT(unsigned int, unsigned int, CLIP_NONE);
 		break;
 
 	case VIPS_FORMAT_INT:
-		VCONV_INT(signed int, CLIP_NONE);
+		VCONV_INT(signed int, signed int, CLIP_NONE);
 		break;
 
 	case VIPS_FORMAT_FLOAT:

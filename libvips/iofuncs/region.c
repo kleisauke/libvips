@@ -1541,9 +1541,7 @@ vips_region_shrink_alpha(VipsRegion *from,
  * @method: method to use when generating target pixels
  *
  * Write the pixels @target in @to from the x2 larger area in @from.
- * Non-complex uncoded images and LABQ only. Images with alpha (see
- * [method@Image.hasalpha]) shrink with pixels scaled by alpha to avoid
- * fringing.
+ * Non-complex uncoded images and LABQ only.
  *
  * @method selects the method used to do the 2x2 shrink.
  *
@@ -1701,7 +1699,7 @@ vips_region_prepare(VipsRegion *reg, const VipsRect *r)
 	default:
 		vips_error("vips_region_prepare",
 			_("unable to input from a %s image"),
-			vips_enum_string(VIPS_TYPE_DEMAND_STYLE, im->dtype));
+			vips_enum_string(VIPS_TYPE_IMAGE_TYPE, im->dtype));
 		return -1;
 	}
 
@@ -1889,7 +1887,7 @@ vips_region_prepare_to(VipsRegion *reg,
 	default:
 		vips_error("vips_region_prepare_to",
 			_("unable to input from a %s image"),
-			vips_enum_nick(VIPS_TYPE_DEMAND_STYLE, im->dtype));
+			vips_enum_nick(VIPS_TYPE_IMAGE_TYPE, im->dtype));
 		return -1;
 	}
 

@@ -51,10 +51,10 @@
 #endif /*HAVE_CONFIG_H*/
 #include <glib/gi18n-lib.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdint>
+#include <cmath>
 
 #include <vips/vips.h>
 #include <vips/vector.h>
@@ -356,7 +356,10 @@ vips_reduceh_vector_gen(VipsRegion *out_region, void *seq,
 
 	s.left = r->left * reduceh->residual_hshrink - reduceh->hoffset;
 	s.top = r->top;
-	s.width = r->width * reduceh->residual_hshrink + reduceh->n_point;
+	/* Request one extra input pixel on the right so the Highway path can
+	 * safely process a full SIMD vector.
+	 */
+	s.width = (r->width + 1) * reduceh->residual_hshrink + reduceh->n_point;
 	s.height = r->height;
 	if (vips_region_prepare(ir, &s))
 		return -1;

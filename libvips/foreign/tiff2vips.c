@@ -609,19 +609,33 @@ rtiff_minimise_cb(VipsImage *image, Rtiff *rtiff)
 }
 
 static int
-rtiff_handler_error(TIFF *tiff, void* user_data,
+rtiff_handler_error(TIFF *tiff, void *user_data,
 	const char *module, const char *fmt, va_list ap)
 {
+	if (user_data) {
+		Rtiff *rtiff = (Rtiff *) user_data;
+		if (rtiff->fail_on >= VIPS_FAIL_ON_ERROR) {
+			rtiff->failed = TRUE;
+		}
+		else if (fmt) {
+			/* Inspect message for always-fatal errors.
+			 */
+			if (strncmp(fmt, "Cumulated memory", 16) == 0) {
+				rtiff->failed = TRUE;
+			}
+		}
+	}
+
 	vips_verror("tiff2vips", fmt, ap);
 	return 1;
 }
 
 static int
-rtiff_handler_warning(TIFF *tiff, void* user_data,
+rtiff_handler_warning(TIFF *tiff, void *user_data,
 	const char *module, const char *fmt, va_list ap)
 {
 	if (user_data) {
-		Rtiff *rtiff = (Rtiff*) user_data;
+		Rtiff *rtiff = (Rtiff *) user_data;
 		if (rtiff->fail_on >= VIPS_FAIL_ON_WARNING) {
 			rtiff->failed = TRUE;
 		}
@@ -1900,6 +1914,15 @@ rtiff_set_header(Rtiff *rtiff, VipsImage *out)
 		vips_image_set_string(out, VIPS_META_IMAGEDESCRIPTION,
 			rtiff->header.image_description);
 
+	/* Hint the tile dimensions to our users.
+	 */
+	if (rtiff->header.tiled) {
+		vips_image_set_int(out,
+			VIPS_META_TILE_WIDTH, rtiff->header.tile_width);
+		vips_image_set_int(out,
+			VIPS_META_TILE_HEIGHT, rtiff->header.tile_height);
+	}
+
 	if (get_resolution(rtiff->tiff, out))
 		return -1;
 
@@ -1915,9 +1938,8 @@ rtiff_set_header(Rtiff *rtiff, VipsImage *out)
 	 * outside the lock and THINSTRIP would prevent parallel tile decode.
 	 */
 	vips_image_pipelinev(out,
-		rtiff->header.tiled
-			? VIPS_DEMAND_STYLE_SMALLTILE
-			: VIPS_DEMAND_STYLE_THINSTRIP,
+		rtiff->header.tiled ?
+			VIPS_DEMAND_STYLE_SMALLTILE : VIPS_DEMAND_STYLE_THINSTRIP,
 		NULL);
 
 	return 0;
@@ -1949,7 +1971,7 @@ rtiff_seq_start(VipsImage *out, void *a, void *b)
 	Rtiff *rtiff = (Rtiff *) a;
 	RtiffSeq *seq;
 
-	if (!(seq = VIPS_NEW(out, RtiffSeq)))
+	if (!(seq = VIPS_NEW(NULL, RtiffSeq)))
 		return NULL;
 	seq->rtiff = rtiff;
 	if (!(seq->buf = vips_malloc(NULL, rtiff->header.tile_size)))
@@ -2124,7 +2146,13 @@ rtiff_decompress_jpeg_run(Rtiff *rtiff, j_decompress_ptr cinfo,
 		break;
 	}
 
+	/* bytes_per_pixel from photometric_interpretation must match the number
+	 * of components in the JPEG compressed tile.
+	 */
 	jpeg_calc_output_dimensions(cinfo);
+	if (cinfo->output_components != bytes_per_pixel)
+		return -1;
+
 	bytes_per_scanline = (size_t) cinfo->output_width * bytes_per_pixel;
 
 	/* Double-check tile dimensions.
@@ -2547,6 +2575,7 @@ rtiff_seq_stop(void *vseq, void *a, void *b)
 
 	VIPS_FREE(seq->buf);
 	VIPS_FREE(seq->compressed_buf);
+	VIPS_FREE(seq);
 
 	return 0;
 }

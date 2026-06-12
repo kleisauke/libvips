@@ -2,13 +2,33 @@
 
 option('deprecated',
   type: 'boolean',
-  value: true,
+  value: false,
   description: 'Build deprecated components')
 
 option('examples',
   type: 'boolean',
   value: true,
   description: 'Build example programs')
+
+option('man',
+  type: 'boolean',
+  value: true,
+  description: 'Build man pages')
+
+option('po',
+  type: 'boolean',
+  value: true,
+  description: 'Build gettext po files')
+
+option('tests',
+  type: 'boolean',
+  value: true,
+  description: 'Build tests')
+
+option('tools',
+  type: 'boolean',
+  value: true,
+  description: 'Build tools')
 
 option('cplusplus',
   type: 'boolean',
@@ -91,6 +111,11 @@ option('jpeg',
   type: 'feature',
   value: 'auto',
   description: 'Build with jpeg')
+
+option('uhdr',
+  type: 'feature',
+  value: 'auto',
+  description: 'Build with libuhdr')
 
 option('jpeg-xl',
   type: 'feature',
@@ -257,6 +282,11 @@ option('radiance',
   description: 'Build with radiance')
 
 # fuzzing options
+
+option('fuzz',
+  type: 'boolean',
+  value: false,
+  description: 'Build fuzz targets')
 
 option('fuzzing_engine',
     type: 'combo',

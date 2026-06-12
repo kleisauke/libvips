@@ -173,6 +173,8 @@ vips_invertlut_build_init(VipsInvertlut *lut)
 static int
 vips_invertlut_build_create(VipsInvertlut *lut)
 {
+	VipsObjectClass *class = VIPS_OBJECT_GET_CLASS(lut);
+
 	int bands = lut->mat->Xsize - 1;
 	int height = lut->mat->Ysize;
 
@@ -185,6 +187,11 @@ vips_invertlut_build_create(VipsInvertlut *lut)
 		 */
 		int first = lut->data[0][b + 1] * (lut->size - 1);
 		int last = lut->data[height - 1][b + 1] * (lut->size - 1);
+		if (first < 0 || first >= lut->size ||
+			last < 0 || last >= lut->size) {
+			vips_error(class->nickname, _("invalid input mask"));
+			return -1;
+		}
 
 		int k;
 
@@ -229,14 +236,19 @@ vips_invertlut_build_create(VipsInvertlut *lut)
 			if (j == -1)
 				j = 0;
 
-			/* Interpolate k as being between row data[j] and row
-			 * data[j + 1].
-			 */
-			irange = lut->data[j + 1][b + 1] - lut->data[j][b + 1];
-			orange = lut->data[j + 1][0] - lut->data[j][0];
+			if (height > 1) {
+				/* Interpolate k as being between row data[j] and row
+				 * data[j + 1].
+				 */
+				irange = lut->data[j + 1][b + 1] - lut->data[j][b + 1];
+				orange = lut->data[j + 1][0] - lut->data[j][0];
 
-			lut->buf[b + k * bands] = lut->data[j][0] +
-				orange * ((ki - lut->data[j][b + 1]) / irange);
+				lut->buf[b + k * bands] = lut->data[j][0] +
+					orange * ((ki - lut->data[j][b + 1]) / irange);
+			}
+			else {
+				lut->buf[b + k * bands] = lut->data[j][0];
+			}
 		}
 	}
 

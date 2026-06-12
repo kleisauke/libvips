@@ -139,7 +139,7 @@ typedef struct _VipsForeignLoadHeif {
 	 */
 	gboolean autorotate;
 
-	/* remove all denial of service limits.
+	/* Remove all denial of service limits.
 	 */
 	gboolean unlimited;
 
@@ -356,9 +356,14 @@ vips_foreign_load_heif_build(VipsObject *object)
 		heif_context_set_maximum_image_size_limit(heif->ctx,
 			heif->unlimited ? USHRT_MAX : 0x4000);
 #ifdef HAVE_HEIF_MAX_TOTAL_MEMORY
-		if (!heif->unlimited)
-			heif_context_get_security_limits(heif->ctx)
-				->max_total_memory = 2UL * 1024 * 1024 * 1024;
+		if (!heif->unlimited) {
+			heif_security_limits *limits =
+				heif_context_get_security_limits(heif->ctx);
+
+			limits->max_total_memory = 2L * 1024 * 1024 * 1024;
+			limits->max_memory_block_size = 1024 * 1024 * 1024;
+			limits->max_items = 16;
+		}
 #endif /* HAVE_HEIF_MAX_TOTAL_MEMORY */
 #ifdef HAVE_HEIF_GET_DISABLED_SECURITY_LIMITS
 		if (heif->unlimited)
@@ -386,6 +391,8 @@ static const char *heif_magic[] = {
 	"ftyphevm", /* Multiview sequence */
 	"ftyphevs", /* Scalable sequence */
 	"ftypmif1", /* Nokia alpha_ image */
+	"ftypmif2", /* mif1 plus rref and iscl boxes */
+	"ftypmif3", /* Low-overhead mini box */
 	"ftypmsf1", /* Nokia animation image */
 	"ftypavif"	/* AV1 image format */
 };
@@ -554,6 +561,7 @@ vips_foreign_load_heif_set_page(VipsForeignLoadHeif *heif,
 static int
 vips_foreign_load_heif_set_header(VipsForeignLoadHeif *heif, VipsImage *out)
 {
+	VipsObjectClass *class = VIPS_OBJECT_GET_CLASS(heif);
 	VipsForeignLoad *load = (VipsForeignLoad *) heif;
 
 	int bands;
@@ -614,6 +622,11 @@ vips_foreign_load_heif_set_header(VipsForeignLoadHeif *heif, VipsImage *out)
 
 		if (!length)
 			continue;
+		if (!heif->unlimited &&
+			length > 64 * 1024 * 1024) {
+			vips_error(class->nickname, "%s", _("metadata block too large"));
+			return -1;
+		}
 		if (!(data = VIPS_ARRAY(NULL, length, unsigned char)))
 			return -1;
 		error = heif_image_handle_get_metadata(heif->handle, id[i], data);
@@ -660,6 +673,8 @@ vips_foreign_load_heif_set_header(VipsForeignLoadHeif *heif, VipsImage *out)
 	 */
 	vips_autorot_remove_angle(out);
 
+	/* If both NCLX and ICC are present, ICC is returned.
+	 */
 	enum heif_color_profile_type profile_type =
 		heif_image_handle_get_color_profile_type(heif->handle);
 
@@ -716,8 +731,36 @@ vips_foreign_load_heif_set_header(VipsForeignLoadHeif *heif, VipsImage *out)
 		vips_image_set_blob(out, VIPS_META_ICC_NAME,
 			(VipsCallbackFn) vips_area_free_cb, data, length);
 	}
-	else if (profile_type == heif_color_profile_type_nclx) {
-		g_info("heifload: ignoring nclx profile");
+	/* Always try to fetch the NCLX profile, even when ICC is present.
+	 * CICP takes priority over ICC for colour interpretation.
+	 */
+	{
+		struct heif_color_profile_nclx *nclx = NULL;
+
+		error = heif_image_handle_get_nclx_color_profile(heif->handle, &nclx);
+		if (error.code == 0 && nclx) {
+#ifdef DEBUG
+			printf("\tnclx: %p\n", nclx);
+			printf("\tnclx->color_primaries: %d\n", nclx->color_primaries);
+			printf("\tnclx->transfer_characteristics: %d\n", nclx->transfer_characteristics);
+			printf("\tnclx->matrix_coefficients: %d\n", nclx->matrix_coefficients);
+			printf("\tnclx->full_range_flag: %d\n", nclx->full_range_flag);
+#endif
+
+			g_info("heifload: setting CICP from nclx");
+
+			vips_image_set_int(out, "cicp-colour-primaries",
+				nclx->color_primaries);
+			vips_image_set_int(out, "cicp-transfer-characteristics",
+				nclx->transfer_characteristics);
+			vips_image_set_int(out, "cicp-matrix-coefficients",
+				nclx->matrix_coefficients);
+			vips_image_set_int(out, "cicp-full-range-flag",
+				nclx->full_range_flag);
+		}
+
+		if (nclx)
+			heif_nclx_color_profile_free(nclx);
 	}
 
 	vips_image_set_int(out, "heif-primary", heif->primary_page);
@@ -1193,6 +1236,7 @@ static void
 vips_foreign_load_heif_init(VipsForeignLoadHeif *heif)
 {
 	heif->n = 1;
+	heif->unlimited = vips_unlimited_get();
 
 	heif->reader = VIPS_ARRAY(NULL, 1, struct heif_reader);
 

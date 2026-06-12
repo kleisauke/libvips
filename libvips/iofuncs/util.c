@@ -32,6 +32,10 @@
 #define DEBUG
  */
 
+/* Enable linux extensions like O_TMPFILE, if available.
+ */
+#define _GNU_SOURCE
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif /*HAVE_CONFIG_H*/
@@ -45,13 +49,13 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif /*HAVE_UNISTD_H*/
 #ifdef HAVE_IO_H
 #include <io.h>
 #endif /*HAVE_IO_H*/
-#include <fcntl.h>
 
 #include <vips/vips.h>
 
@@ -567,7 +571,7 @@ vips__write(int fd, const void *buf, size_t count)
 /* Set the create date on a file. On Windows, the create date may be copied
  * over from an existing file of the same name, unless you reset it.
  *
- * See https://blogs.msdn.microsoft.com/oldnewthing/20050715-14/?p=34923
+ * See https://devblogs.microsoft.com/oldnewthing/20050715-14/?p=34923
  */
 void
 vips__set_create_time(int fd)
@@ -599,8 +603,14 @@ vips__open(const char *filename, int flags, int mode)
 
 	/* Various bad things happen if you accidentally open a directory as a
 	 * file.
+	 *
+	 * Except in O_TMPFILE mode, when you have to.
 	 */
-	if (g_file_test(filename, G_FILE_TEST_IS_DIR)) {
+	if (
+#ifdef O_TMPFILE
+		!(flags & O_TMPFILE) &&
+#endif /*O_TMPFILE*/
+		g_file_test(filename, G_FILE_TEST_IS_DIR)) {
 		errno = EISDIR;
 		return -1;
 	}
@@ -1583,7 +1593,7 @@ vips_amiMSBfirst(void)
 #endif
 }
 
-/* Return the tmp dir. On Windows, GetTempPath() will also check the values of
+/* Return the tmp dir. On Windows, GetTempPathW() will also check the values of
  * TMP, TEMP and USERPROFILE.
  */
 static const char *
@@ -1593,14 +1603,22 @@ vips__temp_dir(void)
 
 	if (!(tmpd = g_getenv("TMPDIR"))) {
 #ifdef G_OS_WIN32
-		static gboolean done = FALSE;
-		static char buf[256];
+		static char *tmp_dir = NULL;
 
-		if (!done) {
-			if (!GetTempPath(256, buf))
-				strcpy(buf, "C:\\temp");
+		if (tmp_dir == NULL) {
+			char *dir = NULL;
+			wchar_t wdir[MAX_PATH];
+
+			if (GetTempPathW(G_N_ELEMENTS(wdir), wdir))
+				dir = g_utf16_to_utf8(wdir, -1, NULL, NULL, NULL);
+
+			if (dir == NULL)
+				dir = g_strdup("C:\\temp");
+
+			tmp_dir = g_steal_pointer(&dir);
 		}
-		tmpd = buf;
+
+		tmpd = tmp_dir;
 #else  /*!G_OS_WIN32*/
 		tmpd = "/tmp";
 #endif /*!G_OS_WIN32*/
@@ -1765,9 +1783,15 @@ vips_enum_from_nick(const char *domain, GType type, const char *nick)
 	if ((enum_value = g_enum_get_value_by_nick(genum, nick)))
 		return enum_value->value;
 
-	/* -1 since we always have a "last" member.
+	/* Compat for "last" members. Assumes all enums define a `_LAST` value;
+	 * behaviour is undefined otherwise. Note that there could be potential
+	 * gaps in enum values (e.g. VipsInterpretation), so we cannot return
+	 * `genum->n_values` directly.
 	 */
-	for (i = 0; i < genum->n_values - 1; i++) {
+	if (nick && g_str_equal(nick, "last"))
+		return genum->values[genum->n_values - 1].value + 1;
+
+	for (i = 0; i < genum->n_values; i++) {
 		if (i > 0)
 			vips_buf_appends(&buf, ", ");
 		vips_buf_appends(&buf, genum->values[i].value_nick);
@@ -1824,9 +1848,11 @@ vips_flags_from_nick(const char *domain, GType type, const char *nick)
  * lowest-numbered one for @sub. @buf is @len bytes in size.
  *
  * If there are no %ns, use the first %s.
+ *
+ * Set @c to the %s char we search for.
  */
 int
-vips__substitute(char *buf, size_t len, char *sub)
+vips__substitutec(char *buf, size_t len, char c, char *sub)
 {
 	size_t buflen = strlen(buf);
 	size_t sublen = strlen(sub);
@@ -1848,7 +1874,7 @@ vips__substitute(char *buf, size_t len, char *sub)
 
 			for (q = p + 1; g_ascii_isdigit(*q); q++)
 				;
-			if (q[0] == 's') {
+			if (q[0] == c) {
 				int n;
 
 				n = atoi(p + 1);
@@ -1863,7 +1889,7 @@ vips__substitute(char *buf, size_t len, char *sub)
 
 	if (!sub_start)
 		for (p = buf; (p = strchr(p, '%')); p++)
-			if (p[1] == 's') {
+			if (p[1] == c) {
 				sub_start = p;
 				sub_end = p + 2;
 				break;
@@ -1884,6 +1910,12 @@ vips__substitute(char *buf, size_t len, char *sub)
 	memmove(buf + before_len, sub, sublen);
 
 	return 0;
+}
+
+int
+vips__substitute(char *buf, size_t len, char *sub)
+{
+	return vips__substitutec(buf, len, 's', sub);
 }
 
 /* Absoluteize a path. Free the result with g_free().

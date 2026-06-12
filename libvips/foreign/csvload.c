@@ -121,6 +121,13 @@ vips_foreign_load_csv_build(VipsObject *object)
 	int i;
 	const char *p;
 
+	if (!g_str_is_ascii(csv->whitespace) ||
+		!g_str_is_ascii(csv->separator)) {
+		vips_error("csvload", "%s",
+			_("whitespace and separator must be ASCII"));
+		return -1;
+	}
+
 	if (!(csv->sbuf = vips_sbuf_new_from_source(csv->source)))
 		return -1;
 
@@ -244,7 +251,8 @@ vips_foreign_load_csv_fetch_item(VipsForeignLoadCsv *csv)
 
 	/* We've (probably) read the end of item character. Push it back.
 	 */
-	if (ch == '\n' ||
+	if (ch == -1 ||
+		ch == '\n' ||
 		csv->whitemap[ch] ||
 		csv->sepmap[ch])
 		VIPS_SBUF_UNGETC(csv->sbuf);
@@ -324,6 +332,7 @@ vips_foreign_load_csv_header(VipsForeignLoad *load)
 	int ch;
 	int width;
 	int height;
+	const int max_width = VIPS_MAX_COORD;
 
 	/* Rewind.
 	 */
@@ -348,7 +357,12 @@ vips_foreign_load_csv_header(VipsForeignLoad *load)
 		csv->colno += 1;
 		ch = vips_foreign_load_csv_read_double(csv, &value);
 	} while (ch != '\n' &&
-		ch != EOF);
+		ch != EOF &&
+		csv->colno <= max_width);
+	if (csv->colno > max_width) {
+		vips_error(class->nickname, "%s", _("image too large"));
+		return -1;
+	}
 	width = csv->colno;
 
 	if (!(csv->linebuf = VIPS_ARRAY(NULL, width, double)))
@@ -549,10 +563,9 @@ vips_foreign_load_csv_file_build(VipsObject *object)
 	VipsForeignLoadCsv *csv = (VipsForeignLoadCsv *) object;
 	VipsForeignLoadCsvFile *file = (VipsForeignLoadCsvFile *) object;
 
-	if (file->filename)
-		if (!(csv->source =
-					vips_source_new_from_file(file->filename)))
-			return -1;
+	if (file->filename &&
+		!(csv->source = vips_source_new_from_file(file->filename)))
+		return -1;
 
 	return VIPS_OBJECT_CLASS(vips_foreign_load_csv_file_parent_class)
 		->build(object);

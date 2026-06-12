@@ -53,8 +53,11 @@
 #include <stdlib.h>
 
 #include <vips/vips.h>
+#include <vips/internal.h>
 
 #include "pconversion.h"
+
+
 
 typedef struct _VipsSubsample {
 	VipsConversion parent_instance;
@@ -93,18 +96,19 @@ vips_subsample_line_gen(VipsRegion *out_region,
 	int owidth = VIPS_MAX_WIDTH / subsample->xfac;
 
 	VipsRect s;
-	int x, y;
-	int z, k;
 
 	/* Loop down the region.
 	 */
-	for (y = to; y < bo; y++) {
+	for (int y = to; y < bo; y++) {
 		VipsPel *q = VIPS_REGION_ADDR(out_region, le, y);
 		VipsPel *p;
 
-		/* Loop across the region, in owidth sized pieces.
+		if (vips__worker_exit())
+			return 0;
+
+		/* Loop across the region, in owidth-sized pieces.
 		 */
-		for (x = le; x < ri; x += owidth) {
+		for (int x = le; x < ri; x += owidth) {
 			/* How many pixels do we make this time?
 			 */
 			int ow = VIPS_MIN(owidth, ri - x);
@@ -126,9 +130,8 @@ vips_subsample_line_gen(VipsRegion *out_region,
 			/* Append new pels to output.
 			 */
 			p = VIPS_REGION_ADDR(ir, s.left, s.top);
-			for (z = 0; z < ow; z++) {
-				for (k = 0; k < ps; k++)
-					q[k] = p[k];
+			for (int z = 0; z < ow; z++) {
+				VIPS_MEMCPY(q, p, ps);
 
 				q += ps;
 				p += ps * subsample->xfac;
@@ -165,11 +168,10 @@ vips_subsample_point_gen(VipsRegion *out_region,
 		VipsPel *q = VIPS_REGION_ADDR(out_region, le, y);
 		VipsPel *p;
 
-		/* Loop across the region, in owidth sized pieces.
-		 */
+		if (vips__worker_exit())
+			return 0;
+
 		for (x = le; x < ri; x++) {
-			/* Ask for input.
-			 */
 			s.left = x * subsample->xfac;
 			s.top = y * subsample->yfac;
 			s.width = 1;
@@ -177,8 +179,6 @@ vips_subsample_point_gen(VipsRegion *out_region,
 			if (vips_region_prepare(ir, &s))
 				return -1;
 
-			/* Append new pels to output.
-			 */
 			p = VIPS_REGION_ADDR(ir, s.left, s.top);
 			for (k = 0; k < ps; k++)
 				q[k] = p[k];

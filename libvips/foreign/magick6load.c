@@ -440,8 +440,7 @@ vips_foreign_load_magick_parse(VipsForeignLoadMagick *magick,
 #endif /*UseHDRI*/
 
 	if (out->BandFmt == -1) {
-		vips_error(class->nickname,
-			_("unsupported bit depth %d"), depth);
+		vips_error(class->nickname, _("unsupported bit depth %d"), depth);
 		return -1;
 	}
 
@@ -496,8 +495,69 @@ vips_foreign_load_magick_parse(VipsForeignLoadMagick *magick,
 	// revise the interpretation if it seems crazy
 	out->Type = vips_image_guess_interpretation(out);
 
-	if (vips_image_pipelinev(out, VIPS_DEMAND_STYLE_SMALLTILE, NULL))
-		return -1;
+	magick->n_pages = GetImageListLength(image);
+#ifdef DEBUG
+	printf("image has %d pages\n", magick->n_pages);
+#endif /*DEBUG*/
+
+	/* Do we have a set of equal-sized frames? Append them.
+
+		FIXME ... there must be an attribute somewhere from dicom read
+		which says this is a volumetric image
+
+	 */
+	magick->n_frames = 0;
+
+	for (p = image; p; (p = GetNextImageInList(p))) {
+		int p_depth =
+			GetImageChannelDepth(p, AllChannels, &p->exception);
+
+		if (p->columns != (unsigned int) out->Xsize ||
+			p->rows != (unsigned int) out->Ysize ||
+			magick_get_bands(p) != out->Bands ||
+			p_depth != depth) {
+#ifdef DEBUG
+			printf("frame %d differs\n", read->n_frames);
+			printf("%zdx%zd, %d bands\n",
+				p->columns, p->rows, get_bands(p));
+			printf("first frame is %dx%d, %d bands\n",
+				im->Xsize, im->Ysize, im->Bands);
+#endif /*DEBUG*/
+
+			break;
+		}
+
+		magick->n_frames += 1;
+	}
+	if (p)
+		/* Nope ... just do the first image in the list.
+		 */
+		magick->n_frames = 1;
+
+#ifdef DEBUG
+	printf("will read %d frames\n", magick->n_frames);
+#endif /*DEBUG*/
+
+	if (magick->n != -1)
+		magick->n_frames = VIPS_MIN(magick->n_frames, magick->n);
+
+	/* So we can finally set the height.
+	 */
+	if (magick->n_frames > 1) {
+		vips_image_set_int(out, VIPS_META_PAGE_HEIGHT, out->Ysize);
+
+		guint64 total_y;
+		if (!g_uint64_checked_mul(&total_y,
+			(guint64)out->Ysize, magick->n_frames) ||
+			total_y > VIPS_MAX_COORD) {
+			vips_error(class->nickname, "%s", _("image dimensions overflow"));
+			return -1;
+		}
+
+		out->Ysize = total_y;
+	}
+
+	vips_image_set_int(out, VIPS_META_N_PAGES, magick->n_pages);
 
 #ifdef HAVE_RESETIMAGEPROPERTYITERATOR
 	{
@@ -556,63 +616,7 @@ vips_foreign_load_magick_parse(VipsForeignLoadMagick *magick,
 	/* Something like "BMP".
 	 */
 	if (strlen(magick->image->magick) > 0)
-		vips_image_set_string(out, "magick-format",
-			magick->image->magick);
-
-	magick->n_pages = GetImageListLength(image);
-#ifdef DEBUG
-	printf("image has %d pages\n", magick->n_pages);
-#endif /*DEBUG*/
-
-	/* Do we have a set of equal-sized frames? Append them.
-
-		FIXME ... there must be an attribute somewhere from dicom read
-		which says this is a volumetric image
-
-	 */
-	magick->n_frames = 0;
-
-	for (p = image; p; (p = GetNextImageInList(p))) {
-		int p_depth =
-			GetImageChannelDepth(p, AllChannels, &p->exception);
-
-		if (p->columns != (unsigned int) out->Xsize ||
-			p->rows != (unsigned int) out->Ysize ||
-			magick_get_bands(p) != out->Bands ||
-			p_depth != depth) {
-#ifdef DEBUG
-			printf("frame %d differs\n", read->n_frames);
-			printf("%zdx%zd, %d bands\n",
-				p->columns, p->rows, get_bands(p));
-			printf("first frame is %dx%d, %d bands\n",
-				im->Xsize, im->Ysize, im->Bands);
-#endif /*DEBUG*/
-
-			break;
-		}
-
-		magick->n_frames += 1;
-	}
-	if (p)
-		/* Nope ... just do the first image in the list.
-		 */
-		magick->n_frames = 1;
-
-#ifdef DEBUG
-	printf("will read %d frames\n", magick->n_frames);
-#endif /*DEBUG*/
-
-	if (magick->n != -1)
-		magick->n_frames = VIPS_MIN(magick->n_frames, magick->n);
-
-	/* So we can finally set the height.
-	 */
-	if (magick->n_frames > 1) {
-		vips_image_set_int(out, VIPS_META_PAGE_HEIGHT, out->Ysize);
-		out->Ysize *= magick->n_frames;
-	}
-
-	vips_image_set_int(out, VIPS_META_N_PAGES, magick->n_pages);
+		vips_image_set_string(out, "magick-format", magick->image->magick);
 
 	vips_image_set_int(out, VIPS_META_ORIENTATION,
 		VIPS_CLIP(1, image->orientation, 8));
@@ -871,7 +875,8 @@ vips_foreign_load_magick_load(VipsForeignLoadMagick *magick)
 	printf("vips_foreign_load_magick_load: %p\n", magick);
 #endif /*DEBUG*/
 
-	if (vips_foreign_load_magick_parse(magick, magick->image, load->out))
+	if (vips_foreign_load_magick_parse(magick, magick->image, load->out) ||
+		vips_image_pipelinev(load->out, VIPS_DEMAND_STYLE_SMALLTILE, NULL))
 		return -1;
 
 	/* Record frame pointers.
@@ -1071,6 +1076,113 @@ vips_foreign_load_magick_buffer_class_init(
 
 static void
 vips_foreign_load_magick_buffer_init(VipsForeignLoadMagickBuffer *buffer)
+{
+}
+
+typedef struct _VipsForeignLoadMagickSource {
+	VipsForeignLoadMagick parent_object;
+
+	VipsSource *source;
+
+} VipsForeignLoadMagickSource;
+
+typedef VipsForeignLoadMagickClass VipsForeignLoadMagickSourceClass;
+
+G_DEFINE_TYPE(VipsForeignLoadMagickSource, vips_foreign_load_magick_source,
+	vips_foreign_load_magick_get_type());
+
+static gboolean
+vips_foreign_load_magick_source_is_a_source(VipsSource *source)
+{
+	const unsigned char *p;
+
+	// just use the first 100 bytes, we don't want to force too much into
+	// memory
+	return (p = vips_source_sniff(source, 100)) &&
+		magick_ismagick(p, 100);
+}
+
+/* Unfortunately, libMagick does not support header-only reads very well. See
+ *
+ * http://www.imagemagick.org/discourse-server/viewtopic.php?f=1&t=20017
+ *
+ * Test especially with BMP, GIF, TGA. So we are forced to read the entire
+ * image in the @header() method.
+ */
+static int
+vips_foreign_load_magick_source_header(VipsForeignLoad *load)
+{
+	VipsForeignLoadMagick *magick = (VipsForeignLoadMagick *) load;
+	VipsForeignLoadMagickSource *magick_source =
+		(VipsForeignLoadMagickSource *) load;
+	VipsObjectClass *class = VIPS_OBJECT_GET_CLASS(magick);
+
+#ifdef DEBUG
+	printf("vips_foreign_load_magick_source_header: %p\n", load);
+#endif /*DEBUG*/
+
+	if (vips_source_is_file(magick_source->source)) {
+		const char *filename =
+			vips_connection_filename(VIPS_CONNECTION(magick_source->source));
+
+		g_strlcpy(magick->image_info->filename, filename, MaxPathExtent);
+		magick_sniff_file(magick->image_info, filename);
+		magick->image = ReadImage(magick->image_info, magick->exception);
+	}
+	else {
+		size_t length;
+		const void *data;
+
+		if (!(data = vips_source_map(magick_source->source, &length)))
+			return -1;
+		magick_sniff_bytes(magick->image_info, data, length);
+		magick->image = BlobToImage(magick->image_info,
+			data, length, magick->exception);
+	}
+
+	/* It would be great if we could PingImage and just read the header,
+	 * but sadly many IM coders do not support ping. The critical one for
+	 * us is DICOM. TGA also has issues.
+	 */
+	if (!magick->image) {
+		magick_vips_error(class->nickname, magick->exception);
+		vips_error(class->nickname, _("unable to read source"));
+		return -1;
+	}
+
+	if (vips_foreign_load_magick_load(magick))
+		return -1;
+
+	return 0;
+}
+
+static void
+vips_foreign_load_magick_source_class_init(
+	VipsForeignLoadMagickSourceClass *class)
+{
+	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
+	VipsObjectClass *object_class = (VipsObjectClass *) class;
+	VipsForeignLoadClass *load_class = (VipsForeignLoadClass *) class;
+
+	gobject_class->set_property = vips_object_set_property;
+	gobject_class->get_property = vips_object_get_property;
+
+	object_class->nickname = "magickload_source";
+	object_class->description = _("load source with ImageMagick");
+
+	load_class->is_a_source = vips_foreign_load_magick_source_is_a_source;
+	load_class->header = vips_foreign_load_magick_source_header;
+
+	VIPS_ARG_OBJECT(class, "source", 1,
+		_("Source"),
+		_("Source to load from"),
+		VIPS_ARGUMENT_REQUIRED_INPUT,
+		G_STRUCT_OFFSET(VipsForeignLoadMagickSource, source),
+		VIPS_TYPE_SOURCE);
+}
+
+static void
+vips_foreign_load_magick_source_init(VipsForeignLoadMagickSource *source)
 {
 }
 
