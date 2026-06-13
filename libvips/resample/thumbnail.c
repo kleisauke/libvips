@@ -838,9 +838,7 @@ vips_thumbnail_build(VipsObject *object)
 		vshrink = (double) in->Ysize / target_image_height;
 	}
 
-	/* vips_premultiply() makes a float image, so when we unpremultiply
-	 * below we must cast back to the original format. Use NOTSET to
-	 * mean no pre/unmultiply.
+	/* Use NOTSET to mean no pre/unmultiply.
 	 */
 	unpremultiplied_format = VIPS_FORMAT_NOTSET;
 
@@ -853,7 +851,11 @@ vips_thumbnail_build(VipsObject *object)
 		g_info("premultiplying alpha");
 		unpremultiplied_format = in->BandFmt;
 
-		if (vips_premultiply(in, &t[3], NULL))
+		if (vips_premultiply(in, &t[3],
+				/* Fast path: stay in uchar.
+				 */
+				"uchar", in->BandFmt == VIPS_FORMAT_UCHAR,
+				NULL))
 			return -1;
 		in = t[3];
 	}
@@ -883,10 +885,20 @@ vips_thumbnail_build(VipsObject *object)
 
 	if (unpremultiplied_format != VIPS_FORMAT_NOTSET) {
 		g_info("unpremultiplying alpha");
-		if (vips_unpremultiply(in, &t[7], NULL) ||
-			vips_cast(t[7], &t[8], unpremultiplied_format, NULL))
-			return -1;
-		in = t[8];
+
+		if (unpremultiplied_format == VIPS_FORMAT_UCHAR) {
+			/* Fast path: unpremultiply in UCHAR directly.
+			 */
+			if (vips_unpremultiply(in, &t[7], "uchar", TRUE, NULL))
+				return -1;
+			in = t[7];
+		}
+		else {
+			if (vips_unpremultiply(in, &t[7], NULL) ||
+				vips_cast(t[7], &t[8], unpremultiplied_format, NULL))
+				return -1;
+			in = t[8];
+		}
 	}
 
 	/* Only set page-height if we have more than one page, or this could
