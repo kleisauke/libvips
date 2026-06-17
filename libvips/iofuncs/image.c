@@ -49,6 +49,10 @@
 
  */
 
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+#error "CIFuzz sanity check: TSan suppressions removal is being applied"
+#endif
+
 /*
 #define VIPS_DEBUG
  */
