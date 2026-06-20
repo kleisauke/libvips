@@ -1697,8 +1697,7 @@ traverse_find_required_priority(void *data, void *a, void *b)
 }
 
 static int
-traverse_sort(VipsArgumentClass *class1, VipsArgumentClass *class2,
-	void *user_data)
+traverse_sort(VipsArgumentClass *class1, VipsArgumentClass *class2)
 {
 	return class1->priority - class2->priority;
 }

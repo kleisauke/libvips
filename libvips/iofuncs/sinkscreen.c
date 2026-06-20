@@ -491,7 +491,7 @@ vips__render_shutdown(void)
 }
 
 static int
-render_dirty_sort(Render *a, Render *b, void *user_data)
+render_dirty_sort(Render *a, Render *b)
 {
 	return b->priority - a->priority;
 }

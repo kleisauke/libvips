@@ -8,7 +8,7 @@
 #include <vips/vips.h>
 
 static int
-operation_compare(VipsObjectClass *a, VipsObjectClass *b, void *user_data)
+operation_compare(VipsObjectClass *a, VipsObjectClass *b)
 {
 	return g_strcmp0(a->nickname, b->nickname);
 }
