@@ -449,7 +449,7 @@ file_add_class(VipsForeignClass *class, GSList **files)
 }
 
 static gint
-file_compare(VipsForeignClass *a, VipsForeignClass *b, void *user_data)
+file_compare(VipsForeignClass *a, VipsForeignClass *b)
 {
 	return b->priority - a->priority;
 }
