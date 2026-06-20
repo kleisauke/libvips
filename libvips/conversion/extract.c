@@ -229,14 +229,6 @@ vips_extract_area_class_init(VipsExtractAreaClass *class)
 		1, VIPS_MAX_COORD, 1);
 }
 
-#ifdef __EMSCRIPTEN__
-static void
-vips_crop_init_adapter(VipsExtractArea *extract, void *dummy)
-{
-	vips_extract_area_init(extract);
-}
-#endif
-
 static void
 vips_extract_area_init(VipsExtractArea *extract)
 {
@@ -288,11 +280,7 @@ vips_crop_get_type(void)
 			sizeof(VipsExtractAreaClass),
 			(GClassInitFunc) (void (*)(void)) vips_extract_area_class_intern_init,
 			sizeof(VipsExtractArea),
-#ifdef __EMSCRIPTEN__
-			(GInstanceInitFunc) vips_crop_init_adapter,
-#else
 			(GInstanceInitFunc) (void (*)(void)) vips_extract_area_init,
-#endif
 			(GTypeFlags) 0);
 
 		g_once_init_leave(&gtype_id, new_type);
