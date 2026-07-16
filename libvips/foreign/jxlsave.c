@@ -868,6 +868,12 @@ vips_foreign_save_jxl_save_page(VipsForeignSaveJxl *jxl,
 
 	JxlEncoderFrameSettings *frame_settings =
 		JxlEncoderFrameSettingsCreate(jxl->encoder, NULL);
+	if (!frame_settings) {
+		VIPS_FREEF(g_hash_table_destroy, jxl->tile_hash);
+		vips_foreign_save_jxl_error(jxl, "JxlEncoderFrameSettingsCreate");
+		return -1;
+	}
+
 	if (JxlEncoderFrameSettingsSetOption(frame_settings,
 			JXL_ENC_FRAME_SETTING_DECODING_SPEED, jxl->tier) != JXL_ENC_SUCCESS ||
 		JxlEncoderSetFrameDistance(frame_settings,
@@ -1156,8 +1162,15 @@ vips_foreign_save_jxl_build(VipsObject *object)
 	if (jxl->distance == 0)
 		jxl->lossless = TRUE;
 
-	jxl->runner = JxlThreadParallelRunnerCreate(NULL, vips_concurrency_get());
-	jxl->encoder = JxlEncoderCreate(NULL);
+	if (!(jxl->runner = JxlThreadParallelRunnerCreate(NULL,
+			vips_concurrency_get()))) {
+		vips_foreign_save_jxl_error(jxl, "JxlThreadParallelRunnerCreate");
+		return -1;
+	}
+	if (!(jxl->encoder = JxlEncoderCreate(NULL))) {
+		vips_foreign_save_jxl_error(jxl, "JxlEncoderCreate");
+		return -1;
+	}
 
 	if (JxlEncoderSetParallelRunner(jxl->encoder,
 			JxlThreadParallelRunner, jxl->runner)) {

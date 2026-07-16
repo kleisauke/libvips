@@ -202,6 +202,8 @@ vips__tiff_openin_source(VipsSource *source, VipsTiffErrorHandler error_fn,
 
 #ifdef HAVE_TIFF_OPEN_OPTIONS
 	TIFFOpenOptions *opts = TIFFOpenOptionsAlloc();
+	if (!opts)
+		return NULL;
 	TIFFOpenOptionsSetErrorHandlerExtR(opts, error_fn, user_data);
 	TIFFOpenOptionsSetWarningHandlerExtR(opts, warning_fn, user_data);
 #ifdef HAVE_TIFF_OPEN_OPTIONS_SET_MAX_CUMULATED_MEM_ALLOC
@@ -330,6 +332,8 @@ vips__tiff_openout_target(VipsTarget *target, gboolean bigtiff,
 
 #ifdef HAVE_TIFF_OPEN_OPTIONS
 	TIFFOpenOptions *opts = TIFFOpenOptionsAlloc();
+	if (!opts)
+		return NULL;
 	TIFFOpenOptionsSetErrorHandlerExtR(opts, error_fn, user_data);
 	TIFFOpenOptionsSetWarningHandlerExtR(opts, warning_fn, user_data);
 	if (!(tiff = TIFFClientOpenExt("target output", mode,

@@ -108,6 +108,10 @@ vips__quantise_image_quantize_fixed(VipsQuantiseImage *const input_image,
 		return err;
 
 	palette = liq_get_palette(result);
+	if (!palette) {
+		liq_result_destroy(result);
+		return LIQ_OUT_OF_MEMORY;
+	}
 
 	/* Now, we need a fake 1 pixel image that will be quantized on the
 	 * next step. Its pixel color doesn't matter since we'll add all the

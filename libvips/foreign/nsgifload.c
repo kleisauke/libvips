@@ -373,6 +373,9 @@ vips_foreign_load_nsgif_header(VipsForeignLoad *load)
 
 	VIPS_DEBUG_MSG("vips_foreign_load_nsgif_header:\n");
 
+	if (!gif->anim)
+		return -1;
+
 	/* Map the whole source into memory.
 	 */
 	if (!(data = vips_source_map(gif->source, &size)))

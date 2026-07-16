@@ -93,6 +93,7 @@
 /* Has to be before VIPS to avoid nameclashes.
  */
 #include <lcms2.h>
+#include <lcms2_plugin.h>
 
 #include <vips/vips.h>
 
@@ -186,6 +187,57 @@ icc_error(cmsContext context, cmsUInt32Number code, const char *text)
 {
 	vips_error("VipsIcc", "%s", text);
 }
+
+/* Allocation from lcms.
+ */
+
+/* Keep this limit in line with lcms, which defaults to a maximum allocation
+ * size of 512 MiB.
+ */
+#define MAX_MEMORY_FOR_ALLOC ((cmsUInt32Number) (1024U * 1024U * 512U))
+
+static void *
+icc_malloc_cb(cmsContext context, cmsUInt32Number size)
+{
+	if (size == 0 || size > MAX_MEMORY_FOR_ALLOC)
+		return NULL;
+
+	return g_malloc(size);
+}
+
+static void *
+icc_malloc0_cb(cmsContext context, cmsUInt32Number size)
+{
+	if (size == 0 || size > MAX_MEMORY_FOR_ALLOC)
+		return NULL;
+
+	return g_malloc0(size);
+}
+
+static void *
+icc_realloc_cb(cmsContext context, void *ptr, cmsUInt32Number size)
+{
+	if (size > MAX_MEMORY_FOR_ALLOC)
+		return NULL;
+
+	return g_realloc(ptr, size);
+}
+
+static void
+icc_free_cb(cmsContext context, void *ptr)
+{
+	g_free(ptr);
+}
+
+static cmsPluginMemHandler lcms_mem_handler = {
+	{ cmsPluginMagicNumber, 2060, cmsPluginMemHandlerSig, NULL },
+	icc_malloc_cb,
+	icc_free_cb,
+	icc_realloc_cb,
+	icc_malloc0_cb,
+	NULL,
+	NULL
+};
 
 static void
 vips_icc_dispose(GObject *gobject)
@@ -786,6 +838,7 @@ vips_icc_class_init(VipsIccClass *class)
 		G_STRUCT_OFFSET(VipsIcc, black_point_compensation),
 		FALSE);
 
+	cmsPlugin(&lcms_mem_handler);
 	cmsSetLogErrorHandler(icc_error);
 }
 

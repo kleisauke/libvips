@@ -441,7 +441,7 @@ if matio_dep.found()
 endif
 
 # lcms ... refuse to use lcms1
-lcms_dep = dependency('lcms2', required: get_option('lcms'))
+lcms_dep = dependency('lcms2', version: '>=2.6', required: get_option('lcms'))
 if lcms_dep.found()
     external_deps += lcms_dep
     cfg_var.set('HAVE_LCMS2', true)
