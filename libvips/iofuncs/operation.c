@@ -673,7 +673,7 @@ vips_operation_class_init(VipsOperationClass *class)
 	VIPS_ARG_BOXED(class, "error", 1,
 		_("Error"),
 		_("Output error"),
-		VIPS_ARGUMENT_OPTIONAL_OUTPUT,
+		VIPS_ARGUMENT_OPTIONAL_OUTPUT | VIPS_ARGUMENT_SET_ALWAYS,
 		G_STRUCT_OFFSET(VipsOperation, error),
 		G_TYPE_ERROR);
 
@@ -890,7 +890,8 @@ vips_operation_get_valist_required(VipsOperation *operation, va_list ap)
 }
 
 static int
-vips_operation_get_valist_optional(VipsOperation *operation, va_list ap)
+vips_operation_get_valist_optional(VipsOperation *operation, va_list ap, 
+	gboolean error_only)
 {
 	char *name;
 
@@ -925,7 +926,8 @@ vips_operation_get_valist_optional(VipsOperation *operation, va_list ap)
 
 		/* If the dest pointer is NULL, skip the read.
 		 */
-		if (arg) {
+		if (arg &&
+			error_only == (G_PARAM_SPEC_VALUE_TYPE(pspec) == G_TYPE_ERROR)) {
 			g_object_get(G_OBJECT(operation),
 				g_param_spec_get_name(pspec), arg,
 				NULL);
@@ -985,17 +987,18 @@ vips_call_required_optional(VipsOperation **operation,
 
 	/* Build from cache.
 	 */
-	if (vips_cache_operation_buildp(operation))
+	if (vips_cache_operation_buildp(operation)) {
+		/* The operation failed, so only write the error output.
+		 */
+		vips_operation_get_valist_optional(*operation, optional, TRUE);
+
 		return -1;
+	}
 
 	/* Walk args again, writing output.
 	 */
-	va_copy(a, required);
-	va_copy(b, optional);
 	result = vips_operation_get_valist_required(*operation, required) ||
-		vips_operation_get_valist_optional(*operation, optional);
-	va_end(a);
-	va_end(b);
+		vips_operation_get_valist_optional(*operation, optional, FALSE);
 
 	return result;
 }
