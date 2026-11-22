@@ -1,7 +1,7 @@
 /*
  * compile with:
  *
- *      g++ -g -Wall block.cpp `pkg-config vips-cpp --cflags --libs`
+ *      g++ -g -Wall error.cpp `pkg-config vips-cpp --cflags --libs`
  *
  */
 
@@ -19,13 +19,11 @@ main(int argc, char **argv)
 	if (VIPS_INIT(argv[0]))
 		vips_error_exit(nullptr);
 
-	vips_operation_block_set("VipsThumbnail", true);
-
 	try {
 		VImage::thumbnail("/dev/null", 800);
 	}
 	catch (const VError &e) {
-		std::cerr << e.what() << std::endl;
+		std::cerr << "Unable to thumbnail: " << e.what() << std::endl;
 	}
 
 	return 0;
