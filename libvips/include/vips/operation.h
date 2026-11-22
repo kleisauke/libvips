@@ -77,9 +77,9 @@ struct _VipsOperation {
 	guint hash;
 	gboolean found_hash;
 
-	/* Pixels calculated ... handy for measuring over-calculation.
+	/* Error reported by this operation, if any.
 	 */
-	int pixels;
+	GError *error;
 };
 
 typedef struct _VipsOperationClass {
@@ -102,6 +102,27 @@ typedef struct _VipsOperationClass {
 
 VIPS_API
 GType vips_operation_get_type(void);
+
+/**
+ * G_OPERATION_ERROR:
+ *
+ * Error domain for [class@Operation]. Errors in this domain will
+ * be from the [enum@OperationError] enumeration.
+ */
+#define VIPS_OPERATION_ERROR (vips_operation_error_quark())
+
+/**
+ * VipsOperationError:
+ * @VIPS_OPERATION_ERROR_FAILED: generic error condition for when an operation fails
+ *
+ * Error codes returned by operations.
+ */
+typedef enum {
+	VIPS_OPERATION_ERROR_FAILED
+} VipsOperationError;
+
+VIPS_API
+GQuark vips_operation_error_quark(void);
 
 VIPS_API
 VipsOperationFlags vips_operation_get_flags(VipsOperation *operation);

@@ -221,6 +221,8 @@ static guint vips_operation_signals[SIG_LAST] = { 0 };
 
 G_DEFINE_ABSTRACT_TYPE(VipsOperation, vips_operation, VIPS_TYPE_OBJECT);
 
+G_DEFINE_QUARK(vips-operation-error-quark, vips_operation_error);
+
 static void
 vips_operation_finalize(GObject *gobject)
 {
@@ -228,8 +230,7 @@ vips_operation_finalize(GObject *gobject)
 
 	VIPS_DEBUG_MSG("vips_operation_finalize: %p\n", gobject);
 
-	if (operation->pixels)
-		g_info(_("%d pixels calculated"), operation->pixels);
+	g_clear_error(&operation->error);
 
 	G_OBJECT_CLASS(vips_operation_parent_class)->finalize(gobject);
 }
@@ -588,6 +589,7 @@ static int
 vips_operation_build(VipsObject *object)
 {
 	VipsOperationClass *class = VIPS_OPERATION_GET_CLASS(object);
+	VipsOperation *operation = VIPS_OPERATION(object);
 
 #ifdef VIPS_DEBUG
 	printf("vips_operation_build: ");
@@ -596,8 +598,11 @@ vips_operation_build(VipsObject *object)
 #endif /*VIPS_DEBUG*/
 
 	if (class->flags & VIPS_OPERATION_BLOCKED) {
-		vips_error(VIPS_OBJECT_CLASS(class)->nickname,
-			"%s", _("operation is blocked"));
+		g_set_error(&operation->error,
+			VIPS_OPERATION_ERROR,
+			VIPS_OPERATION_ERROR_FAILED,
+			"%s",
+			_("operation is blocked"));
 		return -1;
 	}
 
@@ -652,6 +657,8 @@ vips_operation_class_init(VipsOperationClass *class)
 
 	gobject_class->finalize = vips_operation_finalize;
 	gobject_class->dispose = vips_operation_dispose;
+	gobject_class->set_property = vips_object_set_property;
+	gobject_class->get_property = vips_object_get_property;
 
 	vobject_class->build = vips_operation_build;
 	vobject_class->summary_class = vips_operation_summary_class;
@@ -662,6 +669,13 @@ vips_operation_class_init(VipsOperationClass *class)
 
 	class->usage = vips_operation_usage;
 	class->get_flags = vips_operation_real_get_flags;
+
+	VIPS_ARG_BOXED(class, "error", 1,
+		_("Error"),
+		_("Output error"),
+		VIPS_ARGUMENT_OPTIONAL_OUTPUT,
+		G_STRUCT_OFFSET(VipsOperation, error),
+		G_TYPE_ERROR);
 
 	vips_operation_signals[SIG_INVALIDATE] = g_signal_new("invalidate",
 		G_TYPE_FROM_CLASS(class),

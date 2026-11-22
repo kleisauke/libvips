@@ -1413,14 +1413,20 @@ static int
 vips_thumbnail_file_get_info(VipsThumbnail *thumbnail)
 {
 	VipsThumbnailFile *file = (VipsThumbnailFile *) thumbnail;
+	VipsOperation *operation = VIPS_OPERATION(thumbnail);
 
 	VipsImage *image;
+	GError *error = NULL;
 
 	g_info("thumbnailing %s", file->filename);
 
-	if (!(thumbnail->loader = vips_foreign_find_load(file->filename)) ||
-		!(image = vips_image_new_from_file(file->filename, NULL)))
+	if (!(thumbnail->loader = vips_foreign_find_load_full(file->filename, &error)) ||
+		!(image = vips_image_new_from_file(file->filename,
+			"error", &error,
+			NULL))) {
+		g_propagate_error(&operation->error, error);
 		return -1;
+	}
 
 	vips_thumbnail_read_header(thumbnail, image);
 

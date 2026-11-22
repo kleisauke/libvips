@@ -274,6 +274,8 @@ GType vips_foreign_load_get_type(void);
 VIPS_API
 const char *vips_foreign_find_load(const char *filename);
 VIPS_API
+const char *vips_foreign_find_load_full(const char *filename, GError **error);
+VIPS_API
 const char *vips_foreign_find_load_buffer(const void *data, size_t size);
 VIPS_API
 const char *vips_foreign_find_load_source(VipsSource *source);

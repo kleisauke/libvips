@@ -591,8 +591,9 @@ vips_foreign_find_load_sub(VipsForeignLoadClass *load_class,
 }
 
 /**
- * vips_foreign_find_load:
+ * vips_foreign_find_load_full:
  * @filename: file to find a loader for
+ * @error: [type@GLib.Error] for error reporting, or `NULL` to ignore
  *
  * Searches for an operation you could use to load @filename. Any trailing
  * options on @filename are stripped and ignored.
@@ -603,7 +604,7 @@ vips_foreign_find_load_sub(VipsForeignLoadClass *load_class,
  * Returns: the name of an operation on success, `NULL` on error
  */
 const char *
-vips_foreign_find_load(const char *name)
+vips_foreign_find_load_full(const char *name, GError **error)
 {
 	char filename[VIPS_PATH_MAX];
 	char option_string[VIPS_PATH_MAX];
@@ -614,13 +615,19 @@ vips_foreign_find_load(const char *name)
 	/* Very common, so make a better error message for this case.
 	 */
 	if (!vips_existsf("%s", filename)) {
-		vips_error("VipsForeignLoad",
-			_("file \"%s\" does not exist"), name);
+		g_set_error(error,
+			VIPS_OPERATION_ERROR,
+			VIPS_OPERATION_ERROR_FAILED,
+			_("file \"%s\" does not exist"),
+			name);
 		return NULL;
 	}
 	if (vips_isdirf("%s", filename)) {
-		vips_error("VipsForeignLoad",
-			_("\"%s\" is a directory"), name);
+		g_set_error(error,
+			VIPS_OPERATION_ERROR,
+			VIPS_OPERATION_ERROR_FAILED,
+			_("\"%s\" is a directory"),
+			name);
 		return NULL;
 	}
 
@@ -628,8 +635,11 @@ vips_foreign_find_load(const char *name)
 			  "VipsForeignLoad",
 			  (VipsSListMap2Fn) vips_foreign_find_load_sub,
 			  (void *) filename, NULL))) {
-		vips_error("VipsForeignLoad",
-			_("\"%s\" is not a known file format"), name);
+		g_set_error(error,
+			VIPS_OPERATION_ERROR,
+			VIPS_OPERATION_ERROR_FAILED,
+			_("\"%s\" is not a known file format"),
+			name);
 		return NULL;
 	}
 
@@ -639,6 +649,28 @@ vips_foreign_find_load(const char *name)
 #endif /*DEBUG*/
 
 	return G_OBJECT_CLASS_NAME(load_class);
+}
+
+/**
+ * vips_foreign_find_load:
+ * @filename: file to find a loader for
+ *
+ * A thin wrapper function around [func@Foreign.find_load_full].
+ *
+ * Returns: the name of an operation on success, `NULL` on error
+ */
+const char *
+vips_foreign_find_load(const char *name)
+{
+	GError *error = NULL;
+	const char *loader;
+
+	if (!(loader = vips_foreign_find_load_full(name, &error))) {
+		vips_error("VipsForeignLoad", "%s", error->message);
+		g_clear_error(&error);
+	}
+
+	return loader;
 }
 
 /* Kept for compat with earlier version of the vip8 API. Use
