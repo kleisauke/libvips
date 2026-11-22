@@ -590,7 +590,7 @@ public:
 	inplace()
 	{
 		if (vips_image_inplace(this->get_image()))
-			throw(VError());
+			throw VError();
 	}
 
 	/**
@@ -725,7 +725,7 @@ public:
 		int value;
 
 		if (vips_image_get_int(this->get_image(), field, &value))
-			throw(VError());
+			throw VError();
 
 		return value;
 	}
@@ -741,7 +741,7 @@ public:
 	{
 		if (vips_image_get_array_int(this->get_image(),
 				field, out, n))
-			throw(VError());
+			throw VError();
 	}
 
 	/**
@@ -757,7 +757,7 @@ public:
 
 		if (vips_image_get_array_int(this->get_image(),
 				field, &array, &length))
-			throw(VError());
+			throw VError();
 
 		std::vector<int> vector(array, array + length);
 
@@ -775,7 +775,7 @@ public:
 	{
 		if (vips_image_get_array_double(this->get_image(),
 				field, out, n))
-			throw(VError());
+			throw VError();
 	}
 
 	/**
@@ -791,7 +791,7 @@ public:
 
 		if (vips_image_get_array_double(this->get_image(),
 				field, &array, &length))
-			throw(VError());
+			throw VError();
 
 		std::vector<double> vector(array, array + length);
 
@@ -809,7 +809,7 @@ public:
 		double value;
 
 		if (vips_image_get_double(this->get_image(), field, &value))
-			throw(VError());
+			throw VError();
 
 		return value;
 	}
@@ -826,7 +826,7 @@ public:
 		const char *value;
 
 		if (vips_image_get_string(this->get_image(), field, &value))
-			throw(VError());
+			throw VError();
 
 		return value;
 	}
@@ -844,7 +844,7 @@ public:
 
 		if (vips_image_get_blob(this->get_image(), field,
 				&value, length))
-			throw(VError());
+			throw VError();
 
 		return value;
 	}
@@ -902,7 +902,7 @@ public:
 		VipsImage *image;
 
 		if (!(image = vips_image_new_temp_file(file_format)))
-			throw(VError());
+			throw VError();
 
 		return VImage(image);
 	}
@@ -960,7 +960,7 @@ public:
 
 		if (!(image = vips_image_new_from_memory(data, size,
 				  width, height, bands, format)))
-			throw(VError());
+			throw VError();
 
 		return VImage(image);
 	}
@@ -978,7 +978,7 @@ public:
 
 		if (!(image = vips_image_new_from_memory_copy(data, size,
 				  width, height, bands, format)))
-			throw(VError());
+			throw VError();
 
 		return VImage(image);
 	}
@@ -1012,7 +1012,7 @@ public:
 
 		if (!(image = vips_image_new_matrix_from_array(width, height,
 				  array, size)))
-			throw(VError());
+			throw VError();
 
 		return VImage(image);
 	}
@@ -1035,7 +1035,7 @@ public:
 
 		if (!(image = vips_image_new_from_image(this->get_image(),
 				  &pixel[0], static_cast<int>(pixel.size()))))
-			throw(VError());
+			throw VError();
 
 		return VImage(image);
 	}
@@ -1068,7 +1068,7 @@ public:
 		VipsImage *image;
 
 		if (!(image = vips_image_copy_memory(this->get_image())))
-			throw(VError());
+			throw VError();
 
 		return VImage(image);
 	}
@@ -1121,7 +1121,7 @@ public:
 
 		if (!(result = vips_image_write_to_memory(this->get_image(),
 				  size)))
-			throw(VError());
+			throw VError();
 
 		return result;
 	}

@@ -515,7 +515,7 @@ VImage::call_option_string(const char *operation_name,
 
 	if (!(operation = vips_operation_new(operation_name))) {
 		delete options;
-		throw(VError());
+		throw VError();
 	}
 
 	/* Set str options before vargs options, so the user can't
@@ -526,7 +526,7 @@ VImage::call_option_string(const char *operation_name,
 		vips_object_unref_outputs(VIPS_OBJECT(operation));
 		g_object_unref(operation);
 		delete options;
-		throw(VError());
+		throw VError();
 	}
 
 	if (options)
@@ -538,7 +538,7 @@ VImage::call_option_string(const char *operation_name,
 		vips_object_unref_outputs(VIPS_OBJECT(operation));
 		g_object_unref(operation);
 		delete options;
-		throw(VError());
+		throw VError();
 	}
 
 	/* Walk args again, writing output.
@@ -600,7 +600,7 @@ VImage::new_from_buffer(const void *buf, size_t len, const char *option_string,
 
 	if (!(operation_name = vips_foreign_find_load_buffer(buf, len))) {
 		delete options;
-		throw(VError());
+		throw VError();
 	}
 
 	/* We don't take a copy of the data or free it.
@@ -634,7 +634,7 @@ VImage::new_from_source(VSource source, const char *option_string,
 	if (!(operation_name = vips_foreign_find_load_source(
 			  source.get_source()))) {
 		delete options;
-		throw(VError());
+		throw VError();
 	}
 
 	options = (options ? options : VImage::option())
@@ -654,7 +654,7 @@ VImage::new_from_memory_steal(const void *data, size_t size,
 
 	if (!(image = vips_image_new_from_memory(data, size,
 			  width, height, bands, format)))
-		throw(VError());
+		throw VError();
 
 	g_signal_connect(image, "postclose",
 		G_CALLBACK(vips_image_free_buffer), const_cast<void *>(data));
