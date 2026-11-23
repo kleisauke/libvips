@@ -667,7 +667,7 @@ vips_foreign_find_load(const char *name)
 
 	if (!(loader = vips_foreign_find_load_full(name, &error))) {
 		vips_error("VipsForeignLoad", "%s", error->message);
-		g_clear_error(&error);
+		g_error_free(error);
 	}
 
 	return loader;
