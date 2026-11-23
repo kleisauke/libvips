@@ -593,7 +593,7 @@ vips_foreign_find_load_sub(VipsForeignLoadClass *load_class,
 /**
  * vips_foreign_find_load_full:
  * @filename: file to find a loader for
- * @error: [type@GLib.Error] for error reporting, or `NULL` to ignore
+ * @error: [struct@GLib.Error] for error reporting, or `NULL` to ignore
  *
  * Searches for an operation you could use to load @filename. Any trailing
  * options on @filename are stripped and ignored.

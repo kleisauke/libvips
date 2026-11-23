@@ -104,7 +104,7 @@ VIPS_API
 GType vips_operation_get_type(void);
 
 /**
- * G_OPERATION_ERROR:
+ * VIPS_OPERATION_ERROR:
  *
  * Error domain for [class@Operation]. Errors in this domain will
  * be from the [enum@OperationError] enumeration.
