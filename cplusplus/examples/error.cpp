@@ -5,13 +5,8 @@
  *
  */
 
-#define DEBUG
-
 #include <vips/vips8>
 #include <iostream>
-
-
-using namespace vips;
 
 int
 main(int argc, char **argv)
@@ -20,9 +15,9 @@ main(int argc, char **argv)
 		vips_error_exit(nullptr);
 
 	try {
-		VImage::thumbnail("/dev/null", 800);
+		vips::VImage::thumbnail("/dev/null", 800);
 	}
-	catch (const VError &e) {
+	catch (const vips::VError &e) {
 		std::cerr << "Unable to thumbnail: " << e.what() << std::endl;
 	}
 
