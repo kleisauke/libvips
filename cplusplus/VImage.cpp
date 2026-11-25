@@ -504,30 +504,6 @@ VOption::get_operation(VipsOperation *operation)
 		}
 }
 
-/**
- * Helper class to copy the libvips error buffer into a std::string.
- */
-class VErrorBuffer {
-public:
-	VErrorBuffer() : buffer(vips_error_buffer_copy()) {}
-
-	VErrorBuffer(const VErrorBuffer &) = delete;
-	VErrorBuffer &operator=(const VErrorBuffer &) = delete;
-
-	~VErrorBuffer() noexcept
-	{
-		g_free(buffer);
-	}
-
-	operator std::string() const
-	{
-		return buffer;
-	}
-
-private:
-	char *buffer;
-};
-
 void
 VImage::call_option_string(const char *operation_name,
 	const char *option_string, VOption *options)
@@ -562,13 +538,17 @@ VImage::call_option_string(const char *operation_name,
 		std::string error_message;
 		if (operation->error)
 			error_message = operation->error->message;
-		else
-			error_message = VErrorBuffer();
 
 		vips_object_unref_outputs(VIPS_OBJECT(operation));
 		g_object_unref(operation);
 		delete options;
-		throw VError(error_message);
+
+		/* Prefer operation-specific errors over the global log.
+		 */
+		if (!error_message.empty())
+			throw VError(error_message);
+
+		throw VError();
 	}
 
 	/* Walk args again, writing output.
