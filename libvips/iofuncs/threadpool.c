@@ -653,6 +653,23 @@ vips_threadpool_run(VipsImage *im,
 	pool->progress = progress;
 	pool->a = a;
 
+#if 1
+	/* No threads: run a single worker inline on the calling thread.
+	 */
+	{
+		VipsWorker worker = { .pool = pool };
+
+		g_private_set(&worker_key, &worker);
+
+		do {
+			result = vips_worker_work_unit(&worker);
+		} while (!result);
+
+		VIPS_FREEF(g_object_unref, worker.state);
+		g_private_set(&worker_key, NULL);
+		n_working = 1;
+	}
+#else
 	/* Start with half of the max number of threads, then let it drift up
 	 * and down with load.
 	 */
@@ -694,6 +711,7 @@ vips_threadpool_run(VipsImage *im,
 			n_working += 1;
 		}
 	}
+#endif
 
 	/* This will block until the last worker completes.
 	 */

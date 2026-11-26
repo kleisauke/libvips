@@ -246,6 +246,7 @@ wbuffer_new(Write *write)
 	 */
 	vips__region_no_ownership(wbuffer->region);
 
+#if 0
 	/* Make this last (picks up parts of wbuffer on startup).
 	 */
 	if (vips_thread_execute("wbuffer", wbuffer_write_thread, wbuffer)) {
@@ -254,6 +255,7 @@ wbuffer_new(Write *write)
 	}
 
 	wbuffer->running = TRUE;
+#endif
 
 	return wbuffer;
 }
@@ -275,9 +277,17 @@ wbuffer_flush(Write *write)
 			return -1;
 	}
 
+#if 1
+	/* No threads: write this buffer now on the calling thread.
+	 */
+	vips_semaphore_downn(&write->buf->nwrite, 0);
+	wbuffer_write(write->buf);
+	vips_semaphore_up(&write->buf->done);
+#else
 	/* Set the background writer going for this buffer.
 	 */
 	vips_semaphore_up(&write->buf->go);
+#endif
 
 	return 0;
 }
