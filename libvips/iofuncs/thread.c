@@ -87,7 +87,13 @@ static GPrivate is_vips_thread_key;
 gboolean
 vips_thread_isvips(void)
 {
+#if 1
+	/* No threads: the calling thread runs every worker.
+	 */
+	return TRUE;
+#else
 	return g_private_get(&is_vips_thread_key) != NULL;
+#endif
 }
 
 typedef struct {

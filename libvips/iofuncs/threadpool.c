@@ -655,8 +655,10 @@ vips_threadpool_run(VipsImage *im,
 
 #if 1
 	/* No threads: run a single worker inline on the calling thread.
+	 * Pipelines started by this worker run nested inside it.
 	 */
 	{
+		VipsWorker *outer = (VipsWorker *) g_private_get(&worker_key);
 		VipsWorker worker = { .pool = pool };
 
 		g_private_set(&worker_key, &worker);
@@ -666,8 +668,14 @@ vips_threadpool_run(VipsImage *im,
 		} while (!result);
 
 		VIPS_FREEF(g_object_unref, worker.state);
-		g_private_set(&worker_key, NULL);
+		g_private_set(&worker_key, outer);
 		n_working = 1;
+
+		/* Free the buffer cache like a worker thread does after each
+		 * task, once the outermost pipeline is done with it.
+		 */
+		if (!outer)
+			vips_thread_shutdown();
 	}
 #else
 	/* Start with half of the max number of threads, then let it drift up
